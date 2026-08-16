@@ -1,225 +1,204 @@
-// Copyright 2008, Google Inc.
-// All rights reserved.
-//
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
-//
-//     * Redistributions of source code must retain the above copyright
-// notice, this list of conditions and the following disclaimer.
-//     * Redistributions in binary form must reproduce the above
-// copyright notice, this list of conditions and the following disclaimer
-// in the documentation and/or other materials provided with the
-// distribution.
-//     * Neither the name of Google Inc. nor the names of its
-// contributors may be used to endorse or promote products derived from
-// this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+module;
+#include "gmock/gmock-actions-macros.h"
+#include "gmock/gmock-cardinalities-macros.h"
+#include "gmock/gmock-function-mocker-macros.h"
+#include "gmock/gmock-macros.h"
+#include "gmock/gmock-matchers-macros.h"
+#include "gmock/gmock-more-actions-macros.h"
+#include "gmock/gmock-more-matchers-macros.h"
+#include "gmock/gmock-nice-strict-macros.h"
+#include "gmock/gmock-spec-builders-macros.h"
+#include "gmock/internal/gmock-internal-utils-macros.h"
+#include "gmock/internal/gmock-port-macros.h"
+#include "gmock/internal/gmock-pp-macros.h"
 
-#include "gmock/gmock.h"
+export module gmock;
+import gmock.umbrella;
+import gmock.gmock_actions;
+import gmock.gmock_cardinalities;
+import gmock.gmock_function_mocker;
+import gmock.gmock_matchers;
+import gmock.gmock_more_actions;
+import gmock.gmock_more_matchers;
+import gmock.gmock_nice_strict;
+import gmock.gmock_spec_builders;
+import gmock.internal.gmock_internal_utils;
+import gmock.internal.gmock_port;
+import gmock.internal.gmock_pp;
+import std.compat;
 
-#include <string>
-
-#include "gmock/internal/gmock-port.h"
-
-GMOCK_DEFINE_bool_(catch_leaked_mocks, true,
-                   "true if and only if Google Mock should report leaked "
-                   "mock objects as failures.");
-
-GMOCK_DEFINE_string_(verbose, testing::internal::kWarningVerbosity,
-                     "Controls how verbose Google Mock's output is."
-                     "  Valid values:\n"
-                     "  info    - prints all messages.\n"
-                     "  warning - prints warnings and errors.\n"
-                     "  error   - prints errors only.");
-
-GMOCK_DEFINE_int32_(default_mock_behavior, 1,
-                    "Controls the default behavior of mocks."
-                    "  Valid values:\n"
-                    "  0 - by default, mocks act as NiceMocks.\n"
-                    "  1 - by default, mocks act as NaggyMocks.\n"
-                    "  2 - by default, mocks act as StrictMocks.");
-
+export extern "C++" {
+namespace proto2 {
+}
 namespace testing {
-namespace internal {
-
-// Parses a string as a command line flag.  The string should have the
-// format "--gmock_flag=value".  When def_optional is true, the
-// "=value" part can be omitted.
-//
-// Returns the value of the flag, or NULL if the parsing failed.
-static const char* ParseGoogleMockFlagValue(const char* str,
-                                            const char* flag_name,
-                                            bool def_optional) {
-  // str and flag must not be NULL.
-  if (str == nullptr || flag_name == nullptr) return nullptr;
-
-  // The flag must start with "--gmock_".
-  const std::string flag_name_str = std::string("--gmock_") + flag_name;
-  const size_t flag_name_len = flag_name_str.length();
-  if (strncmp(str, flag_name_str.c_str(), flag_name_len) != 0) return nullptr;
-
-  // Skips the flag name.
-  const char* flag_end = str + flag_name_len;
-
-  // When def_optional is true, it's OK to not have a "=value" part.
-  if (def_optional && (flag_end[0] == '\0')) {
-    return flag_end;
+  using ::testing::A;
+  extern "C++" using ::testing::Action;
+  using ::testing::ActionInterface;
+  using ::testing::AllArgs;
+  using ::testing::AllOf;
+  using ::testing::AllOfArray;
+  using ::testing::An;
+  extern "C++" using ::testing::AnyNumber;
+  using ::testing::AnyOf;
+  using ::testing::AnyOfArray;
+  using ::testing::AnyWith;
+  using ::testing::Args;
+  using ::testing::Assign;
+  extern "C++" using ::testing::AtLeast;
+  extern "C++" using ::testing::AtMost;
+  using ::testing::BeginEndDistanceIs;
+  extern "C++" using ::testing::Between;
+  using ::testing::ByMove;
+  using ::testing::ByRef;
+  using ::testing::Cardinality;
+  using ::testing::CardinalityInterface;
+  using ::testing::Const;
+  using ::testing::ContainerEq;
+  using ::testing::Contains;
+  using ::testing::ContainsSubsequence;
+  using ::testing::DefaultValue;
+  using ::testing::DeleteArg;
+  using ::testing::DescribeMatcher;
+  using ::testing::DistanceFrom;
+  using ::testing::DoAll;
+  using ::testing::DoDefault;
+  using ::testing::DoubleEq;
+  using ::testing::DoubleNear;
+  using ::testing::Each;
+  using ::testing::ElementsAre;
+  using ::testing::ElementsAreArray;
+  using ::testing::EndsWith;
+  using ::testing::Eq;
+  extern "C++" using ::testing::Exactly;
+  using ::testing::Expectation;
+  using ::testing::ExpectationSet;
+  using ::testing::ExplainMatchResult;
+  using ::testing::FLAGS_gmock_catch_leaked_mocks;
+  using ::testing::FLAGS_gmock_default_mock_behavior;
+  using ::testing::FLAGS_gmock_verbose;
+  using ::testing::Field;
+  using ::testing::FloatEq;
+  using ::testing::FloatNear;
+  using ::testing::FunctionMocker;
+  using ::testing::Ge;
+  using ::testing::Gt;
+  using ::testing::HasSubstr;
+  using ::testing::IgnoreResult;
+  using ::testing::InSequence;
+  extern "C++" using ::testing::InitGoogleMock;
+  using ::testing::Invoke;
+  using ::testing::InvokeArgument;
+  using ::testing::InvokeWithoutArgs;
+  using ::testing::IsEmpty;
+  using ::testing::IsFalse;
+  using ::testing::IsFalseMatcher;
+  using ::testing::IsNan;
+  using ::testing::IsNull;
+  using ::testing::IsSubsetOf;
+  using ::testing::IsSupersetOf;
+  using ::testing::IsTrue;
+  using ::testing::IsTrueMatcher;
+  using ::testing::Key;
+  using ::testing::Le;
+  using ::testing::Lt;
+  using ::testing::MakeAction;
+  using ::testing::MakeCardinality;
+  using ::testing::MakePolymorphicAction;
+  extern "C++" using ::testing::Matcher;
+  using ::testing::MatcherCast;
+  using ::testing::Matches;
+  using ::testing::Mock;
+  using ::testing::MockFunction;
+  using ::testing::MockSpec;
+  using ::testing::NaggyMock;
+  using ::testing::NanSensitiveDoubleEq;
+  using ::testing::NanSensitiveDoubleNear;
+  using ::testing::NanSensitiveFloatEq;
+  using ::testing::NanSensitiveFloatNear;
+  using ::testing::Ne;
+  using ::testing::NiceMock;
+  using ::testing::Not;
+  using ::testing::NotNull;
+  extern "C++" using ::testing::OnceAction;
+  using ::testing::Optional;
+  using ::testing::Pair;
+  using ::testing::Pointee;
+  using ::testing::Pointwise;
+  using ::testing::PolymorphicAction;
+  using ::testing::Property;
+  using ::testing::Ref;
+  using ::testing::ResultOf;
+  using ::testing::Return;
+  using ::testing::ReturnArg;
+  using ::testing::ReturnNew;
+  using ::testing::ReturnNull;
+  using ::testing::ReturnPointee;
+  using ::testing::ReturnRef;
+  using ::testing::ReturnRefOfCopy;
+  using ::testing::ReturnRoundRobin;
+  using ::testing::SafeMatcherCast;
+  using ::testing::SaveArg;
+  using ::testing::SaveArgByMove;
+  using ::testing::SaveArgPointee;
+  using ::testing::Sequence;
+  using ::testing::SetArgPointee;
+  using ::testing::SetArgReferee;
+  using ::testing::SetArgumentPointee;
+  using ::testing::SetArrayArgument;
+  using ::testing::SizeIs;
+  using ::testing::StartsWith;
+  using ::testing::StrCaseEq;
+  using ::testing::StrCaseNe;
+  using ::testing::StrEq;
+  using ::testing::StrNe;
+  using ::testing::StrictMock;
+  using ::testing::StringMatchResultListener;
+  using ::testing::Truly;
+  using ::testing::UnorderedElementsAre;
+  using ::testing::UnorderedElementsAreArray;
+  using ::testing::UnorderedPointwise;
+  using ::testing::Unused;
+  using ::testing::Value;
+  using ::testing::VariantWith;
+  using ::testing::WhenSorted;
+  using ::testing::WhenSortedBy;
+  using ::testing::WithArg;
+  using ::testing::WithArgs;
+  using ::testing::WithoutArgs;
+  using ::testing::_;
+  using namespace no_adl;
+  #if GTEST_HAS_EXCEPTIONS
+    using ::testing::Rethrow;
+    using ::testing::Throw;
+    using ::testing::Throws;
+    using ::testing::ThrowsMessage;
+  #endif // GTEST_HAS_EXCEPTIONS
+  #if GTEST_HAS_RTTI
+    using ::testing::WhenDynamicCastTo;
+  #endif // GTEST_HAS_RTTI
+  #ifndef GTEST_OS_WINDOWS_MOBILE
+    using ::testing::SetErrnoAndReturn;
+  #endif // GTEST_OS_WINDOWS_MOBILE
+  namespace internal {
+    extern "C++" using ::testing::internal::FormatMatcherDescription;
+    extern "C++" using ::testing::internal::Function;
+    using ::testing::internal::KindOf;
+    using ::testing::internal::MakeAction;
+    using ::testing::internal::MakePredicateFormatterFromMatcher;
+    using ::testing::internal::MatcherBaseImpl;
+    using ::testing::internal::PredicateFormatterFromMatcher;
+    using ::testing::internal::ThisRefAdjuster;
+    using ::testing::internal::TupleElement;
+    using ::testing::internal::TypeKind;
+    using ::testing::internal::WithoutMatchers;
+    using ::testing::internal::identity_t;
   }
-
-  // If def_optional is true and there are more characters after the
-  // flag name, or if def_optional is false, there must be a '=' after
-  // the flag name.
-  if (flag_end[0] != '=') return nullptr;
-
-  // Returns the string after "=".
-  return flag_end + 1;
-}
-
-// Parses a string for a Google Mock bool flag, in the form of
-// "--gmock_flag=value".
-//
-// On success, stores the value of the flag in *value, and returns
-// true.  On failure, returns false without changing *value.
-static bool ParseGoogleMockFlag(const char* str, const char* flag_name,
-                                bool* value) {
-  // Gets the value of the flag as a string.
-  const char* const value_str = ParseGoogleMockFlagValue(str, flag_name, true);
-
-  // Aborts if the parsing failed.
-  if (value_str == nullptr) return false;
-
-  // Converts the string value to a bool.
-  *value = !(*value_str == '0' || *value_str == 'f' || *value_str == 'F');
-  return true;
-}
-
-// Parses a string for a Google Mock string flag, in the form of
-// "--gmock_flag=value".
-//
-// On success, stores the value of the flag in *value, and returns
-// true.  On failure, returns false without changing *value.
-template <typename String>
-static bool ParseGoogleMockFlag(const char* str, const char* flag_name,
-                                String* value) {
-  // Gets the value of the flag as a string.
-  const char* const value_str = ParseGoogleMockFlagValue(str, flag_name, false);
-
-  // Aborts if the parsing failed.
-  if (value_str == nullptr) return false;
-
-  // Sets *value to the value of the flag.
-  *value = value_str;
-  return true;
-}
-
-static bool ParseGoogleMockFlag(const char* str, const char* flag_name,
-                                int32_t* value) {
-  // Gets the value of the flag as a string.
-  const char* const value_str = ParseGoogleMockFlagValue(str, flag_name, true);
-
-  // Aborts if the parsing failed.
-  if (value_str == nullptr) return false;
-
-  // Sets *value to the value of the flag.
-  return ParseInt32(Message() << "The value of flag --" << flag_name, value_str,
-                    value);
-}
-
-// The internal implementation of InitGoogleMock().
-//
-// The type parameter CharType can be instantiated to either char or
-// wchar_t.
-template <typename CharType>
-void InitGoogleMockImpl(int* argc, CharType** argv) {
-  // Makes sure Google Test is initialized.  InitGoogleTest() is
-  // idempotent, so it's fine if the user has already called it.
-  InitGoogleTest(argc, argv);
-  if (*argc <= 0) return;
-
-  for (int i = 1; i != *argc; i++) {
-    const std::string arg_string = StreamableToString(argv[i]);
-    const char* const arg = arg_string.c_str();
-
-    // Do we see a Google Mock flag?
-    bool found_gmock_flag = false;
-
-#define GMOCK_INTERNAL_PARSE_FLAG(flag_name)            \
-  if (!found_gmock_flag) {                              \
-    auto value = GMOCK_FLAG_GET(flag_name);             \
-    if (ParseGoogleMockFlag(arg, #flag_name, &value)) { \
-      GMOCK_FLAG_SET(flag_name, value);                 \
-      found_gmock_flag = true;                          \
-    }                                                   \
-  }
-
-    GMOCK_INTERNAL_PARSE_FLAG(catch_leaked_mocks)
-    GMOCK_INTERNAL_PARSE_FLAG(verbose)
-    GMOCK_INTERNAL_PARSE_FLAG(default_mock_behavior)
-
-    if (found_gmock_flag) {
-      // Yes.  Shift the remainder of the argv list left by one.  Note
-      // that argv has (*argc + 1) elements, the last one always being
-      // NULL.  The following loop moves the trailing NULL element as
-      // well.
-      for (int j = i; j != *argc; j++) {
-        argv[j] = argv[j + 1];
-      }
-
-      // Decrements the argument count.
-      (*argc)--;
-
-      // We also need to decrement the iterator as we just removed
-      // an element.
-      i--;
-    }
+  namespace no_adl {
+    using ::testing::no_adl::Address;
+    using ::testing::no_adl::Conditional;
+    using ::testing::no_adl::FieldsAre;
+    using ::testing::no_adl::Pointer;
+    using ::testing::no_adl::WhenBase64Unescaped;
   }
 }
-
-}  // namespace internal
-
-// Initializes Google Mock.  This must be called before running the
-// tests.  In particular, it parses a command line for the flags that
-// Google Mock recognizes.  Whenever a Google Mock flag is seen, it is
-// removed from argv, and *argc is decremented.
-//
-// No value is returned.  Instead, the Google Mock flag variables are
-// updated.
-//
-// Since Google Test is needed for Google Mock to work, this function
-// also initializes Google Test and parses its flags, if that hasn't
-// been done.
-GTEST_API_ void InitGoogleMock(int* argc, char** argv) {
-  internal::InitGoogleMockImpl(argc, argv);
 }
-
-// This overloaded version can be used in Windows programs compiled in
-// UNICODE mode.
-GTEST_API_ void InitGoogleMock(int* argc, wchar_t** argv) {
-  internal::InitGoogleMockImpl(argc, argv);
-}
-
-// This overloaded version can be used on Arduino/embedded platforms where
-// there is no argc/argv.
-GTEST_API_ void InitGoogleMock() {
-  // Since Arduino doesn't have a command line, fake out the argc/argv arguments
-  int argc = 1;
-  const auto arg0 = "dummy";
-  char* argv0 = const_cast<char*>(arg0);
-  char** argv = &argv0;
-
-  internal::InitGoogleMockImpl(&argc, argv);
-}
-
-}  // namespace testing

@@ -1,0 +1,23 @@
+#pragma once
+
+#include "gmock/internal/gmock-port-macros.h"
+#include "gtest/gtest-assertion-result-macros.h"
+#include "gtest/gtest-death-test-macros.h"
+#include "gtest/gtest-macros.h"
+#include "gtest/gtest-matchers-macros.h"
+#include "gtest/gtest-message-macros.h"
+#include "gtest/gtest-param-test-macros.h"
+#include "gtest/gtest-pred-impl-macros.h"
+#include "gtest/gtest-printers-macros.h"
+#include "gtest/gtest-prod-macros.h"
+#include "gtest/gtest-test-part-macros.h"
+#include "gtest/gtest-typed-test-macros.h"
+#include "gtest/internal/gtest-death-test-internal-macros.h"
+#include "gtest/internal/gtest-filepath-macros.h"
+#include "gtest/internal/gtest-internal-macros.h"
+#include "gtest/internal/gtest-param-util-macros.h"
+#include "gtest/internal/gtest-port-arch-macros.h"
+#include "gtest/internal/gtest-port-macros.h"
+#include "gtest/internal/gtest-string-macros.h"
+#include "gtest/internal/gtest-type-util-macros.h"
+

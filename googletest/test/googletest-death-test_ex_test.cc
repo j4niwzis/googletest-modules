@@ -30,8 +30,27 @@
 //
 // Tests that verify interaction of exceptions and death tests.
 
-#include "gtest/gtest-death-test.h"
-#include "gtest/gtest.h"
+#include <stdio.h>
+#include <string.h>
+import std.compat;
+import gtest.gtest_death_test;
+import gtest;
+import gtest.gtest_assertion_result;
+import gtest.gtest_internal_inl;
+import gtest.gtest_matchers;
+import gtest.gtest_message;
+import gtest.gtest_printers;
+import gtest.gtest_spi;
+import gtest.gtest_test_part;
+import gtest.internal.gtest_death_test_internal;
+import gtest.internal.gtest_filepath;
+import gtest.internal.gtest_internal;
+import gtest.internal.gtest_param_util;
+import gtest.internal.gtest_port;
+import gtest.internal.gtest_string;
+import gtest.internal.gtest_type_util;
+#include "gtest/gtest-death-test-macros.h"
+#include "gtest/gtest-macros.h"
 
 #ifdef GTEST_HAS_DEATH_TEST
 
@@ -39,11 +58,11 @@
 #include <windows.h>  // For RaiseException().
 #endif
 
-#include "gtest/gtest-spi.h"
+import gtest.gtest_spi;
+#include "gtest/gtest-spi-macros.h"
 
 #if GTEST_HAS_EXCEPTIONS
 
-#include <exception>  // For std::exception.
 
 // Tests that death tests report thrown exceptions as failures and that the
 // exceptions do not escape death test macros.

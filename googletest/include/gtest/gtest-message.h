@@ -45,22 +45,81 @@
 // IWYU pragma: friend gtest/.*
 // IWYU pragma: friend gmock/.*
 
+#include "gtest/gtest-export.h"
+#ifndef GTEST_USE_MODULES
+#include "gtest/gtest-message-macros.h"
+#endif
+// Copyright 2005, Google Inc.
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are
+// met:
+//
+//     * Redistributions of source code must retain the above copyright
+// notice, this list of conditions and the following disclaimer.
+//     * Redistributions in binary form must reproduce the above
+// copyright notice, this list of conditions and the following disclaimer
+// in the documentation and/or other materials provided with the
+// distribution.
+//     * Neither the name of Google Inc. nor the names of its
+// contributors may be used to endorse or promote products derived from
+// this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+// The Google C++ Testing and Mocking Framework (Google Test)
+//
+// This header file defines the Message class.
+//
+// IMPORTANT NOTE: Due to limitation of the C++ language, we have to
+// leave some internal implementation details in this header file.
+// They are clearly marked by comments like this:
+//
+//   // INTERNAL IMPLEMENTATION - DO NOT USE IN A USER PROGRAM.
+//
+// Such code is NOT meant to be used by a user directly, and is subject
+// to CHANGE WITHOUT NOTICE.  Therefore DO NOT DEPEND ON IT in a user
+// program!
+
+// IWYU pragma: private, include "gtest/gtest.h"
+// IWYU pragma: friend gtest/.*
+// IWYU pragma: friend gmock/.*
+
 #ifndef GOOGLETEST_INCLUDE_GTEST_GTEST_MESSAGE_H_
 #define GOOGLETEST_INCLUDE_GTEST_GTEST_MESSAGE_H_
 
+#ifndef GTEST_USE_MODULES
 #include <limits>
 #include <memory>
 #include <ostream>
 #include <sstream>
 #include <string>
+#endif
 
+#ifndef GTEST_USE_MODULES
 #include "gtest/internal/gtest-port.h"
+#endif
 
 #ifdef GTEST_HAS_ABSL
+#ifndef GTEST_USE_MODULES
 #include <type_traits>
+#endif
 
+#ifndef GTEST_USE_MODULES
 #include "absl/strings/has_absl_stringify.h"
 #include "absl/strings/str_cat.h"
+#endif
 #endif  // GTEST_HAS_ABSL
 
 GTEST_DISABLE_MSC_WARNINGS_PUSH_(4251 \
@@ -68,7 +127,7 @@ GTEST_DISABLE_MSC_WARNINGS_PUSH_(4251 \
 
 // Ensures that there is at least one operator<< in the global namespace.
 // See Message& operator<<(...) below for why.
-void operator<<(const testing::internal::Secret&, int);
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL void operator<<(const testing::internal::Secret&, int);
 
 namespace testing {
 
@@ -98,7 +157,7 @@ namespace testing {
 // latter (it causes an access violation if you do).  The Message
 // class hides this difference by treating a NULL char pointer as
 // "(null)".
-class GTEST_API_ Message {
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL class GTEST_API_ Message {
  private:
   // The type of basic IO manipulators (endl, ends, and flush) for
   // narrow streams.
@@ -228,7 +287,7 @@ class GTEST_API_ Message {
 };
 
 // Streams a Message to an ostream.
-inline std::ostream& operator<<(std::ostream& os, const Message& sb) {
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL inline std::ostream& operator<<(std::ostream& os, const Message& sb) {
   return os << sb.GetString();
 }
 
@@ -238,7 +297,7 @@ namespace internal {
 // converted to "(null)".  When the input value is a ::string,
 // ::std::string, ::wstring, or ::std::wstring object, each NUL
 // character in it is replaced with "\\0".
-template <typename T>
+GTEST_EXPORT template <typename T>
 std::string StreamableToString(const T& streamable) {
   return (Message() << streamable).GetString();
 }

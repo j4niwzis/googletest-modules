@@ -36,16 +36,64 @@
 // IWYU pragma: private, include "gmock/gmock.h"
 // IWYU pragma: friend gmock/.*
 
+#include "gmock/gmock-export.h"
+#ifndef GMOCK_USE_MODULES
+#include "gmock/gmock-cardinalities-macros.h"
+#endif
+// Copyright 2007, Google Inc.
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are
+// met:
+//
+//     * Redistributions of source code must retain the above copyright
+// notice, this list of conditions and the following disclaimer.
+//     * Redistributions in binary form must reproduce the above
+// copyright notice, this list of conditions and the following disclaimer
+// in the documentation and/or other materials provided with the
+// distribution.
+//     * Neither the name of Google Inc. nor the names of its
+// contributors may be used to endorse or promote products derived from
+// this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+// Google Mock - a framework for writing C++ mock classes.
+//
+// This file implements some commonly used cardinalities.  More
+// cardinalities can be defined by the user implementing the
+// CardinalityInterface interface if necessary.
+
+// IWYU pragma: private, include "gmock/gmock.h"
+// IWYU pragma: friend gmock/.*
+
 #ifndef GOOGLEMOCK_INCLUDE_GMOCK_GMOCK_CARDINALITIES_H_
 #define GOOGLEMOCK_INCLUDE_GMOCK_GMOCK_CARDINALITIES_H_
 
+#ifndef GMOCK_USE_MODULES
 #include <limits.h>
+#endif
 
+#ifndef GMOCK_USE_MODULES
 #include <memory>
 #include <ostream>  // NOLINT
+#endif
 
+#ifndef GMOCK_USE_MODULES
 #include "gmock/internal/gmock-port.h"
 #include "gtest/gtest.h"
+#endif
 
 GTEST_DISABLE_MSC_WARNINGS_PUSH_(4251 \
 /* class A needs to have dll-interface to be used by clients of class B */)
@@ -63,7 +111,7 @@ namespace testing {
 // management as Cardinality objects can now be copied like plain values.
 
 // The implementation of a cardinality.
-class [[nodiscard]] CardinalityInterface {
+GMOCK_EXPORT class [[nodiscard]] CardinalityInterface {
  public:
   virtual ~CardinalityInterface() = default;
 
@@ -88,7 +136,7 @@ class [[nodiscard]] CardinalityInterface {
 // object that specifies how many times a mock function is expected to
 // be called.  The implementation of Cardinality is just a std::shared_ptr
 // to const CardinalityInterface. Don't inherit from Cardinality!
-class GTEST_API_ [[nodiscard]] Cardinality {
+GMOCK_EXPORT class GTEST_API_ [[nodiscard]] Cardinality {
  public:
   // Constructs a null cardinality.  Needed for storing Cardinality
   // objects in STL containers.
@@ -133,22 +181,22 @@ class GTEST_API_ [[nodiscard]] Cardinality {
 };
 
 // Creates a cardinality that allows at least n calls.
-GTEST_API_ Cardinality AtLeast(int n);
+GMOCK_EXPORT GMOCK_EXTERN_CXX_DECL GTEST_API_ Cardinality AtLeast(int n);
 
 // Creates a cardinality that allows at most n calls.
-GTEST_API_ Cardinality AtMost(int n);
+GMOCK_EXPORT GMOCK_EXTERN_CXX_DECL GTEST_API_ Cardinality AtMost(int n);
 
 // Creates a cardinality that allows any number of calls.
-GTEST_API_ Cardinality AnyNumber();
+GMOCK_EXPORT GMOCK_EXTERN_CXX_DECL GTEST_API_ Cardinality AnyNumber();
 
 // Creates a cardinality that allows between min and max calls.
-GTEST_API_ Cardinality Between(int min, int max);
+GMOCK_EXPORT GMOCK_EXTERN_CXX_DECL GTEST_API_ Cardinality Between(int min, int max);
 
 // Creates a cardinality that allows exactly n calls.
-GTEST_API_ Cardinality Exactly(int n);
+GMOCK_EXPORT GMOCK_EXTERN_CXX_DECL GTEST_API_ Cardinality Exactly(int n);
 
 // Creates a cardinality from its implementation.
-inline Cardinality MakeCardinality(const CardinalityInterface* c) {
+GMOCK_EXPORT inline Cardinality MakeCardinality(const CardinalityInterface* c) {
   return Cardinality(c);
 }
 

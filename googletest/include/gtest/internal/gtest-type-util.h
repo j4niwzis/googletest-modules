@@ -34,19 +34,65 @@
 // IWYU pragma: friend gtest/.*
 // IWYU pragma: friend gmock/.*
 
+#include "gtest/gtest-export.h"
+#ifndef GTEST_USE_MODULES
+#include "gtest/internal/gtest-type-util-macros.h"
+#endif
+// Copyright 2008 Google Inc.
+// All Rights Reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are
+// met:
+//
+//     * Redistributions of source code must retain the above copyright
+// notice, this list of conditions and the following disclaimer.
+//     * Redistributions in binary form must reproduce the above
+// copyright notice, this list of conditions and the following disclaimer
+// in the documentation and/or other materials provided with the
+// distribution.
+//     * Neither the name of Google Inc. nor the names of its
+// contributors may be used to endorse or promote products derived from
+// this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+// Type utilities needed for implementing typed and type-parameterized
+// tests.
+
+// IWYU pragma: private, include "gtest/gtest.h"
+// IWYU pragma: friend gtest/.*
+// IWYU pragma: friend gmock/.*
+
 #ifndef GOOGLETEST_INCLUDE_GTEST_INTERNAL_GTEST_TYPE_UTIL_H_
 #define GOOGLETEST_INCLUDE_GTEST_INTERNAL_GTEST_TYPE_UTIL_H_
 
+#ifndef GTEST_USE_MODULES
 #include <string>
 #include <type_traits>
 #include <typeinfo>
+#endif
 
+#ifndef GTEST_USE_MODULES
 #include "gtest/internal/gtest-port.h"
+#endif
 
 // #ifdef __GNUC__ is too general here.  It is possible to use gcc without using
 // libstdc++ (which is where cxxabi.h comes from).
 #if GTEST_HAS_CXXABI_H_
+#ifndef GTEST_USE_MODULES
 #include <cxxabi.h>
+#endif
 #elif defined(__HP_aCC)
 #include <acxx_demangle.h>
 #endif  // GTEST_HASH_CXXABI_H_
@@ -58,7 +104,7 @@ namespace internal {
 // This handles removing the inline namespace within `std` that is
 // used by various standard libraries (e.g., `std::__1`).  Names outside
 // of namespace std are returned unmodified.
-inline std::string CanonicalizeForStdLibVersioning(std::string s) {
+GTEST_EXPORT inline std::string CanonicalizeForStdLibVersioning(std::string s) {
   static const char prefix[] = "std::__";
   if (s.compare(0, strlen(prefix), prefix) == 0) {
     std::string::size_type end = s.find("::", strlen(prefix));
@@ -88,7 +134,7 @@ inline std::string CanonicalizeForStdLibVersioning(std::string s) {
 
 #if GTEST_HAS_RTTI
 // GetTypeName(const std::type_info&) returns a human-readable name of type T.
-inline std::string GetTypeName(const std::type_info& type) {
+GTEST_EXPORT inline std::string GetTypeName(const std::type_info& type) {
   const char* const name = type.name();
 #if GTEST_HAS_CXXABI_H_ || defined(__HP_aCC)
   int status = 0;
@@ -125,7 +171,7 @@ inline std::string GetTypeName(const std::type_info& type) {
 // RTTI is enabled, otherwise it returns a dummy type name.
 // NB: This function is also used in Google Mock, so don't move it inside of
 // the typed-test-only section below.
-template <typename T>
+GTEST_EXPORT template <typename T>
 std::string GetTypeName() {
 #if GTEST_HAS_RTTI
   return GetTypeName(typeid(T));
@@ -135,11 +181,8 @@ std::string GetTypeName() {
 }
 
 // A unique type indicating an empty node
-struct None {};
+GTEST_EXPORT struct None {};
 
-#define GTEST_TEMPLATE_ \
-  template <typename T> \
-  class
 
 // The template "selector" struct TemplateSel<Tmpl> is used to
 // represent Tmpl, which must be a class template with one type
@@ -149,7 +192,7 @@ struct None {};
 //
 // This trick is necessary for simulating typedef for class templates,
 // which C++ doesn't support directly.
-template <GTEST_TEMPLATE_ Tmpl>
+GTEST_EXPORT template <GTEST_TEMPLATE_ Tmpl>
 struct TemplateSel {
   template <typename T>
   struct Bind {
@@ -157,9 +200,8 @@ struct TemplateSel {
   };
 };
 
-#define GTEST_BIND_(TmplSel, T) TmplSel::template Bind<T>::type
 
-template <GTEST_TEMPLATE_ Head_, GTEST_TEMPLATE_... Tail_>
+GTEST_EXPORT template <GTEST_TEMPLATE_ Head_, GTEST_TEMPLATE_... Tail_>
 struct Templates {
   using Head = TemplateSel<Head_>;
   using Tail = Templates<Tail_...>;
@@ -172,7 +214,7 @@ struct Templates<Head_> {
 };
 
 // Tuple-like type lists
-template <typename Head_, typename... Tail_>
+GTEST_EXPORT template <typename Head_, typename... Tail_>
 struct Types {
   using Head = Head_;
   using Tail = Types<Tail_...>;
@@ -186,12 +228,12 @@ struct Types<Head_> {
 
 // Helper metafunctions to tell apart a single type from types
 // generated by ::testing::Types
-template <typename... Ts>
+GTEST_EXPORT template <typename... Ts>
 struct ProxyTypeList {
   using type = Types<Ts...>;
 };
 
-template <typename>
+GTEST_EXPORT template <typename>
 struct is_proxy_type_list : std::false_type {};
 
 template <typename... Ts>
@@ -200,7 +242,7 @@ struct is_proxy_type_list<ProxyTypeList<Ts...>> : std::true_type {};
 // Generator which conditionally creates type lists.
 // It recognizes if a requested type list should be created
 // and prevents creating a new type list nested within another one.
-template <typename T>
+GTEST_EXPORT template <typename T>
 struct GenerateTypeList {
  private:
   using proxy = typename std::conditional<is_proxy_type_list<T>::value, T,
@@ -212,7 +254,7 @@ struct GenerateTypeList {
 
 }  // namespace internal
 
-template <typename... Ts>
+GTEST_EXPORT template <typename... Ts>
 using Types = internal::ProxyTypeList<Ts...>;
 
 }  // namespace testing

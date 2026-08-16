@@ -32,7 +32,19 @@
 // This program is for verifying that a leaked mock object can be
 // caught by Google Mock's leak detector.
 
-#include "gmock/gmock.h"
+#include <stdlib.h>
+#include <string.h>
+import std.compat;
+import gmock;
+import gmock.gmock_actions;
+import gmock.gmock_function_mocker;
+import gmock.gmock_matchers;
+import gmock.gmock_more_actions;
+import gmock.gmock_more_matchers;
+import gmock.gmock_nice_strict;
+import gmock.gmock_spec_builders;
+import gmock.internal.gmock_internal_utils;
+#include "gmock/gmock-macros.h"
 
 namespace {
 

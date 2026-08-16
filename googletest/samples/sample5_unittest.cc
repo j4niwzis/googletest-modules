@@ -45,9 +45,25 @@
 #include <limits.h>
 #include <time.h>
 
+#include <string.h>
+import std.compat;
+import gtest;
+import gtest.gtest_assertion_result;
+import gtest.gtest_internal_inl;
+import gtest.gtest_matchers;
+import gtest.gtest_message;
+import gtest.gtest_printers;
+import gtest.gtest_test_part;
+import gtest.internal.gtest_death_test_internal;
+import gtest.internal.gtest_filepath;
+import gtest.internal.gtest_internal;
+import gtest.internal.gtest_param_util;
+import gtest.internal.gtest_port;
+import gtest.internal.gtest_string;
+import gtest.internal.gtest_type_util;
+#include "gtest/gtest-macros.h"
 #include "sample1.h"
 #include "sample3-inl.h"
-#include "gtest/gtest.h"
 namespace {
 // In this sample, we want to ensure that every test finishes within
 // ~5 seconds.  If a test takes longer to run, we consider it a

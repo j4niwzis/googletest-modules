@@ -30,10 +30,12 @@
 //
 // This is part of the unit test for gtest_prod.h.
 
+import std.compat;
 #ifndef GOOGLETEST_TEST_PRODUCTION_H_
 #define GOOGLETEST_TEST_PRODUCTION_H_
 
-#include "gtest/gtest_prod.h"
+import gtest.gtest_prod;
+#include "gtest/gtest-prod-macros.h"
 
 class PrivateCode {
  public:

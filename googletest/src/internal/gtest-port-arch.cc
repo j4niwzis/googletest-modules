@@ -1,4 +1,4 @@
-// Copyright 2008, Google Inc.
+// Copyright 2015, Google Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -27,20 +27,26 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+// The Google C++ Testing and Mocking Framework (Google Test)
 //
-// Google C++ Mocking Framework (Google Mock)
-//
-// This file #includes all Google Mock implementation .cc files.  The
-// purpose is to allow a user to build Google Mock by compiling this
-// file alone.
+// This header file defines the GTEST_OS_* macro.
+// It is separate from gtest-port.h so that custom/gtest-port.h can include it.
 
-// This line ensures that gmock.h can be compiled on its own, even
-// when it's fused.
-#include "gmock/gmock.h"
+module;
+#define GTEST_USE_MODULES 1
+#include "gtest/internal/gtest-port-arch-macros.h"
 
-// The following lines pull in the real gmock *.cc files.
-#include "src/gmock-cardinalities.cc"
-#include "src/gmock-internal-utils.cc"
-#include "src/gmock-matchers.cc"
-#include "src/gmock-spec-builders.cc"
-#include "src/gmock.cc"
+export module gtest.internal.gtest_port_arch;
+#ifdef GTEST_USE_IMPORT_STD
+import std.compat;
+#endif
+#include "gtest/gtest-export.h"
+#ifdef GTEST_EXTERN_CXX
+extern "C++" {
+#endif
+#define GTEST_USE_MODULES 1
+#undef GTEST_OS_LINUX
+#include "gtest/internal/gtest-port-arch.h"
+#ifdef GTEST_EXTERN_CXX
+}  // extern "C++"
+#endif

@@ -29,49 +29,84 @@
 
 // The Google C++ Testing and Mocking Framework (Google Test)
 //
-// This file defines the AssertionResult type.
+// This file implements the AssertionResult type.
 
-#include "gtest/gtest-assertion-result.h"
+// IWYU pragma: private, include "gtest/gtest.h"
+// IWYU pragma: friend gtest/.*
+// IWYU pragma: friend gmock/.*
 
+module;
+#include <version>  // C++20 or <version> support.
+#include <stdio.h>
+#include <cerrno>
+#include <cstdio>
+#define GTEST_USE_MODULES 1
+#include "gtest/gtest-assertion-result-macros.h"
+#ifndef GTEST_IMPORT_STD
+#include <memory>
+#include <ostream>
 #include <string>
-#include <utility>
+#include <type_traits>
+#include <locale>
+#include <vector>
+#include <ios>
+#include <exception>
+#include <streambuf>
+# include <stop_token>	// std::stop_source, std::stop_token, std::nostopstate
+# include <format>
+#endif
+#ifndef GTEST_IMPORT_STD
+#include <memory>
+#include <ostream>
+#include <string>
+#include <locale>
+#include <type_traits>
+#include <vector>
+#include <ios>
+#include <exception>
+#include <streambuf>
+# include <stop_token>	// std::stop_source, std::stop_token, std::nostopstate
+# include <format>
+#endif
+#ifndef GTEST_IMPORT_STD
+#ifdef GTEST_HAS_ABSL
+#include <type_traits>
+#endif
+#endif
+#ifndef GTEST_IMPORT_STD
+#ifdef GTEST_HAS_ABSL
+#include <type_traits>
+#endif
+#endif
+#if GTEST_HAS_PTHREAD
+#include <pthread.h>  // NOLINT
+#endif
+#ifndef GTEST_IMPORT_STD
+#ifdef GTEST_IS_THREADSAFE
+#include <condition_variable>  // NOLINT
+#include <mutex>               // NOLINT
+#endif
+#endif
+#ifndef GTEST_IMPORT_STD
+#ifdef GTEST_IS_THREADSAFE
+#include <condition_variable>  // NOLINT
+#include <mutex>               // NOLINT
+#endif
+#endif
 
-#include "gtest/gtest-message.h"
-
-namespace testing {
-
-// AssertionResult constructors.
-// Used in EXPECT_TRUE/FALSE(assertion_result).
-AssertionResult::AssertionResult(const AssertionResult& other)
-    : success_(other.success_),
-      message_(other.message_ != nullptr
-                   ? new ::std::string(*other.message_)
-                   : static_cast< ::std::string*>(nullptr)) {}
-
-// Swaps two AssertionResults.
-void AssertionResult::swap(AssertionResult& other) {
-  using std::swap;
-  swap(success_, other.success_);
-  swap(message_, other.message_);
-}
-
-// Returns the assertion's negation. Used with EXPECT/ASSERT_FALSE.
-AssertionResult AssertionResult::operator!() const {
-  AssertionResult negation(!success_);
-  if (message_ != nullptr) negation << *message_;
-  return negation;
-}
-
-// Makes a successful assertion result.
-AssertionResult AssertionSuccess() { return AssertionResult(true); }
-
-// Makes a failed assertion result.
-AssertionResult AssertionFailure() { return AssertionResult(false); }
-
-// Makes a failed assertion result with the given failure message.
-// Deprecated; use AssertionFailure() << message.
-AssertionResult AssertionFailure(const Message& message) {
-  return AssertionFailure() << message;
-}
-
-}  // namespace testing
+export module gtest.gtest_assertion_result;
+#ifdef GTEST_USE_IMPORT_STD
+import std.compat;
+#endif
+export import gtest.gtest_message;
+export import gtest.internal.gtest_port;
+import gtest.internal.gtest_port_arch;
+#include "gtest/gtest-export.h"
+#ifdef GTEST_EXTERN_CXX
+extern "C++" {
+#endif
+#define GTEST_USE_MODULES 1
+#include "gtest/gtest-assertion-result.h"
+#ifdef GTEST_EXTERN_CXX
+}  // extern "C++"
+#endif

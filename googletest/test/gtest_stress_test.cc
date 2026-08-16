@@ -30,13 +30,27 @@
 // Tests that SCOPED_TRACE() and various Google Test assertions can be
 // used in a large number of threads concurrently.
 
-#include <algorithm>
-#include <memory>
-#include <string>
-#include <vector>
 
-#include "gtest/gtest.h"
-#include "src/gtest-internal-inl.h"
+#include <stdio.h>
+#include <string.h>
+import std.compat;
+import gtest;
+import gtest.gtest_internal_inl;
+import gtest.gtest_assertion_result;
+import gtest.gtest_matchers;
+import gtest.gtest_message;
+import gtest.gtest_printers;
+import gtest.gtest_spi;
+import gtest.gtest_test_part;
+import gtest.internal.gtest_death_test_internal;
+import gtest.internal.gtest_filepath;
+import gtest.internal.gtest_internal;
+import gtest.internal.gtest_param_util;
+import gtest.internal.gtest_port;
+import gtest.internal.gtest_string;
+import gtest.internal.gtest_type_util;
+#include "gtest/gtest-macros.h"
+#include "gtest-internal-inl-macros.h"
 
 #ifdef GTEST_IS_THREADSAFE
 

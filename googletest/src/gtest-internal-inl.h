@@ -31,16 +31,58 @@
 // This file contains purely Google Test's internal implementation.  Please
 // DO NOT #INCLUDE IT IN A USER PROGRAM.
 
+#include "gtest-export.h"
+#ifndef GTEST_USE_MODULES
+#include "gtest-internal-inl-macros.h"
+#endif
+// Copyright 2005, Google Inc.
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are
+// met:
+//
+//     * Redistributions of source code must retain the above copyright
+// notice, this list of conditions and the following disclaimer.
+//     * Redistributions in binary form must reproduce the above
+// copyright notice, this list of conditions and the following disclaimer
+// in the documentation and/or other materials provided with the
+// distribution.
+//     * Neither the name of Google Inc. nor the names of its
+// contributors may be used to endorse or promote products derived from
+// this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+// Utility functions and classes used by the Google C++ testing framework.//
+// This file contains purely Google Test's internal implementation.  Please
+// DO NOT #INCLUDE IT IN A USER PROGRAM.
+
 #ifndef GOOGLETEST_SRC_GTEST_INTERNAL_INL_H_
 #define GOOGLETEST_SRC_GTEST_INTERNAL_INL_H_
 
 #ifndef _WIN32_WCE
+#ifndef GTEST_USE_MODULES
 #include <errno.h>
+#endif
 #endif  // !_WIN32_WCE
+#ifndef GTEST_USE_MODULES
 #include <stddef.h>
 #include <stdlib.h>  // For strtoll/_strtoul64/malloc/free.
 #include <string.h>  // For memmove.
+#endif
 
+#ifndef GTEST_USE_MODULES
 #include <algorithm>
 #include <cstdint>
 #include <memory>
@@ -48,20 +90,29 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#endif
 
+#ifndef GTEST_USE_MODULES
 #include "gtest/internal/gtest-port.h"
+#endif
 
 #if GTEST_CAN_STREAM_RESULTS_
+#ifndef GTEST_USE_MODULES
 #include <arpa/inet.h>  // NOLINT
 #include <netdb.h>      // NOLINT
 #endif
+#endif
 
 #ifdef GTEST_OS_WINDOWS
+#ifndef GTEST_USE_MODULES
 #include <windows.h>  // NOLINT
+#endif
 #endif                // GTEST_OS_WINDOWS
 
+#ifndef GTEST_USE_MODULES
 #include "gtest/gtest-spi.h"
 #include "gtest/gtest.h"
+#endif
 
 GTEST_DISABLE_MSC_WARNINGS_PUSH_(4251 \
 /* class A needs to have dll-interface to be used by clients of class B */)
@@ -71,47 +122,47 @@ GTEST_DISABLE_MSC_WARNINGS_PUSH_(4251 \
 // We don't want the users to modify this flag in the code, but want
 // Google Test's own unit tests to be able to access it. Therefore we
 // declare it here as opposed to in gtest.h.
-GTEST_DECLARE_bool_(death_test_use_fork);
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL GTEST_DECLARE_bool_(death_test_use_fork);
 
 namespace testing {
 namespace internal {
 
 // The value of GetTestTypeId() as seen from within the Google Test
 // library.  This is solely for testing GetTestTypeId().
-GTEST_API_ extern const TypeId kTestTypeIdInGoogleTest;
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL GTEST_API_ GTEST_EXTERN_DECL const TypeId kTestTypeIdInGoogleTest;
 
 // A valid random seed must be in [1, kMaxRandomSeed].
-const int kMaxRandomSeed = 99999;
+GTEST_EXPORT inline const int kMaxRandomSeed = 99999;
 
 // g_help_flag is true if and only if the --help flag or an equivalent form
 // is specified on the command line.
-GTEST_API_ extern bool g_help_flag;
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL GTEST_API_ GTEST_EXTERN_DECL bool g_help_flag;
 
 // Returns the current time in milliseconds.
-GTEST_API_ TimeInMillis GetTimeInMillis();
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL GTEST_API_ TimeInMillis GetTimeInMillis();
 
 // Returns true if and only if Google Test should use colors in the output.
-GTEST_API_ bool ShouldUseColor(bool stdout_is_tty);
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL GTEST_API_ bool ShouldUseColor(bool stdout_is_tty);
 
 // Formats the given time in milliseconds as seconds. If the input is an exact N
 // seconds, the output has a trailing decimal point (e.g., "N." instead of "N").
-GTEST_API_ std::string FormatTimeInMillisAsSeconds(TimeInMillis ms);
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL GTEST_API_ std::string FormatTimeInMillisAsSeconds(TimeInMillis ms);
 
 // Converts the given time in milliseconds to a date string in the ISO 8601
 // format, without the timezone information.  N.B.: due to the use the
 // non-reentrant localtime() function, this function is not thread safe.  Do
 // not use it in any code that can be called from multiple threads.
-GTEST_API_ std::string FormatEpochTimeInMillisAsIso8601(TimeInMillis ms);
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL GTEST_API_ std::string FormatEpochTimeInMillisAsIso8601(TimeInMillis ms);
 
 // Parses a string for an Int32 flag, in the form of "--flag=value".
 //
 // On success, stores the value of the flag in *value, and returns
 // true.  On failure, returns false without changing *value.
-GTEST_API_ bool ParseFlag(const char* str, const char* flag, int32_t* value);
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL GTEST_API_ bool ParseFlag(const char* str, const char* flag, int32_t* value);
 
 // Returns a random seed in range [1, kMaxRandomSeed] based on the
 // given --gtest_random_seed flag value.
-inline int GetRandomSeedFromFlag(int32_t random_seed_flag) {
+GTEST_EXPORT inline int GetRandomSeedFromFlag(int32_t random_seed_flag) {
   const unsigned int raw_seed =
       (random_seed_flag == 0) ? static_cast<unsigned int>(GetTimeInMillis())
                               : static_cast<unsigned int>(random_seed_flag);
@@ -128,7 +179,7 @@ inline int GetRandomSeedFromFlag(int32_t random_seed_flag) {
 // Returns the first valid random seed after 'seed'.  The behavior is
 // undefined if 'seed' is invalid.  The seed after kMaxRandomSeed is
 // considered to be 1.
-inline int GetNextRandomSeed(int seed) {
+GTEST_EXPORT inline int GetNextRandomSeed(int seed) {
   GTEST_CHECK_(1 <= seed && seed <= kMaxRandomSeed)
       << "Invalid random seed " << seed << " - must be in [1, "
       << kMaxRandomSeed << "].";
@@ -138,7 +189,7 @@ inline int GetNextRandomSeed(int seed) {
 
 // This class saves the values of all Google Test flags in its c'tor, and
 // restores them in its d'tor.
-class GTestFlagSaver {
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL class GTestFlagSaver {
  public:
   // The c'tor.
   GTestFlagSaver() {
@@ -223,7 +274,7 @@ class GTestFlagSaver {
 // If the code_point is not a valid Unicode code point
 // (i.e. outside of Unicode range U+0 to U+10FFFF) it will be converted
 // to "(Invalid Unicode 0xXXXXXXXX)".
-GTEST_API_ std::string CodePointToUtf8(uint32_t code_point);
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL GTEST_API_ std::string CodePointToUtf8(uint32_t code_point);
 
 // Converts a wide string to a narrow string in UTF-8 encoding.
 // The wide string is assumed to have the following encoding:
@@ -238,38 +289,38 @@ GTEST_API_ std::string CodePointToUtf8(uint32_t code_point);
 // as '(Invalid Unicode 0xXXXXXXXX)'. If the string is in UTF16 encoding
 // and contains invalid UTF-16 surrogate pairs, values in those pairs
 // will be encoded as individual Unicode characters from Basic Normal Plane.
-GTEST_API_ std::string WideStringToUtf8(const wchar_t* str, int num_chars);
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL GTEST_API_ std::string WideStringToUtf8(const wchar_t* str, int num_chars);
 
 // Reads the GTEST_SHARD_STATUS_FILE environment variable, and creates the file
 // if the variable is present. If a file already exists at this location, this
 // function will write over it. If the variable is present, but the file cannot
 // be created, prints an error and exits.
-void WriteToShardStatusFileIfNeeded();
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL void WriteToShardStatusFileIfNeeded();
 
 // Checks whether sharding is enabled by examining the relevant flag values.
 // If the flags are set, but inconsistent (e.g., shard_index >= total_shards),
 // prints an error and exits. If in_subprocess_for_death_test, sharding is
 // disabled because it must only be applied to the original test
 // process. Otherwise, we could filter out death tests we intended to execute.
-GTEST_API_ bool ShouldShard(bool in_subprocess_for_death_test);
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL GTEST_API_ bool ShouldShard(bool in_subprocess_for_death_test);
 
 // Parses the environment variable var as a 32-bit integer. If it is unset,
 // returns default_val. If it is not a 32-bit integer, prints an error and
 // and aborts.
-GTEST_API_ int32_t Int32FromEnvOrDie(const char* env_var, int32_t default_val);
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL GTEST_API_ int32_t Int32FromEnvOrDie(const char* env_var, int32_t default_val);
 
 // Given the total number of shards, the shard index, and the test id,
 // returns true if and only if the test should be run on this shard. The test id
 // is some arbitrary but unique non-negative integer assigned to each test
 // method. Assumes that 0 <= shard_index < total_shards.
-GTEST_API_ bool ShouldRunTestOnShard(int total_shards, int shard_index,
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL GTEST_API_ bool ShouldRunTestOnShard(int total_shards, int shard_index,
                                      int test_id);
 
 // STL container utilities.
 
 // Returns the number of elements in the given container that satisfy
 // the given predicate.
-template <class Container, typename Predicate>
+GTEST_EXPORT template <class Container, typename Predicate>
 inline int CountIf(const Container& c, Predicate predicate) {
   // Implemented as an explicit loop since std::count_if() in libCstd on
   // Solaris has a non-standard signature.
@@ -281,14 +332,14 @@ inline int CountIf(const Container& c, Predicate predicate) {
 }
 
 // Applies a function/functor to each element in the container.
-template <class Container, typename Functor>
+GTEST_EXPORT template <class Container, typename Functor>
 void ForEach(const Container& c, Functor functor) {
   std::for_each(c.begin(), c.end(), functor);
 }
 
 // Returns the i-th element of the vector, or default_value if i is not
 // in range [0, v.size()).
-template <typename E>
+GTEST_EXPORT template <typename E>
 inline E GetElementOr(const std::vector<E>& v, int i, E default_value) {
   return (i < 0 || i >= static_cast<int>(v.size())) ? default_value
                                                     : v[static_cast<size_t>(i)];
@@ -298,7 +349,7 @@ inline E GetElementOr(const std::vector<E>& v, int i, E default_value) {
 // 'begin' and 'end' are element indices as an STL-style range;
 // i.e. [begin, end) are shuffled, where 'end' == size() means to
 // shuffle to the end of the vector.
-template <typename E>
+GTEST_EXPORT template <typename E>
 void ShuffleRange(internal::Random* random, int begin, int end,
                   std::vector<E>* v) {
   const int size = static_cast<int>(v->size());
@@ -322,22 +373,22 @@ void ShuffleRange(internal::Random* random, int begin, int end,
 }
 
 // Performs an in-place shuffle of the vector's elements.
-template <typename E>
+GTEST_EXPORT template <typename E>
 inline void Shuffle(internal::Random* random, std::vector<E>* v) {
   ShuffleRange(random, 0, static_cast<int>(v->size()), v);
 }
 
 // A function for deleting an object.  Handy for being used as a
 // functor.
-template <typename T>
-static void Delete(T* x) {
+GTEST_EXPORT template <typename T>
+void Delete(T* x) {
   delete x;
 }
 
 // A predicate that checks the key of a TestProperty against a known key.
 //
 // TestPropertyKeyIs is copyable.
-class TestPropertyKeyIs {
+GTEST_EXPORT class TestPropertyKeyIs {
  public:
   // Constructor.
   //
@@ -363,7 +414,7 @@ class TestPropertyKeyIs {
 // test filter using either GTEST_FILTER or --gtest_filter.  If both
 // the variable and the flag are present, the latter overrides the
 // former.
-class GTEST_API_ UnitTestOptions {
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL class GTEST_API_ UnitTestOptions {
  public:
   // Functions for processing the gtest_output flag.
 
@@ -399,11 +450,11 @@ class GTEST_API_ UnitTestOptions {
 #if GTEST_HAS_FILE_SYSTEM
 // Returns the current application's name, removing directory path if that
 // is present.  Used by UnitTestOptions::GetOutputFile.
-GTEST_API_ FilePath GetCurrentExecutableName();
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL GTEST_API_ FilePath GetCurrentExecutableName();
 #endif  // GTEST_HAS_FILE_SYSTEM
 
 // The role interface for getting the OS stack trace as a string.
-class OsStackTraceGetterInterface {
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL class OsStackTraceGetterInterface {
  public:
   OsStackTraceGetterInterface() = default;
   virtual ~OsStackTraceGetterInterface() = default;
@@ -432,7 +483,7 @@ class OsStackTraceGetterInterface {
 };
 
 // A working implementation of the OsStackTraceGetterInterface interface.
-class OsStackTraceGetter : public OsStackTraceGetterInterface {
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL class OsStackTraceGetter : public OsStackTraceGetterInterface {
  public:
   OsStackTraceGetter() = default;
 
@@ -455,7 +506,7 @@ class OsStackTraceGetter : public OsStackTraceGetterInterface {
 };
 
 // Information about a Google Test trace point.
-struct TraceInfo {
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL struct TraceInfo {
   const char* file;
   int line;
   std::string message;
@@ -463,7 +514,7 @@ struct TraceInfo {
 
 // This is the default global test part result reporter used in UnitTestImpl.
 // This class should only be used by UnitTestImpl.
-class DefaultGlobalTestPartResultReporter
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL class DefaultGlobalTestPartResultReporter
     : public TestPartResultReporterInterface {
  public:
   explicit DefaultGlobalTestPartResultReporter(UnitTestImpl* unit_test);
@@ -482,7 +533,7 @@ class DefaultGlobalTestPartResultReporter
 
 // This is the default per thread test part result reporter used in
 // UnitTestImpl. This class should only be used by UnitTestImpl.
-class DefaultPerThreadTestPartResultReporter
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL class DefaultPerThreadTestPartResultReporter
     : public TestPartResultReporterInterface {
  public:
   explicit DefaultPerThreadTestPartResultReporter(UnitTestImpl* unit_test);
@@ -503,7 +554,7 @@ class DefaultPerThreadTestPartResultReporter
 // the methods under a mutex, as this class is not accessible by a
 // user and the UnitTest class that delegates work to this class does
 // proper locking.
-class GTEST_API_ UnitTestImpl {
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL class GTEST_API_ UnitTestImpl {
  public:
   explicit UnitTestImpl(UnitTest* parent);
   virtual ~UnitTestImpl();
@@ -976,7 +1027,7 @@ class GTEST_API_ UnitTestImpl {
 
 // Convenience function for accessing the global UnitTest
 // implementation object.
-inline UnitTestImpl* GetUnitTestImpl() {
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL inline UnitTestImpl* GetUnitTestImpl() {
   return UnitTest::GetInstance()->impl();
 }
 
@@ -1003,20 +1054,20 @@ GTEST_API_ bool MatchRegexAnywhere(const char* regex, const char* str);
 
 // Parses the command line for Google Test flags, without initializing
 // other parts of Google Test.
-GTEST_API_ void ParseGoogleTestFlagsOnly(int* argc, char** argv);
-GTEST_API_ void ParseGoogleTestFlagsOnly(int* argc, wchar_t** argv);
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL GTEST_API_ void ParseGoogleTestFlagsOnly(int* argc, char** argv);
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL GTEST_API_ void ParseGoogleTestFlagsOnly(int* argc, wchar_t** argv);
 
 #ifdef GTEST_HAS_DEATH_TEST
 
 // Returns the message describing the last system error, regardless of the
 // platform.
-GTEST_API_ std::string GetLastErrnoDescription();
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL GTEST_API_ std::string GetLastErrnoDescription();
 
 // Attempts to parse a string into a positive integer pointed to by the
 // number parameter.  Returns true if that is possible.
 // GTEST_HAS_DEATH_TEST implies that we have ::std::string, so we can use
 // it here.
-template <typename Integer>
+GTEST_EXPORT template <typename Integer>
 bool ParseNaturalNumber(const ::std::string& str, Integer* number) {
   // Fail fast if the given string does not begin with a digit;
   // this bypasses strtoXXX's "optional leading whitespace and plus
@@ -1051,7 +1102,7 @@ bool ParseNaturalNumber(const ::std::string& str, Integer* number) {
 //
 // This class is supplied only for the purpose of testing Google Test's own
 // constructs. Do not use it in user tests, either directly or indirectly.
-class TestResultAccessor {
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL class TestResultAccessor {
  public:
   static void RecordProperty(TestResult* test_result,
                              const std::string& xml_element,
@@ -1072,7 +1123,7 @@ class TestResultAccessor {
 #if GTEST_CAN_STREAM_RESULTS_
 
 // Streams test results to the given port on the given host machine.
-class StreamingListener : public EmptyTestEventListener {
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL class StreamingListener : public EmptyTestEventListener {
  public:
   // Abstract base class for writing strings to a socket.
   class AbstractSocketWriter {

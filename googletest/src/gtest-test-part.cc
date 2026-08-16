@@ -27,82 +27,68 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-//
-// The Google C++ Testing and Mocking Framework (Google Test)
+// IWYU pragma: private, include "gtest/gtest.h"
+// IWYU pragma: friend gtest/.*
+// IWYU pragma: friend gmock/.*
 
-#include "gtest/gtest-test-part.h"
-
+module;
+#include <version>  // C++20 or <version> support.
+#include <stdio.h>
+#include <cerrno>
+#include <cstdio>
+#define GTEST_USE_MODULES 1
+#include "gtest/gtest-test-part-macros.h"
+#ifndef GTEST_IMPORT_STD
+#include <iosfwd>
 #include <ostream>
 #include <string>
 #include <string_view>
+#include <vector>
+#include <ios>
+#include <locale>
+#include <memory>
+#include <streambuf>
+#endif
+#ifndef GTEST_IMPORT_STD
+#include <string>
+#include <vector>
+#include <ios>
+#include <locale>
+#include <string_view>
+#include <memory>
+#include <ostream>
+#include <streambuf>
+#endif
+#if GTEST_HAS_PTHREAD
+#include <pthread.h>  // NOLINT
+#endif
 
-#include "gtest/internal/gtest-internal.h"
-#include "gtest/internal/gtest-port.h"
-#include "src/gtest-internal-inl.h"
-
+export module gtest.gtest_test_part;
+#ifdef GTEST_USE_IMPORT_STD
+import std.compat;
+#endif
+export import gtest.internal.gtest_internal;
+import gtest.internal.gtest_string;
+export import gtest.internal.gtest_port;
+export import gtest.gtest_message;
+import gtest.internal.gtest_filepath;
+export import gtest.internal.gtest_type_util;
+import gtest.internal.gtest_port_arch;
+#include "gtest/gtest-export.h"
+#ifdef GTEST_EXTERN_CXX
+extern "C++" {
+#endif
 namespace testing {
-
-// Gets the summary of the failure message by omitting the stack trace
-// in it.
-std::string TestPartResult::ExtractSummary(const std::string_view message) {
-  auto stack_trace = message.find(internal::kStackTraceMarker);
-  return std::string(message.substr(0, stack_trace));
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL class TestPartResult;
 }
-
-// Prints a TestPartResult object.
-std::ostream& operator<<(std::ostream& os, const TestPartResult& result) {
-  return os << internal::FormatFileLocation(result.file_name(),
-                                            result.line_number())
-            << " "
-            << (result.type() == TestPartResult::kSuccess ? "Success"
-                : result.type() == TestPartResult::kSkip  ? "Skipped"
-                : result.type() == TestPartResult::kFatalFailure
-                    ? "Fatal failure"
-                    : "Non-fatal failure")
-            << ":\n"
-            << result.message() << std::endl;
-}
-
-// Appends a TestPartResult to the array.
-void TestPartResultArray::Append(const TestPartResult& result) {
-  array_.push_back(result);
-}
-
-// Returns the TestPartResult at the given index (0-based).
-const TestPartResult& TestPartResultArray::GetTestPartResult(int index) const {
-  if (index < 0 || index >= size()) {
-    printf("\nInvalid index (%d) into TestPartResultArray.\n", index);
-    internal::posix::Abort();
-  }
-
-  return array_[static_cast<size_t>(index)];
-}
-
-// Returns the number of TestPartResult objects in the array.
-int TestPartResultArray::size() const {
-  return static_cast<int>(array_.size());
-}
-
+namespace testing {
 namespace internal {
-
-HasNewFatalFailureHelper::HasNewFatalFailureHelper()
-    : has_new_fatal_failure_(false),
-      original_reporter_(
-          GetUnitTestImpl()->GetTestPartResultReporterForCurrentThread()) {
-  GetUnitTestImpl()->SetTestPartResultReporterForCurrentThread(this);
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL template <typename C, bool>
+struct IsRecursiveContainerImpl;
 }
-
-HasNewFatalFailureHelper::~HasNewFatalFailureHelper() {
-  GetUnitTestImpl()->SetTestPartResultReporterForCurrentThread(
-      original_reporter_);
 }
-
-void HasNewFatalFailureHelper::ReportTestPartResult(
-    const TestPartResult& result) {
-  if (result.fatally_failed()) has_new_fatal_failure_ = true;
-  original_reporter_->ReportTestPartResult(result);
-}
-
-}  // namespace internal
-
-}  // namespace testing
+#define GTEST_USE_MODULES 1
+#include "gtest/gtest-test-part.h"
+#ifdef GTEST_EXTERN_CXX
+}  // extern "C++"
+#endif

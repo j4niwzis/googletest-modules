@@ -42,6 +42,54 @@
 // IWYU pragma: friend gtest/.*
 // IWYU pragma: friend gmock/.*
 
+#include "gtest/gtest-export.h"
+#ifndef GTEST_USE_MODULES
+#include "gtest/internal/gtest-port-macros.h"
+#endif
+// Copyright 2005, Google Inc.
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are
+// met:
+//
+//     * Redistributions of source code must retain the above copyright
+// notice, this list of conditions and the following disclaimer.
+//     * Redistributions in binary form must reproduce the above
+// copyright notice, this list of conditions and the following disclaimer
+// in the documentation and/or other materials provided with the
+// distribution.
+//     * Neither the name of Google Inc. nor the names of its
+// contributors may be used to endorse or promote products derived from
+// this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+// Low-level types and utilities for porting Google Test to various
+// platforms.  All macros ending with _ and symbols defined in an
+// internal namespace are subject to change without notice.  Code
+// outside Google Test MUST NOT USE THEM DIRECTLY.  Macros that don't
+// end with _ are part of Google Test's public API and can be used by
+// code outside Google Test.
+//
+// This file is fundamental to Google Test.  All other Google Test source
+// files are expected to #include this.  Therefore, it cannot #include
+// any other Google Test header.
+
+// IWYU pragma: private, include "gtest/gtest.h"
+// IWYU pragma: friend gtest/.*
+// IWYU pragma: friend gmock/.*
+
 #ifndef GOOGLETEST_INCLUDE_GTEST_INTERNAL_GTEST_PORT_H_
 #define GOOGLETEST_INCLUDE_GTEST_INTERNAL_GTEST_PORT_H_
 
@@ -250,8 +298,10 @@
 // The definition of GTEST_INTERNAL_CPLUSPLUS_LANG comes first because it can
 // potentially be used as an #include guard.
 #if defined(_MSVC_LANG)
+#undef GTEST_INTERNAL_CPLUSPLUS_LANG
 #define GTEST_INTERNAL_CPLUSPLUS_LANG _MSVC_LANG
 #elif defined(__cplusplus)
+#undef GTEST_INTERNAL_CPLUSPLUS_LANG
 #define GTEST_INTERNAL_CPLUSPLUS_LANG __cplusplus
 #endif
 
@@ -262,8 +312,10 @@
 
 // MSVC >= 19.11 (VS 2017 Update 3) supports __has_include.
 #ifdef __has_include
+#undef GTEST_INTERNAL_HAS_INCLUDE
 #define GTEST_INTERNAL_HAS_INCLUDE __has_include
 #else
+#undef GTEST_INTERNAL_HAS_INCLUDE
 #define GTEST_INTERNAL_HAS_INCLUDE(...) 0
 #endif
 
@@ -275,76 +327,106 @@
 // to GCC9.
 #if GTEST_INTERNAL_CPLUSPLUS_LANG >= 202002L || \
     GTEST_INTERNAL_HAS_INCLUDE(<version>)
+#ifndef GTEST_USE_MODULES
 #include <version>  // C++20 or <version> support.
+#endif
 #else
+#ifndef GTEST_USE_MODULES
 #include <ciso646>  // Pre-C++20
 #endif
+#endif
 
+#ifndef GTEST_USE_MODULES
 #include <ctype.h>   // for isspace, etc
 #include <stddef.h>  // for ptrdiff_t
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#endif
 
+#ifndef GTEST_USE_MODULES
 #include <cerrno>
+#endif
 // #include <condition_variable>  // Guarded by GTEST_IS_THREADSAFE below
+#ifndef GTEST_USE_MODULES
 #include <cstdint>
 #include <iostream>
 #include <limits>
 #include <locale>
 #include <memory>
+#endif
 // #include <mutex>  // Guarded by GTEST_IS_THREADSAFE below
+#ifndef GTEST_USE_MODULES
 #include <ostream>
 #include <string>
 #include <string_view>
 #include <tuple>
 #include <type_traits>
 #include <vector>
+#endif
 
 #ifndef _WIN32_WCE
+#ifndef GTEST_USE_MODULES
 #include <sys/stat.h>
 #include <sys/types.h>
+#endif
 #endif  // !_WIN32_WCE
 
 #if defined __APPLE__
+#ifndef GTEST_USE_MODULES
 #include <AvailabilityMacros.h>
 #include <TargetConditionals.h>
 #endif
+#endif
 
+#ifndef GTEST_USE_MODULES
 #include "gtest/internal/custom/gtest-port.h"
 #include "gtest/internal/gtest-port-arch.h"
+#endif
 
 #ifndef GTEST_HAS_MUTEX_AND_THREAD_LOCAL_
+#undef GTEST_HAS_MUTEX_AND_THREAD_LOCAL_
 #define GTEST_HAS_MUTEX_AND_THREAD_LOCAL_ 0
 #endif
 
 #ifndef GTEST_HAS_NOTIFICATION_
+#undef GTEST_HAS_NOTIFICATION_
 #define GTEST_HAS_NOTIFICATION_ 0
 #endif
 
 #if defined(GTEST_HAS_ABSL) && !defined(GTEST_NO_ABSL_FLAGS)
 #define GTEST_INTERNAL_HAS_ABSL_FLAGS  // Used only in this file.
+#ifndef GTEST_USE_MODULES
 #include "absl/flags/declare.h"
 #include "absl/flags/flag.h"
 #include "absl/flags/reflection.h"
 #endif
+#endif
 
 #if !defined(GTEST_DEV_EMAIL_)
+#undef GTEST_DEV_EMAIL_
 #define GTEST_DEV_EMAIL_ "googletestframework@@googlegroups.com"
+#undef GTEST_FLAG_PREFIX_
 #define GTEST_FLAG_PREFIX_ "gtest_"
+#undef GTEST_FLAG_PREFIX_DASH_
 #define GTEST_FLAG_PREFIX_DASH_ "gtest-"
+#undef GTEST_FLAG_PREFIX_UPPER_
 #define GTEST_FLAG_PREFIX_UPPER_ "GTEST_"
+#undef GTEST_NAME_
 #define GTEST_NAME_ "Google Test"
+#undef GTEST_PROJECT_URL_
 #define GTEST_PROJECT_URL_ "https://github.com/google/googletest/"
 #endif  // !defined(GTEST_DEV_EMAIL_)
 
 #if !defined(GTEST_INIT_GOOGLE_TEST_NAME_)
+#undef GTEST_INIT_GOOGLE_TEST_NAME_
 #define GTEST_INIT_GOOGLE_TEST_NAME_ "testing::InitGoogleTest"
 #endif  // !defined(GTEST_INIT_GOOGLE_TEST_NAME_)
 
 // Determines the version of gcc that is used to compile this.
 #ifdef __GNUC__
 // 40302 means version 4.3.2.
+#undef GTEST_GCC_VER_
 #define GTEST_GCC_VER_ \
   (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
 #endif  // __GNUC__
@@ -355,32 +437,44 @@
 //   /* code that triggers warnings C4800 and C4385 */
 //   GTEST_DISABLE_MSC_WARNINGS_POP_()
 #if defined(_MSC_VER)
+#undef GTEST_DISABLE_MSC_WARNINGS_PUSH_
 #define GTEST_DISABLE_MSC_WARNINGS_PUSH_(warnings) \
   __pragma(warning(push)) __pragma(warning(disable : warnings))
+#undef GTEST_DISABLE_MSC_WARNINGS_POP_
 #define GTEST_DISABLE_MSC_WARNINGS_POP_() __pragma(warning(pop))
 #else
 // Not all compilers are MSVC
+#undef GTEST_DISABLE_MSC_WARNINGS_PUSH_
 #define GTEST_DISABLE_MSC_WARNINGS_PUSH_(warnings)
+#undef GTEST_DISABLE_MSC_WARNINGS_POP_
 #define GTEST_DISABLE_MSC_WARNINGS_POP_()
 #endif
 
 // Pragmas to disable function deprecation warnings.
 #if defined(__clang__)
+#undef GTEST_DISABLE_DEPRECATED_PUSH_
 #define GTEST_DISABLE_DEPRECATED_PUSH_()                                \
   _Pragma("clang diagnostic push")                                      \
       _Pragma("clang diagnostic ignored \"-Wdeprecated-declarations\"") \
           _Pragma("clang diagnostic ignored \"-Wdeprecated-implementations\"")
+#undef GTEST_DISABLE_DEPRECATED_POP_
 #define GTEST_DISABLE_DEPRECATED_POP_() _Pragma("clang diagnostic pop")
 #elif defined(__GNUC__)
+#undef GTEST_DISABLE_DEPRECATED_PUSH_
 #define GTEST_DISABLE_DEPRECATED_PUSH_() \
   _Pragma("GCC diagnostic push")         \
       _Pragma("GCC diagnostic ignored \"-Wdeprecated-declarations\"")
+#undef GTEST_DISABLE_DEPRECATED_POP_
 #define GTEST_DISABLE_DEPRECATED_POP_() _Pragma("GCC diagnostic pop")
 #elif defined(_MSC_VER)
+#undef GTEST_DISABLE_DEPRECATED_PUSH_
 #define GTEST_DISABLE_DEPRECATED_PUSH_() GTEST_DISABLE_MSC_WARNINGS_PUSH_(4996)
+#undef GTEST_DISABLE_DEPRECATED_POP_
 #define GTEST_DISABLE_DEPRECATED_POP_() GTEST_DISABLE_MSC_WARNINGS_POP_()
 #else
+#undef GTEST_DISABLE_DEPRECATED_PUSH_
 #define GTEST_DISABLE_DEPRECATED_PUSH_()
+#undef GTEST_DISABLE_DEPRECATED_POP_
 #define GTEST_DISABLE_DEPRECATED_POP_()
 #endif
 
@@ -411,13 +505,17 @@ typedef struct _RTL_CRITICAL_SECTION GTEST_CRITICAL_SECTION;
 // This assumes that non-Windows OSes provide unistd.h. For OSes where this
 // is not the case, we need to include headers that provide the functions
 // mentioned above.
+#ifndef GTEST_USE_MODULES
 #include <strings.h>
+#endif
 #include <unistd.h>
 #endif  // GTEST_OS_WINDOWS
 
 #ifdef GTEST_OS_LINUX_ANDROID
 // Used to define __ANDROID_API__ matching the target NDK API level.
+#ifndef GTEST_USE_MODULES
 #include <android/api-level.h>  // NOLINT
+#endif
 #endif
 
 // Defines this to true if and only if Google Test can use POSIX regular
@@ -425,12 +523,15 @@ typedef struct _RTL_CRITICAL_SECTION GTEST_CRITICAL_SECTION;
 #ifndef GTEST_HAS_POSIX_RE
 #ifdef GTEST_OS_LINUX_ANDROID
 // On Android, <regex.h> is only available starting with Gingerbread.
+#undef GTEST_HAS_POSIX_RE
 #define GTEST_HAS_POSIX_RE (__ANDROID_API__ >= 9)
 #else
 #if !(defined(GTEST_OS_WINDOWS) || defined(GTEST_OS_XTENSA) || \
       defined(GTEST_OS_QURT))
+#undef GTEST_HAS_POSIX_RE
 #define GTEST_HAS_POSIX_RE 1
 #else
+#undef GTEST_HAS_POSIX_RE
 #define GTEST_HAS_POSIX_RE 0
 #endif
 #endif  // GTEST_OS_LINUX_ANDROID
@@ -439,11 +540,14 @@ typedef struct _RTL_CRITICAL_SECTION GTEST_CRITICAL_SECTION;
 // Select the regular expression implementation.
 #ifdef GTEST_HAS_ABSL
 // When using Abseil, RE2 is required.
+#ifndef GTEST_USE_MODULES
 #include "absl/strings/string_view.h"
 #include "re2/re2.h"
+#endif
 #define GTEST_USES_RE2 1
 #elif GTEST_HAS_POSIX_RE
 #include <regex.h>  // NOLINT
+#undef GTEST_USES_POSIX_RE
 #define GTEST_USES_POSIX_RE 1
 #else
 // Use our own simple regex implementation.
@@ -455,6 +559,7 @@ typedef struct _RTL_CRITICAL_SECTION GTEST_CRITICAL_SECTION;
 // to figure it out.
 #if defined(_MSC_VER) && defined(_CPPUNWIND)
 // MSVC defines _CPPUNWIND to 1 if and only if exceptions are enabled.
+#undef GTEST_HAS_EXCEPTIONS
 #define GTEST_HAS_EXCEPTIONS 1
 #elif defined(__BORLANDC__)
 // C++Builder's implementation of the STL uses the _HAS_EXCEPTIONS
@@ -463,6 +568,7 @@ typedef struct _RTL_CRITICAL_SECTION GTEST_CRITICAL_SECTION;
 #ifndef _HAS_EXCEPTIONS
 #define _HAS_EXCEPTIONS 1
 #endif  // _HAS_EXCEPTIONS
+#undef GTEST_HAS_EXCEPTIONS
 #define GTEST_HAS_EXCEPTIONS _HAS_EXCEPTIONS
 #elif defined(__clang__)
 // clang defines __EXCEPTIONS if and only if exceptions are enabled before clang
@@ -474,28 +580,35 @@ typedef struct _RTL_CRITICAL_SECTION GTEST_CRITICAL_SECTION;
 // clang, check for
 // __EXCEPTIONS && __has_feature(cxx_exceptions).
 #if defined(__EXCEPTIONS) && __EXCEPTIONS && __has_feature(cxx_exceptions)
+#undef GTEST_HAS_EXCEPTIONS
 #define GTEST_HAS_EXCEPTIONS 1
 #else
+#undef GTEST_HAS_EXCEPTIONS
 #define GTEST_HAS_EXCEPTIONS 0
 #endif
 #elif defined(__GNUC__) && defined(__EXCEPTIONS) && __EXCEPTIONS
 // gcc defines __EXCEPTIONS to 1 if and only if exceptions are enabled.
+#undef GTEST_HAS_EXCEPTIONS
 #define GTEST_HAS_EXCEPTIONS 1
 #elif defined(__SUNPRO_CC)
 // Sun Pro CC supports exceptions.  However, there is no compile-time way of
 // detecting whether they are enabled or not.  Therefore, we assume that
 // they are enabled unless the user tells us otherwise.
+#undef GTEST_HAS_EXCEPTIONS
 #define GTEST_HAS_EXCEPTIONS 1
 #elif defined(__IBMCPP__) && defined(__EXCEPTIONS) && __EXCEPTIONS
 // xlC defines __EXCEPTIONS to 1 if and only if exceptions are enabled.
+#undef GTEST_HAS_EXCEPTIONS
 #define GTEST_HAS_EXCEPTIONS 1
 #elif defined(__HP_aCC)
 // Exception handling is in effect by default in HP aCC compiler. It has to
 // be turned of by +noeh compiler option if desired.
+#undef GTEST_HAS_EXCEPTIONS
 #define GTEST_HAS_EXCEPTIONS 1
 #else
 // For other compilers, we assume exceptions are disabled to be
 // conservative.
+#undef GTEST_HAS_EXCEPTIONS
 #define GTEST_HAS_EXCEPTIONS 0
 #endif  // defined(_MSC_VER) || defined(__BORLANDC__)
 #endif  // GTEST_HAS_EXCEPTIONS
@@ -503,6 +616,7 @@ typedef struct _RTL_CRITICAL_SECTION GTEST_CRITICAL_SECTION;
 // 1. Calculate default GTEST_HAS_STD_WSTRING values based on STL capabilities.
 #if defined(_MSVC_STL_VERSION)
 // Microsoft's STL implementation always supports ::std::wstring.
+#undef GTEST_HAS_STD_WSTRING_DEFAULT
 #define GTEST_HAS_STD_WSTRING_DEFAULT 1
 
 #elif defined(_LIBCPP_VERSION)
@@ -512,15 +626,19 @@ typedef struct _RTL_CRITICAL_SECTION GTEST_CRITICAL_SECTION;
 // characters are supported.
 #if (defined(_LIBCPP_HAS_WIDE_CHARACTERS) && !_LIBCPP_HAS_WIDE_CHARACTERS) || \
     defined(_LIBCPP_HAS_NO_WIDE_CHARACTERS)
+#undef GTEST_HAS_STD_WSTRING_DEFAULT
 #define GTEST_HAS_STD_WSTRING_DEFAULT 0
 #else
+#undef GTEST_HAS_STD_WSTRING_DEFAULT
 #define GTEST_HAS_STD_WSTRING_DEFAULT 1
 #endif
 
 #elif defined(__GLIBCXX__)
 #if defined(_GLIBCXX_USE_WCHAR_T) && _GLIBCXX_USE_WCHAR_T
+#undef GTEST_HAS_STD_WSTRING_DEFAULT
 #define GTEST_HAS_STD_WSTRING_DEFAULT 1
 #else
+#undef GTEST_HAS_STD_WSTRING_DEFAULT
 #define GTEST_HAS_STD_WSTRING_DEFAULT 0
 #endif
 
@@ -531,6 +649,7 @@ typedef struct _RTL_CRITICAL_SECTION GTEST_CRITICAL_SECTION;
 // information about what's supported than we do.
 #if defined(GTEST_OS_LINUX_ANDROID)
 // Android started supporting std::wstring with API Level 21 (Lollipop).
+#undef GTEST_HAS_STD_WSTRING_DEFAULT
 #define GTEST_HAS_STD_WSTRING_DEFAULT (__ANDROID_API__ >= 21)
 // The following platforms are known not to support ::std::wstring; assume it's
 // supported on all others.
@@ -542,8 +661,10 @@ typedef struct _RTL_CRITICAL_SECTION GTEST_CRITICAL_SECTION;
     defined(GTEST_OS_ESP8266) || defined(GTEST_OS_XTENSA) ||   \
     defined(GTEST_OS_QURT) || defined(GTEST_OS_NXP_QN9090) ||  \
     defined(GTEST_OS_NRF52)
+#undef GTEST_HAS_STD_WSTRING_DEFAULT
 #define GTEST_HAS_STD_WSTRING_DEFAULT 0
 #else
+#undef GTEST_HAS_STD_WSTRING_DEFAULT
 #define GTEST_HAS_STD_WSTRING_DEFAULT 1
 #endif
 #endif
@@ -563,11 +684,13 @@ typedef struct _RTL_CRITICAL_SECTION GTEST_CRITICAL_SECTION;
 
 // 3. Set final values if not explicitly overridden by user
 #if !defined(GTEST_HAS_STD_WSTRING)
+#undef GTEST_HAS_STD_WSTRING
 #define GTEST_HAS_STD_WSTRING GTEST_HAS_STD_WSTRING_DEFAULT
 #endif
 
 #ifndef GTEST_HAS_FILE_SYSTEM
 // Most platforms support a file system.
+#undef GTEST_HAS_FILE_SYSTEM
 #define GTEST_HAS_FILE_SYSTEM 1
 #endif  // GTEST_HAS_FILE_SYSTEM
 
@@ -579,8 +702,10 @@ typedef struct _RTL_CRITICAL_SECTION GTEST_CRITICAL_SECTION;
 #ifdef _MSC_VER
 
 #ifdef _CPPRTTI  // MSVC defines this macro if and only if RTTI is enabled.
+#undef GTEST_HAS_RTTI
 #define GTEST_HAS_RTTI 1
 #else
+#undef GTEST_HAS_RTTI
 #define GTEST_HAS_RTTI 0
 #endif
 
@@ -595,11 +720,14 @@ typedef struct _RTL_CRITICAL_SECTION GTEST_CRITICAL_SECTION;
 // so disable RTTI when detected.
 #if defined(GTEST_OS_LINUX_ANDROID) && defined(_STLPORT_MAJOR) && \
     !defined(__EXCEPTIONS)
+#undef GTEST_HAS_RTTI
 #define GTEST_HAS_RTTI 0
 #else
+#undef GTEST_HAS_RTTI
 #define GTEST_HAS_RTTI 1
 #endif  // GTEST_OS_LINUX_ANDROID && __STLPORT_MAJOR && !__EXCEPTIONS
 #else
+#undef GTEST_HAS_RTTI
 #define GTEST_HAS_RTTI 0
 #endif  // __GXX_RTTI
 
@@ -608,6 +736,7 @@ typedef struct _RTL_CRITICAL_SECTION GTEST_CRITICAL_SECTION;
 // first version with C++ support.
 #elif defined(__clang__)
 
+#undef GTEST_HAS_RTTI
 #define GTEST_HAS_RTTI __has_feature(cxx_rtti)
 
 // Starting with version 9.0 IBM Visual Age defines __RTTI_ALL__ to 1 if
@@ -615,14 +744,17 @@ typedef struct _RTL_CRITICAL_SECTION GTEST_CRITICAL_SECTION;
 #elif defined(__IBMCPP__) && (__IBMCPP__ >= 900)
 
 #ifdef __RTTI_ALL__
+#undef GTEST_HAS_RTTI
 #define GTEST_HAS_RTTI 1
 #else
+#undef GTEST_HAS_RTTI
 #define GTEST_HAS_RTTI 0
 #endif
 
 #else
 
 // For all other compilers, we assume RTTI is enabled.
+#undef GTEST_HAS_RTTI
 #define GTEST_HAS_RTTI 1
 
 #endif  // _MSC_VER
@@ -632,7 +764,9 @@ typedef struct _RTL_CRITICAL_SECTION GTEST_CRITICAL_SECTION;
 // It's this header's responsibility to #include <typeinfo> when RTTI
 // is enabled.
 #if GTEST_HAS_RTTI
+#ifndef GTEST_USE_MODULES
 #include <typeinfo>
+#endif
 #endif
 
 // Determines whether Google Test can use the pthreads library.
@@ -651,8 +785,10 @@ typedef struct _RTL_CRITICAL_SECTION GTEST_CRITICAL_SECTION;
      defined(GTEST_OS_GNU_HURD) || defined(GTEST_OS_SOLARIS) ||       \
      defined(GTEST_OS_AIX) || defined(GTEST_OS_ZOS) ||                \
      (defined(GTEST_OS_EMSCRIPTEN) && defined(__EMSCRIPTEN_PTHREADS__)))
+#undef GTEST_HAS_PTHREAD
 #define GTEST_HAS_PTHREAD 1
 #else
+#undef GTEST_HAS_PTHREAD
 #define GTEST_HAS_PTHREAD 0
 #endif
 #endif  // GTEST_HAS_PTHREAD
@@ -660,10 +796,14 @@ typedef struct _RTL_CRITICAL_SECTION GTEST_CRITICAL_SECTION;
 #if GTEST_HAS_PTHREAD
 // gtest-port.h guarantees to #include <pthread.h> when GTEST_HAS_PTHREAD is
 // true.
+#ifndef GTEST_USE_MODULES
 #include <pthread.h>  // NOLINT
+#endif
 
 // For timespec and nanosleep, used below.
+#ifndef GTEST_USE_MODULES
 #include <time.h>  // NOLINT
+#endif
 #endif
 
 // Determines whether clone(2) is supported.
@@ -680,14 +820,18 @@ typedef struct _RTL_CRITICAL_SECTION GTEST_CRITICAL_SECTION;
 #if defined(__LP64__) || (defined(__arm__) && __ANDROID_API__ >= 9) || \
     (defined(__mips__) && __ANDROID_API__ >= 12) ||                    \
     (defined(__i386__) && __ANDROID_API__ >= 17)
+#undef GTEST_HAS_CLONE
 #define GTEST_HAS_CLONE 1
 #else
+#undef GTEST_HAS_CLONE
 #define GTEST_HAS_CLONE 0
 #endif
 #else
+#undef GTEST_HAS_CLONE
 #define GTEST_HAS_CLONE 1
 #endif
 #else
+#undef GTEST_HAS_CLONE
 #define GTEST_HAS_CLONE 0
 #endif  // GTEST_OS_LINUX && !defined(__ia64__)
 
@@ -703,8 +847,10 @@ typedef struct _RTL_CRITICAL_SECTION GTEST_CRITICAL_SECTION;
     defined(GTEST_OS_WINDOWS_RT) || defined(GTEST_OS_WINDOWS_GAMES) ||     \
     defined(GTEST_OS_ESP8266) || defined(GTEST_OS_XTENSA) ||               \
     defined(GTEST_OS_QURT) || !GTEST_HAS_FILE_SYSTEM
+#undef GTEST_HAS_STREAM_REDIRECTION
 #define GTEST_HAS_STREAM_REDIRECTION 0
 #else
+#undef GTEST_HAS_STREAM_REDIRECTION
 #define GTEST_HAS_STREAM_REDIRECTION 1
 #endif  // !GTEST_OS_WINDOWS_MOBILE
 #endif  // GTEST_HAS_STREAM_REDIRECTION
@@ -724,6 +870,7 @@ typedef struct _RTL_CRITICAL_SECTION GTEST_CRITICAL_SECTION;
 
 // Death tests require a file system to work properly.
 #if GTEST_HAS_FILE_SYSTEM
+#undef GTEST_HAS_DEATH_TEST
 #define GTEST_HAS_DEATH_TEST 1
 #endif  // GTEST_HAS_FILE_SYSTEM
 #endif
@@ -734,6 +881,7 @@ typedef struct _RTL_CRITICAL_SECTION GTEST_CRITICAL_SECTION;
 // crashes).
 #if GTEST_HAS_DEATH_TEST || \
     (defined(GTEST_OS_EMSCRIPTEN) && GTEST_HAS_FILE_SYSTEM)
+#undef GTEST_INTERNAL_HAS_PREMATURE_EXIT_FILE
 #define GTEST_INTERNAL_HAS_PREMATURE_EXIT_FILE 1
 #endif
 
@@ -743,15 +891,19 @@ typedef struct _RTL_CRITICAL_SECTION GTEST_CRITICAL_SECTION;
 // Sun Pro CC, IBM Visual Age, and HP aCC support.
 #if defined(__GNUC__) || defined(_MSC_VER) || defined(__SUNPRO_CC) || \
     defined(__IBMCPP__) || defined(__HP_aCC)
+#undef GTEST_HAS_TYPED_TEST
 #define GTEST_HAS_TYPED_TEST 1
+#undef GTEST_HAS_TYPED_TEST_P
 #define GTEST_HAS_TYPED_TEST_P 1
 #endif
 
 // Determines whether the system compiler uses UTF-16 for encoding wide strings.
 #if defined(GTEST_OS_WINDOWS) || defined(GTEST_OS_CYGWIN) || \
     defined(GTEST_OS_AIX) || defined(GTEST_OS_OS2)
+#undef GTEST_WIDE_STRING_USES_UTF16_
 #define GTEST_WIDE_STRING_USES_UTF16_ 1
 #else
+#undef GTEST_WIDE_STRING_USES_UTF16_
 #define GTEST_WIDE_STRING_USES_UTF16_ 0
 #endif
 
@@ -760,8 +912,10 @@ typedef struct _RTL_CRITICAL_SECTION GTEST_CRITICAL_SECTION;
     defined(GTEST_OS_DRAGONFLY) || defined(GTEST_OS_FREEBSD) ||  \
     defined(GTEST_OS_NETBSD) || defined(GTEST_OS_OPENBSD) ||     \
     defined(GTEST_OS_GNU_HURD) || defined(GTEST_OS_MAC)
+#undef GTEST_CAN_STREAM_RESULTS_
 #define GTEST_CAN_STREAM_RESULTS_ 1
 #else
+#undef GTEST_CAN_STREAM_RESULTS_
 #define GTEST_CAN_STREAM_RESULTS_ 0
 #endif
 
@@ -776,8 +930,10 @@ typedef struct _RTL_CRITICAL_SECTION GTEST_CRITICAL_SECTION;
 //
 // The "switch (0) case 0:" idiom is used to suppress this.
 #ifdef __INTEL_COMPILER
+#undef GTEST_AMBIGUOUS_ELSE_BLOCKER_
 #define GTEST_AMBIGUOUS_ELSE_BLOCKER_
 #else
+#undef GTEST_AMBIGUOUS_ELSE_BLOCKER_
 #define GTEST_AMBIGUOUS_ELSE_BLOCKER_ \
   switch (0)                          \
   case 0:                             \
@@ -795,8 +951,10 @@ typedef struct _RTL_CRITICAL_SECTION GTEST_CRITICAL_SECTION;
 // GCC: https://gcc.gnu.org/gcc-5/changes.html
 // Clang: https://clang.llvm.org/docs/LanguageExtensions.html
 #ifdef __has_attribute
+#undef GTEST_HAVE_ATTRIBUTE_
 #define GTEST_HAVE_ATTRIBUTE_(x) __has_attribute(x)
 #else
+#undef GTEST_HAVE_ATTRIBUTE_
 #define GTEST_HAVE_ATTRIBUTE_(x) 0
 #endif
 
@@ -809,8 +967,10 @@ typedef struct _RTL_CRITICAL_SECTION GTEST_CRITICAL_SECTION;
 #if defined(__has_cpp_attribute)
 // NOTE: requiring __cplusplus above should not be necessary, but
 // works around https://bugs.llvm.org/show_bug.cgi?id=23435.
+#undef GTEST_INTERNAL_HAVE_CPP_ATTRIBUTE
 #define GTEST_INTERNAL_HAVE_CPP_ATTRIBUTE(x) __has_cpp_attribute(x)
 #else
+#undef GTEST_INTERNAL_HAVE_CPP_ATTRIBUTE
 #define GTEST_INTERNAL_HAVE_CPP_ATTRIBUTE(x) 0
 #endif
 
@@ -819,8 +979,10 @@ typedef struct _RTL_CRITICAL_SECTION GTEST_CRITICAL_SECTION;
 // A function-like feature checking macro that is a wrapper around
 // `__has_feature`.
 #ifdef __has_feature
+#undef GTEST_HAVE_FEATURE_
 #define GTEST_HAVE_FEATURE_(x) __has_feature(x)
 #else
+#undef GTEST_HAVE_FEATURE_
 #define GTEST_HAVE_FEATURE_(x) 0
 #endif
 
@@ -829,26 +991,18 @@ typedef struct _RTL_CRITICAL_SECTION GTEST_CRITICAL_SECTION;
 // MinGW has two different printf implementations. Ensure the format macro
 // matches the selected implementation. See
 // https://sourceforge.net/p/mingw-w64/wiki2/gnu%20printf/.
+#undef GTEST_ATTRIBUTE_PRINTF_
 #define GTEST_ATTRIBUTE_PRINTF_(string_index, first_to_check) \
   __attribute__((format(__MINGW_PRINTF_FORMAT, string_index, first_to_check)))
 #elif GTEST_HAVE_ATTRIBUTE_(format)
+#undef GTEST_ATTRIBUTE_PRINTF_
 #define GTEST_ATTRIBUTE_PRINTF_(string_index, first_to_check) \
   __attribute__((format(printf, string_index, first_to_check)))
 #else
+#undef GTEST_ATTRIBUTE_PRINTF_
 #define GTEST_ATTRIBUTE_PRINTF_(string_index, first_to_check)
 #endif
 
-// MS C++ compiler emits warning when a conditional expression is compile time
-// constant. In some contexts this warning is false positive and needs to be
-// suppressed. Use the following two macros in such cases:
-//
-// GTEST_INTENTIONAL_CONST_COND_PUSH_()
-// while (true) {
-// GTEST_INTENTIONAL_CONST_COND_POP_()
-// }
-#define GTEST_INTENTIONAL_CONST_COND_PUSH_() \
-  GTEST_DISABLE_MSC_WARNINGS_PUSH_(4127)
-#define GTEST_INTENTIONAL_CONST_COND_POP_() GTEST_DISABLE_MSC_WARNINGS_POP_()
 
 // Determine whether the compiler supports Microsoft's Structured Exception
 // Handling.  This is supported by several Windows compilers but generally
@@ -858,9 +1012,11 @@ typedef struct _RTL_CRITICAL_SECTION GTEST_CRITICAL_SECTION;
 
 #if defined(_MSC_VER) || defined(__BORLANDC__)
 // These two compilers are known to support SEH.
+#undef GTEST_HAS_SEH
 #define GTEST_HAS_SEH 1
 #else
 // Assume no SEH.
+#undef GTEST_HAS_SEH
 #define GTEST_HAS_SEH 0
 #endif
 
@@ -872,6 +1028,7 @@ typedef struct _RTL_CRITICAL_SECTION GTEST_CRITICAL_SECTION;
      (defined(GTEST_OS_WINDOWS) && !defined(GTEST_OS_WINDOWS_PHONE) && \
       !defined(GTEST_OS_WINDOWS_RT)) ||                                \
      GTEST_HAS_PTHREAD)
+#undef GTEST_IS_THREADSAFE
 #define GTEST_IS_THREADSAFE 1
 #endif
 
@@ -879,8 +1036,10 @@ typedef struct _RTL_CRITICAL_SECTION GTEST_CRITICAL_SECTION;
 
 #ifdef GTEST_IS_THREADSAFE
 // Some platforms don't support including these threading related headers.
+#ifndef GTEST_USE_MODULES
 #include <condition_variable>  // NOLINT
 #include <mutex>               // NOLINT
+#endif
 #endif                         // GTEST_IS_THREADSAFE
 
 // GTEST_API_ qualifies all symbols that must be exported. The definitions below
@@ -890,49 +1049,60 @@ typedef struct _RTL_CRITICAL_SECTION GTEST_CRITICAL_SECTION;
 
 #ifdef _MSC_VER
 #if defined(GTEST_CREATE_SHARED_LIBRARY) && GTEST_CREATE_SHARED_LIBRARY
+#undef GTEST_API_
 #define GTEST_API_ __declspec(dllexport)
 #elif defined(GTEST_LINKED_AS_SHARED_LIBRARY) && GTEST_LINKED_AS_SHARED_LIBRARY
+#undef GTEST_API_
 #define GTEST_API_ __declspec(dllimport)
 #endif
 #elif GTEST_INTERNAL_HAVE_CPP_ATTRIBUTE(gnu::visibility)
+#undef GTEST_API_
 #define GTEST_API_ [[gnu::visibility("default")]]
 #elif GTEST_HAVE_ATTRIBUTE_(visibility)
+#undef GTEST_API_
 #define GTEST_API_ __attribute__((visibility("default")))
 #endif  // _MSC_VER
 
 #endif  // GTEST_API_
 
 #ifndef GTEST_API_
+#undef GTEST_API_
 #define GTEST_API_
 #endif  // GTEST_API_
 
 #ifndef GTEST_DEFAULT_DEATH_TEST_STYLE
+#undef GTEST_DEFAULT_DEATH_TEST_STYLE
 #define GTEST_DEFAULT_DEATH_TEST_STYLE "fast"
 #endif  // GTEST_DEFAULT_DEATH_TEST_STYLE
 
 #if GTEST_HAVE_ATTRIBUTE_(noinline)
 // Ask the compiler to never inline a given function.
+#undef GTEST_NO_INLINE_
 #define GTEST_NO_INLINE_ __attribute__((noinline))
 #else
+#undef GTEST_NO_INLINE_
 #define GTEST_NO_INLINE_
 #endif
 
 #if GTEST_HAVE_ATTRIBUTE_(disable_tail_calls)
 // Ask the compiler not to perform tail call optimization inside
 // the marked function.
+#undef GTEST_NO_TAIL_CALL_
 #define GTEST_NO_TAIL_CALL_ __attribute__((disable_tail_calls))
 #elif defined(__GNUC__) && !defined(__NVCOMPILER)
+#undef GTEST_NO_TAIL_CALL_
 #define GTEST_NO_TAIL_CALL_ \
   __attribute__((optimize("no-optimize-sibling-calls")))
 #else
+#undef GTEST_NO_TAIL_CALL_
 #define GTEST_NO_TAIL_CALL_
 #endif
 
 // _LIBCPP_VERSION is defined by the libc++ library from the LLVM project.
 #if !defined(GTEST_HAS_CXXABI_H_)
 #if defined(__GLIBCXX__) || (defined(_LIBCPP_VERSION) && !defined(_MSC_VER))
-#define GTEST_HAS_CXXABI_H_ 1
 #else
+#undef GTEST_HAS_CXXABI_H_
 #define GTEST_HAS_CXXABI_H_ 0
 #endif
 #endif
@@ -940,59 +1110,67 @@ typedef struct _RTL_CRITICAL_SECTION GTEST_CRITICAL_SECTION;
 // A function level attribute to disable checking for use of uninitialized
 // memory when built with MemorySanitizer.
 #if GTEST_HAVE_ATTRIBUTE_(no_sanitize_memory)
+#undef GTEST_ATTRIBUTE_NO_SANITIZE_MEMORY_
 #define GTEST_ATTRIBUTE_NO_SANITIZE_MEMORY_ __attribute__((no_sanitize_memory))
 #else
+#undef GTEST_ATTRIBUTE_NO_SANITIZE_MEMORY_
 #define GTEST_ATTRIBUTE_NO_SANITIZE_MEMORY_
 #endif
 
 // A function level attribute to disable AddressSanitizer instrumentation.
 #if GTEST_HAVE_ATTRIBUTE_(no_sanitize_address)
+#undef GTEST_ATTRIBUTE_NO_SANITIZE_ADDRESS_
 #define GTEST_ATTRIBUTE_NO_SANITIZE_ADDRESS_ \
   __attribute__((no_sanitize_address))
 #else
+#undef GTEST_ATTRIBUTE_NO_SANITIZE_ADDRESS_
 #define GTEST_ATTRIBUTE_NO_SANITIZE_ADDRESS_
 #endif
 
 // A function level attribute to disable HWAddressSanitizer instrumentation.
 #if GTEST_HAVE_FEATURE_(hwaddress_sanitizer) && \
     GTEST_HAVE_ATTRIBUTE_(no_sanitize)
+#undef GTEST_ATTRIBUTE_NO_SANITIZE_HWADDRESS_
 #define GTEST_ATTRIBUTE_NO_SANITIZE_HWADDRESS_ \
   __attribute__((no_sanitize("hwaddress")))
 #else
+#undef GTEST_ATTRIBUTE_NO_SANITIZE_HWADDRESS_
 #define GTEST_ATTRIBUTE_NO_SANITIZE_HWADDRESS_
 #endif
 
 // A function level attribute to disable ThreadSanitizer instrumentation.
 #if GTEST_HAVE_ATTRIBUTE_(no_sanitize_thread)
+#undef GTEST_ATTRIBUTE_NO_SANITIZE_THREAD_
 #define GTEST_ATTRIBUTE_NO_SANITIZE_THREAD_ __attribute((no_sanitize_thread))
 #else
+#undef GTEST_ATTRIBUTE_NO_SANITIZE_THREAD_
 #define GTEST_ATTRIBUTE_NO_SANITIZE_THREAD_
 #endif
 
 namespace testing {
 
-class Message;
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL class Message;
 
 // Legacy imports for backwards compatibility.
 // New code should use std:: names directly.
-using std::get;
-using std::make_tuple;
-using std::tuple;
-using std::tuple_element;
-using std::tuple_size;
+GTEST_EXPORT using std::get;
+GTEST_EXPORT using std::make_tuple;
+GTEST_EXPORT using std::tuple;
+GTEST_EXPORT using std::tuple_element;
+GTEST_EXPORT using std::tuple_size;
 
 namespace internal {
 
 // A secret type that Google Test users don't know about.  It has no
 // accessible constructors on purpose.  Therefore it's impossible to create a
 // Secret object, which is what we want.
-class [[nodiscard]] Secret {
+GTEST_EXPORT class [[nodiscard]] Secret {
   Secret(const Secret&) = delete;
 };
 
 // A helper for suppressing warnings on constant condition.  It just
 // returns 'condition'.
-GTEST_API_ bool IsTrue(bool condition);
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL GTEST_API_ bool IsTrue(bool condition);
 
 // Defines RE.
 
@@ -1027,7 +1205,7 @@ GTEST_DISABLE_MSC_WARNINGS_PUSH_(4251 \
 
 // A simple C++ wrapper for <regex.h>.  It uses the POSIX Extended
 // Regular Expression syntax.
-class GTEST_API_ [[nodiscard]] RE {
+GTEST_EXPORT class GTEST_API_ [[nodiscard]] RE {
  public:
   // A copy constructor is required by the Standard to initialize object
   // references from r-values.
@@ -1077,12 +1255,12 @@ GTEST_DISABLE_MSC_WARNINGS_POP_()  // 4251
 
 // Formats a source file path and a line number as they would appear
 // in an error message from the compiler used to compile this code.
-GTEST_API_ ::std::string FormatFileLocation(const char* file, int line);
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL GTEST_API_ ::std::string FormatFileLocation(const char* file, int line);
 
 // Formats a file location for compiler-independent XML output.
 // Although this function is not platform dependent, we put it next to
 // FormatFileLocation in order to contrast the two functions.
-GTEST_API_ ::std::string FormatCompilerIndependentFileLocation(const char* file,
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL GTEST_API_ ::std::string FormatCompilerIndependentFileLocation(const char* file,
                                                                int line);
 
 // Defines logging utilities:
@@ -1091,12 +1269,12 @@ GTEST_API_ ::std::string FormatCompilerIndependentFileLocation(const char* file,
 //   LogToStderr()  - directs all log messages to stderr.
 //   FlushInfoLog() - flushes informational log messages.
 
-enum GTestLogSeverity { GTEST_INFO, GTEST_WARNING, GTEST_ERROR, GTEST_FATAL };
+GTEST_EXPORT enum GTestLogSeverity { GTEST_INFO, GTEST_WARNING, GTEST_ERROR, GTEST_FATAL };
 
 // Formats log entry severity, provides a stream object for streaming the
 // log message, and terminates the message with a newline when going out of
 // scope.
-class GTEST_API_ [[nodiscard]] GTestLog {
+GTEST_EXPORT class GTEST_API_ [[nodiscard]] GTestLog {
  public:
   GTestLog(GTestLogSeverity severity, const char* file, int line);
 
@@ -1112,17 +1290,10 @@ class GTEST_API_ [[nodiscard]] GTestLog {
   GTestLog& operator=(const GTestLog&) = delete;
 };
 
-#if !defined(GTEST_LOG_)
 
-#define GTEST_LOG_(severity)                                           \
-  ::testing::internal::GTestLog(::testing::internal::GTEST_##severity, \
-                                __FILE__, __LINE__)                    \
-      .GetStream()
+GTEST_EXPORT inline void LogToStderr() {}
+GTEST_EXPORT inline void FlushInfoLog() { fflush(nullptr); }
 
-inline void LogToStderr() {}
-inline void FlushInfoLog() { fflush(nullptr); }
-
-#endif  // !defined(GTEST_LOG_)
 
 #if !defined(GTEST_CHECK_)
 // INTERNAL IMPLEMENTATION - DO NOT USE.
@@ -1139,6 +1310,7 @@ inline void FlushInfoLog() { fflush(nullptr); }
 //    condition itself, plus additional message streamed into it, if any,
 //    and then it aborts the program. It aborts the program irrespective of
 //    whether it is built in the debug mode or not.
+#undef GTEST_CHECK_
 #define GTEST_CHECK_(condition)               \
   GTEST_AMBIGUOUS_ELSE_BLOCKER_               \
   if (::testing::internal::IsTrue(condition)) \
@@ -1147,14 +1319,6 @@ inline void FlushInfoLog() { fflush(nullptr); }
     GTEST_LOG_(FATAL) << "Condition " #condition " failed. "
 #endif  // !defined(GTEST_CHECK_)
 
-// An all-mode assert to verify that the given POSIX-style function
-// call returns 0 (indicating success).  Known limitation: this
-// doesn't expand to a balanced 'if' statement, so enclose the macro
-// in {} if you need to use it as the only statement in an 'if'
-// branch.
-#define GTEST_CHECK_POSIX_SUCCESS_(posix_call) \
-  if (const int gtest_error = (posix_call))    \
-  GTEST_LOG_(FATAL) << #posix_call << "failed with error " << gtest_error
 
 // Transforms "T" into "const T&" according to standard reference collapsing
 // rules (this is only needed as a backport for C++98 compilers that do not
@@ -1167,7 +1331,7 @@ inline void FlushInfoLog() { fflush(nullptr); }
 //
 // Note that the non-const reference will not have "const" added. This is
 // standard, and necessary so that "T" can always bind to "const T&".
-template <typename T>
+GTEST_EXPORT template <typename T>
 struct ConstRef {
   typedef const T& type;
 };
@@ -1176,9 +1340,6 @@ struct ConstRef<T&> {
   typedef T& type;
 };
 
-// The argument T must depend on some template parameters.
-#define GTEST_REFERENCE_TO_CONST_(T) \
-  typename ::testing::internal::ConstRef<T>::type
 
 // INTERNAL IMPLEMENTATION - DO NOT USE IN USER CODE.
 //
@@ -1200,7 +1361,7 @@ struct ConstRef<T&> {
 // This relatively ugly name is intentional. It prevents clashes with
 // similar functions users may have (e.g., implicit_cast). The internal
 // namespace alone is not enough because the function can be found by ADL.
-template <typename To>
+GTEST_EXPORT template <typename To>
 inline To ImplicitCast_(To x) {
   return x;
 }
@@ -1210,7 +1371,7 @@ inline To ImplicitCast_(To x) {
 // point to a class of type Derived, not any subclass of it.
 // When RTTI is available, the function performs a runtime
 // check to enforce this.
-template <class Derived, class Base>
+GTEST_EXPORT template <class Derived, class Base>
 Derived* CheckedDowncastToActualType(Base* base) {
   static_assert(std::is_base_of<Base, Derived>::value,
                 "target type not derived from source type");
@@ -1228,28 +1389,28 @@ Derived* CheckedDowncastToActualType(Base* base) {
 //   CaptureStderr     - starts capturing stderr.
 //   GetCapturedStderr - stops capturing stderr and returns the captured string.
 //
-GTEST_API_ void CaptureStdout();
-GTEST_API_ std::string GetCapturedStdout();
-GTEST_API_ void CaptureStderr();
-GTEST_API_ std::string GetCapturedStderr();
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL GTEST_API_ void CaptureStdout();
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL GTEST_API_ std::string GetCapturedStdout();
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL GTEST_API_ void CaptureStderr();
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL GTEST_API_ std::string GetCapturedStderr();
 
 #endif  // GTEST_HAS_STREAM_REDIRECTION
 // Returns the size (in bytes) of a file.
-GTEST_API_ size_t GetFileSize(FILE* file);
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL GTEST_API_ size_t GetFileSize(FILE* file);
 
 // Reads the entire content of a file as a string.
-GTEST_API_ std::string ReadEntireFile(FILE* file);
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL GTEST_API_ std::string ReadEntireFile(FILE* file);
 
 // All command line arguments.
-GTEST_API_ std::vector<std::string> GetArgvs();
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL GTEST_API_ std::vector<std::string> GetArgvs();
 
 #ifdef GTEST_HAS_DEATH_TEST
 
-std::vector<std::string> GetInjectableArgvs();
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL std::vector<std::string> GetInjectableArgvs();
 // Deprecated: pass the args vector by value instead.
-void SetInjectableArgvs(const std::vector<std::string>* new_argvs);
-void SetInjectableArgvs(const std::vector<std::string>& new_argvs);
-void ClearInjectableArgvs();
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL void SetInjectableArgvs(const std::vector<std::string>* new_argvs);
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL void SetInjectableArgvs(const std::vector<std::string>& new_argvs);
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL void ClearInjectableArgvs();
 
 #endif  // GTEST_HAS_DEATH_TEST
 
@@ -1333,7 +1494,7 @@ class GTEST_API_ [[nodiscard]] Notification {
 GTEST_DISABLE_MSC_WARNINGS_PUSH_(4251 \
 /* class A needs to have dll-interface to be used by clients of class B */)
 
-class GTEST_API_ [[nodiscard]] Notification {
+GTEST_EXPORT class GTEST_API_ [[nodiscard]] Notification {
  public:
   Notification() : notified_(false) {}
   Notification(const Notification&) = delete;
@@ -1373,7 +1534,7 @@ GTEST_DISABLE_MSC_WARNINGS_POP_()  // 4251
 // in order to call its Run(). Introducing ThreadWithParamBase as a
 // non-templated base class for ThreadWithParam allows us to bypass this
 // problem.
-class [[nodiscard]] ThreadWithParamBase {
+GTEST_EXPORT class [[nodiscard]] ThreadWithParamBase {
  public:
   virtual ~ThreadWithParamBase() = default;
   virtual void Run() = 0;
@@ -1385,7 +1546,7 @@ class [[nodiscard]] ThreadWithParamBase {
 // example, SunStudio) treat them as different types.  Since class methods
 // cannot be defined with C-linkage we need to define a free C-function to
 // pass into pthread_create().
-extern "C" inline void* ThreadFuncWithCLinkage(void* thread) {
+GTEST_EXPORT extern "C" inline void* ThreadFuncWithCLinkage(void* thread) {
   static_cast<ThreadWithParamBase*>(thread)->Run();
   return nullptr;
 }
@@ -1402,7 +1563,7 @@ extern "C" inline void* ThreadFuncWithCLinkage(void* thread) {
 //
 // These classes are only for testing Google Test's own constructs. Do
 // not use them in user tests, either directly or indirectly.
-template <typename T>
+GTEST_EXPORT template <typename T>
 class [[nodiscard]] ThreadWithParam : public ThreadWithParamBase {
  public:
   typedef void UserThreadFunc(T);
@@ -1511,9 +1672,11 @@ class GTEST_API_ [[nodiscard]] Mutex {
   Mutex& operator=(const Mutex&) = delete;
 };
 
+#undef GTEST_DECLARE_STATIC_MUTEX_
 #define GTEST_DECLARE_STATIC_MUTEX_(mutex) \
   extern ::testing::internal::Mutex mutex
 
+#undef GTEST_DEFINE_STATIC_MUTEX_
 #define GTEST_DEFINE_STATIC_MUTEX_(mutex) \
   ::testing::internal::Mutex mutex(::testing::internal::Mutex::kStaticMutex)
 
@@ -1737,7 +1900,7 @@ class [[nodiscard]] ThreadLocal : public ThreadLocalBase {
 #elif GTEST_HAS_PTHREAD
 
 // MutexBase and Mutex implement mutex on pthreads-based platforms.
-class [[nodiscard]] MutexBase {
+GTEST_EXPORT class [[nodiscard]] MutexBase {
  public:
   // Acquires this mutex.
   void lock() {
@@ -1780,22 +1943,11 @@ class [[nodiscard]] MutexBase {
   pthread_t owner_;  // The thread holding the mutex.
 };
 
-// Forward-declares a static mutex.
-#define GTEST_DECLARE_STATIC_MUTEX_(mutex) \
-  extern ::testing::internal::MutexBase mutex
 
-// Defines and statically (i.e. at link time) initializes a static mutex.
-// The initialization list here does not explicitly initialize each field,
-// instead relying on default initialization for the unspecified fields. In
-// particular, the owner_ field (a pthread_t) is not explicitly initialized.
-// This allows initialization to work whether pthread_t is a scalar or struct.
-// The flag -Wmissing-field-initializers must not be specified for this to work.
-#define GTEST_DEFINE_STATIC_MUTEX_(mutex) \
-  ::testing::internal::MutexBase mutex = {PTHREAD_MUTEX_INITIALIZER, false, 0}
 
 // The Mutex class can only be used for mutexes created at runtime. It
 // shares its API with MutexBase otherwise.
-class [[nodiscard]] Mutex : public MutexBase {
+GTEST_EXPORT class [[nodiscard]] Mutex : public MutexBase {
  public:
   Mutex() {
     GTEST_CHECK_POSIX_SUCCESS_(pthread_mutex_init(&mutex_, nullptr));
@@ -1813,7 +1965,7 @@ class [[nodiscard]] Mutex : public MutexBase {
 // platforms. That macro is used as a defensive measure to prevent against
 // inadvertent misuses of MutexLock like "MutexLock(&mu)" rather than
 // "MutexLock l(&mu)".  Hence the typedef trick below.
-class [[nodiscard]] GTestMutexLock {
+GTEST_EXPORT class [[nodiscard]] GTestMutexLock {
  public:
   explicit GTestMutexLock(MutexBase& mutex) : mutex_(mutex) { mutex_.lock(); }
   ~GTestMutexLock() { mutex_.unlock(); }
@@ -1825,7 +1977,7 @@ class [[nodiscard]] GTestMutexLock {
   GTestMutexLock& operator=(const GTestMutexLock&) = delete;
 };
 
-typedef GTestMutexLock MutexLock;
+GTEST_EXPORT typedef GTestMutexLock MutexLock;
 
 // Helpers for ThreadLocal.
 
@@ -1833,19 +1985,19 @@ typedef GTestMutexLock MutexLock;
 // C-linkage.  Therefore it cannot be templatized to access
 // ThreadLocal<T>.  Hence the need for class
 // ThreadLocalValueHolderBase.
-class GTEST_API_ [[nodiscard]] ThreadLocalValueHolderBase {
+GTEST_EXPORT class GTEST_API_ [[nodiscard]] ThreadLocalValueHolderBase {
  public:
   virtual ~ThreadLocalValueHolderBase() = default;
 };
 
 // Called by pthread to delete thread-local data stored by
 // pthread_setspecific().
-extern "C" inline void DeleteThreadLocalValue(void* value_holder) {
+GTEST_EXPORT extern "C" inline void DeleteThreadLocalValue(void* value_holder) {
   delete static_cast<ThreadLocalValueHolderBase*>(value_holder);
 }
 
 // Implements thread-local storage on pthreads-based systems.
-template <typename T>
+GTEST_EXPORT template <typename T>
 class GTEST_API_ [[nodiscard]] ThreadLocal {
  public:
   ThreadLocal()
@@ -1967,9 +2119,11 @@ class [[nodiscard]] Mutex {
   void AssertHeld() const {}
 };
 
+#undef GTEST_DECLARE_STATIC_MUTEX_
 #define GTEST_DECLARE_STATIC_MUTEX_(mutex) \
   extern ::testing::internal::Mutex mutex
 
+#undef GTEST_DEFINE_STATIC_MUTEX_
 #define GTEST_DEFINE_STATIC_MUTEX_(mutex) ::testing::internal::Mutex mutex
 
 // We cannot name this class MutexLock because the ctor declaration would
@@ -2002,13 +2156,17 @@ class GTEST_API_ [[nodiscard]] ThreadLocal {
 
 // Returns the number of threads running in the process, or 0 to indicate that
 // we cannot detect it.
-GTEST_API_ size_t GetThreadCount();
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL GTEST_API_ size_t GetThreadCount();
 
 #ifdef GTEST_OS_WINDOWS
+#undef GTEST_PATH_SEP_
 #define GTEST_PATH_SEP_ "\\"
+#undef GTEST_HAS_ALT_PATH_SEP_
 #define GTEST_HAS_ALT_PATH_SEP_ 1
 #else
+#undef GTEST_PATH_SEP_
 #define GTEST_PATH_SEP_ "/"
+#undef GTEST_HAS_ALT_PATH_SEP_
 #define GTEST_HAS_ALT_PATH_SEP_ 0
 #endif  // GTEST_OS_WINDOWS
 
@@ -2019,53 +2177,53 @@ GTEST_API_ size_t GetThreadCount();
 // Therefore we need to cast a char to unsigned char before calling
 // isspace(), etc.
 
-inline bool IsAlpha(char ch) {
+GTEST_EXPORT inline bool IsAlpha(char ch) {
   return isalpha(static_cast<unsigned char>(ch)) != 0;
 }
-inline bool IsAlNum(char ch) {
+GTEST_EXPORT inline bool IsAlNum(char ch) {
   return isalnum(static_cast<unsigned char>(ch)) != 0;
 }
-inline bool IsDigit(char ch) {
+GTEST_EXPORT inline bool IsDigit(char ch) {
   return isdigit(static_cast<unsigned char>(ch)) != 0;
 }
-inline bool IsLower(char ch) {
+GTEST_EXPORT inline bool IsLower(char ch) {
   return islower(static_cast<unsigned char>(ch)) != 0;
 }
-inline bool IsSpace(char ch) {
+GTEST_EXPORT inline bool IsSpace(char ch) {
   return isspace(static_cast<unsigned char>(ch)) != 0;
 }
-inline bool IsUpper(char ch) {
+GTEST_EXPORT inline bool IsUpper(char ch) {
   return isupper(static_cast<unsigned char>(ch)) != 0;
 }
-inline bool IsXDigit(char ch) {
+GTEST_EXPORT inline bool IsXDigit(char ch) {
   return isxdigit(static_cast<unsigned char>(ch)) != 0;
 }
 #ifdef __cpp_lib_char8_t
-inline bool IsXDigit(char8_t ch) {
+GTEST_EXPORT inline bool IsXDigit(char8_t ch) {
   return isxdigit(static_cast<unsigned char>(ch)) != 0;
 }
 #endif
-inline bool IsXDigit(char16_t ch) {
+GTEST_EXPORT inline bool IsXDigit(char16_t ch) {
   const unsigned char low_byte = static_cast<unsigned char>(ch);
   return ch == low_byte && isxdigit(low_byte) != 0;
 }
-inline bool IsXDigit(char32_t ch) {
+GTEST_EXPORT inline bool IsXDigit(char32_t ch) {
   const unsigned char low_byte = static_cast<unsigned char>(ch);
   return ch == low_byte && isxdigit(low_byte) != 0;
 }
-inline bool IsXDigit(wchar_t ch) {
+GTEST_EXPORT inline bool IsXDigit(wchar_t ch) {
   const unsigned char low_byte = static_cast<unsigned char>(ch);
   return ch == low_byte && isxdigit(low_byte) != 0;
 }
 
-inline char ToLower(char ch) {
+GTEST_EXPORT inline char ToLower(char ch) {
   return static_cast<char>(tolower(static_cast<unsigned char>(ch)));
 }
-inline char ToUpper(char ch) {
+GTEST_EXPORT inline char ToUpper(char ch) {
   return static_cast<char>(toupper(static_cast<unsigned char>(ch)));
 }
 
-inline std::string StripTrailingSpaces(std::string str) {
+GTEST_EXPORT inline std::string StripTrailingSpaces(std::string str) {
   std::string::iterator it = str.end();
   while (it != str.begin() && IsSpace(*--it)) it = str.erase(it);
   return str;
@@ -2115,18 +2273,18 @@ inline bool IsDir(const StatStruct& st) { return S_ISDIR(st.st_mode); }
 
 #else
 
-typedef struct stat StatStruct;
+GTEST_EXPORT typedef struct stat StatStruct;
 
-inline int FileNo(FILE* file) { return fileno(file); }
+GTEST_EXPORT inline int FileNo(FILE* file) { return fileno(file); }
 #if GTEST_HAS_FILE_SYSTEM
-inline int Stat(const char* path, StatStruct* buf) { return stat(path, buf); }
+GTEST_EXPORT inline int Stat(const char* path, StatStruct* buf) { return stat(path, buf); }
 #ifdef GTEST_OS_QURT
 // QuRT doesn't support any directory functions, including rmdir
 inline int RmDir(const char*) { return 0; }
 #else
-inline int RmDir(const char* dir) { return rmdir(dir); }
+GTEST_EXPORT inline int RmDir(const char* dir) { return rmdir(dir); }
 #endif
-inline bool IsDir(const StatStruct& st) { return S_ISDIR(st.st_mode); }
+GTEST_EXPORT inline bool IsDir(const StatStruct& st) { return S_ISDIR(st.st_mode); }
 #endif
 
 #endif  // GTEST_OS_WINDOWS
@@ -2155,14 +2313,14 @@ inline int StrCaseCmp(const char* s1, const char* s2) {
 
 #else
 
-inline int DoIsATTY(int fd) { return isatty(fd); }
-inline int StrCaseCmp(const char* s1, const char* s2) {
+GTEST_EXPORT inline int DoIsATTY(int fd) { return isatty(fd); }
+GTEST_EXPORT inline int StrCaseCmp(const char* s1, const char* s2) {
   return strcasecmp(s1, s2);
 }
 
 #endif  // GTEST_OS_WINDOWS
 
-inline int IsATTY(int fd) {
+GTEST_EXPORT inline int IsATTY(int fd) {
   // DoIsATTY might change errno (for example ENOTTY in case you redirect stdout
   // to a file on Linux), which is unexpected, so save the previous value, and
   // restore it after the call.
@@ -2185,9 +2343,9 @@ GTEST_DISABLE_DEPRECATED_PUSH_()
     !defined(GTEST_OS_WINDOWS_RT) && !defined(GTEST_OS_WINDOWS_GAMES) &&     \
     !defined(GTEST_OS_ESP8266) && !defined(GTEST_OS_XTENSA) &&               \
     !defined(GTEST_OS_QURT)
-inline int ChDir(const char* dir) { return chdir(dir); }
+GTEST_EXPORT inline int ChDir(const char* dir) { return chdir(dir); }
 #endif
-inline FILE* FOpen(const char* path, const char* mode) {
+GTEST_EXPORT inline FILE* FOpen(const char* path, const char* mode) {
 #if defined(GTEST_OS_WINDOWS) && !defined(GTEST_OS_WINDOWS_MINGW)
   struct wchar_codecvt : public std::codecvt<wchar_t, char, std::mbstate_t> {};
   std::wstring_convert<wchar_codecvt> converter;
@@ -2199,28 +2357,28 @@ inline FILE* FOpen(const char* path, const char* mode) {
 #endif  // GTEST_OS_WINDOWS && !GTEST_OS_WINDOWS_MINGW
 }
 #if !defined(GTEST_OS_WINDOWS_MOBILE) && !defined(GTEST_OS_QURT)
-inline FILE* FReopen(const char* path, const char* mode, FILE* stream) {
+GTEST_EXPORT inline FILE* FReopen(const char* path, const char* mode, FILE* stream) {
   return freopen(path, mode, stream);
 }
-inline FILE* FDOpen(int fd, const char* mode) { return fdopen(fd, mode); }
+GTEST_EXPORT inline FILE* FDOpen(int fd, const char* mode) { return fdopen(fd, mode); }
 #endif  // !GTEST_OS_WINDOWS_MOBILE && !GTEST_OS_QURT
-inline int FClose(FILE* fp) { return fclose(fp); }
+GTEST_EXPORT inline int FClose(FILE* fp) { return fclose(fp); }
 #if !defined(GTEST_OS_WINDOWS_MOBILE) && !defined(GTEST_OS_QURT)
-inline int Read(int fd, void* buf, unsigned int count) {
+GTEST_EXPORT inline int Read(int fd, void* buf, unsigned int count) {
   return static_cast<int>(read(fd, buf, count));
 }
-inline int Write(int fd, const void* buf, unsigned int count) {
+GTEST_EXPORT inline int Write(int fd, const void* buf, unsigned int count) {
   return static_cast<int>(write(fd, buf, count));
 }
-inline int Close(int fd) { return close(fd); }
+GTEST_EXPORT inline int Close(int fd) { return close(fd); }
 #endif  // !GTEST_OS_WINDOWS_MOBILE && !GTEST_OS_QURT
 #endif  // GTEST_HAS_FILE_SYSTEM
 
 #if !defined(GTEST_OS_WINDOWS_MOBILE) && !defined(GTEST_OS_QURT)
-inline const char* StrError(int errnum) { return strerror(errnum); }
+GTEST_EXPORT inline const char* StrError(int errnum) { return strerror(errnum); }
 #endif  // !GTEST_OS_WINDOWS_MOBILE && !GTEST_OS_QURT
 
-inline const char* GetEnv(const char* name) {
+GTEST_EXPORT inline const char* GetEnv(const char* name) {
 #if defined(GTEST_OS_WINDOWS_MOBILE) || defined(GTEST_OS_WINDOWS_PHONE) || \
     defined(GTEST_OS_ESP8266) || defined(GTEST_OS_XTENSA) ||               \
     defined(GTEST_OS_QURT)
@@ -2245,7 +2403,7 @@ GTEST_DISABLE_DEPRECATED_POP_()
 // imitation of standard behaviour.
 [[noreturn]] void Abort();
 #else
-[[noreturn]] inline void Abort() { abort(); }
+GTEST_EXPORT [[noreturn]] inline void Abort() { abort(); }
 #endif  // GTEST_OS_WINDOWS_MOBILE
 
 }  // namespace posix
@@ -2257,22 +2415,25 @@ GTEST_DISABLE_DEPRECATED_POP_()
 // snprintf is a variadic function.
 #if defined(_MSC_VER) && !defined(GTEST_OS_WINDOWS_MOBILE)
 // MSVC 2005 and above support variadic macros.
+#undef GTEST_SNPRINTF_
 #define GTEST_SNPRINTF_(buffer, size, format, ...) \
   _snprintf_s(buffer, size, size, format, __VA_ARGS__)
 #elif defined(_MSC_VER)
 // Windows CE does not define _snprintf_s
+#undef GTEST_SNPRINTF_
 #define GTEST_SNPRINTF_ _snprintf
 #else
+#undef GTEST_SNPRINTF_
 #define GTEST_SNPRINTF_ snprintf
 #endif
 
 // The biggest signed integer type the compiler supports.
 //
 // long long is guaranteed to be at least 64-bits in C++11.
-using BiggestInt = long long;  // NOLINT
+GTEST_EXPORT using BiggestInt = long long;  // NOLINT
 
 // The maximum number a BiggestInt can represent.
-constexpr BiggestInt kMaxBiggestInt = (std::numeric_limits<BiggestInt>::max)();
+GTEST_EXPORT inline constexpr BiggestInt kMaxBiggestInt = (std::numeric_limits<BiggestInt>::max)();
 
 // This template class serves as a compile-time function from size to
 // type.  It maps a size in bytes to a primitive type with that
@@ -2292,7 +2453,7 @@ constexpr BiggestInt kMaxBiggestInt = (std::numeric_limits<BiggestInt>::max)();
 // For now it only handles UInt (unsigned int) as that's all Google Test
 // needs.  Other types can be easily added in the future if need
 // arises.
-template <size_t size>
+GTEST_EXPORT template <size_t size>
 class [[nodiscard]] TypeWithSize {
  public:
   // This prevents the user from using TypeWithSize<N> with incorrect
@@ -2317,13 +2478,15 @@ class [[nodiscard]] TypeWithSize<8> {
 };
 
 // Integer types of known sizes.
-using TimeInMillis = int64_t;  // Represents time in milliseconds.
+GTEST_EXPORT using TimeInMillis = int64_t;  // Represents time in milliseconds.
 
 // Utilities for command line flags and environment variables.
 
 // Macro for referencing flags.
 #if !defined(GTEST_FLAG)
+#undef GTEST_FLAG_NAME_
 #define GTEST_FLAG_NAME_(name) gtest_##name
+#undef GTEST_FLAG
 #define GTEST_FLAG(name) FLAGS_gtest_##name
 #endif  // !defined(GTEST_FLAG)
 
@@ -2331,44 +2494,57 @@ using TimeInMillis = int64_t;  // Represents time in milliseconds.
 #ifdef GTEST_INTERNAL_HAS_ABSL_FLAGS
 
 // Macros for defining flags.
+#undef GTEST_DEFINE_bool_
 #define GTEST_DEFINE_bool_(name, default_val, doc) \
   ABSL_FLAG(bool, GTEST_FLAG_NAME_(name), default_val, doc)
+#undef GTEST_DEFINE_int32_
 #define GTEST_DEFINE_int32_(name, default_val, doc) \
   ABSL_FLAG(int32_t, GTEST_FLAG_NAME_(name), default_val, doc)
+#undef GTEST_DEFINE_string_
 #define GTEST_DEFINE_string_(name, default_val, doc) \
   ABSL_FLAG(std::string, GTEST_FLAG_NAME_(name), default_val, doc)
 
 // Macros for declaring flags.
+#undef GTEST_DECLARE_bool_
 #define GTEST_DECLARE_bool_(name) \
   GTEST_API_ ABSL_DECLARE_FLAG(bool, GTEST_FLAG_NAME_(name))
+#undef GTEST_DECLARE_int32_
 #define GTEST_DECLARE_int32_(name) \
   GTEST_API_ ABSL_DECLARE_FLAG(int32_t, GTEST_FLAG_NAME_(name))
+#undef GTEST_DECLARE_string_
 #define GTEST_DECLARE_string_(name) \
   GTEST_API_ ABSL_DECLARE_FLAG(std::string, GTEST_FLAG_NAME_(name))
 
+#undef GTEST_FLAG_SAVER_
 #define GTEST_FLAG_SAVER_ ::absl::FlagSaver
 
+#undef GTEST_FLAG_GET
 #define GTEST_FLAG_GET(name) ::absl::GetFlag(GTEST_FLAG(name))
+#undef GTEST_FLAG_SET
 #define GTEST_FLAG_SET(name, value) \
   (void)(::absl::SetFlag(&GTEST_FLAG(name), value))
+#undef GTEST_USE_OWN_FLAGFILE_FLAG_
 #define GTEST_USE_OWN_FLAGFILE_FLAG_ 0
 
 #undef GTEST_INTERNAL_HAS_ABSL_FLAGS
 #else  // ndef GTEST_INTERNAL_HAS_ABSL_FLAGS
 
 // Macros for defining flags.
+#undef GTEST_DEFINE_bool_
 #define GTEST_DEFINE_bool_(name, default_val, doc)  \
   GTEST_DECLARE_bool_(name);                        \
   namespace testing {                               \
   GTEST_API_ bool GTEST_FLAG(name) = (default_val); \
   }                                                 \
   static_assert(true, "no-op to require trailing semicolon")
+#undef GTEST_DEFINE_int32_
 #define GTEST_DEFINE_int32_(name, default_val, doc)         \
   GTEST_DECLARE_int32_(name);                               \
   namespace testing {                                       \
   GTEST_API_ std::int32_t GTEST_FLAG(name) = (default_val); \
   }                                                         \
   static_assert(true, "no-op to require trailing semicolon")
+#undef GTEST_DEFINE_string_
 #define GTEST_DEFINE_string_(name, default_val, doc)         \
   GTEST_DECLARE_string_(name);                               \
   namespace testing {                                        \
@@ -2381,72 +2557,87 @@ using TimeInMillis = int64_t;  // Represents time in milliseconds.
 // We also need to declare the flag in the public namespace to avoid triggering
 // -Wmissing-variable-declarations warnings, as reported here:
 // https://github.com/google/googletest/issues/4897
+#undef GTEST_DECLARE_bool_
 #define GTEST_DECLARE_bool_(name)          \
   namespace testing {                      \
   GTEST_API_ extern bool GTEST_FLAG(name); \
   }                                        \
   static_assert(true, "no-op to require trailing semicolon")
+#undef GTEST_DECLARE_int32_
 #define GTEST_DECLARE_int32_(name)                 \
   namespace testing {                              \
   GTEST_API_ extern std::int32_t GTEST_FLAG(name); \
   }                                                \
   static_assert(true, "no-op to require trailing semicolon")
+#undef GTEST_DECLARE_string_
 #define GTEST_DECLARE_string_(name)                 \
   namespace testing {                               \
   GTEST_API_ extern ::std::string GTEST_FLAG(name); \
   }                                                 \
   static_assert(true, "no-op to require trailing semicolon")
 
+#undef GTEST_FLAG_SAVER_
 #define GTEST_FLAG_SAVER_ ::testing::internal::GTestFlagSaver
 
+#undef GTEST_FLAG_GET
 #define GTEST_FLAG_GET(name) ::testing::GTEST_FLAG(name)
+#undef GTEST_FLAG_SET
 #define GTEST_FLAG_SET(name, value) (void)(::testing::GTEST_FLAG(name) = value)
+#undef GTEST_USE_OWN_FLAGFILE_FLAG_
 #define GTEST_USE_OWN_FLAGFILE_FLAG_ 1
 
 #endif  // GTEST_INTERNAL_HAS_ABSL_FLAGS
 
 // Thread annotations
 #if !defined(GTEST_EXCLUSIVE_LOCK_REQUIRED_)
+#undef GTEST_EXCLUSIVE_LOCK_REQUIRED_
 #define GTEST_EXCLUSIVE_LOCK_REQUIRED_(locks)
+#undef GTEST_LOCK_EXCLUDED_
 #define GTEST_LOCK_EXCLUDED_(locks)
 #endif  // !defined(GTEST_EXCLUSIVE_LOCK_REQUIRED_)
 
 // Parses 'str' for a 32-bit signed integer.  If successful, writes the result
 // to *value and returns true; otherwise leaves *value unchanged and returns
 // false.
-GTEST_API_ bool ParseInt32(const Message& src_text, const char* str,
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL GTEST_API_ bool ParseInt32(const Message& src_text, const char* str,
                            int32_t* value);
 
 // Parses a bool/int32_t/string from the environment variable
 // corresponding to the given Google Test flag.
-bool BoolFromGTestEnv(const char* flag, bool default_val);
-GTEST_API_ int32_t Int32FromGTestEnv(const char* flag, int32_t default_val);
-std::string OutputFlagAlsoCheckEnvVar();
-const char* StringFromGTestEnv(const char* flag, const char* default_val);
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL bool BoolFromGTestEnv(const char* flag, bool default_val);
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL GTEST_API_ int32_t Int32FromGTestEnv(const char* flag, int32_t default_val);
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL std::string OutputFlagAlsoCheckEnvVar();
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL const char* StringFromGTestEnv(const char* flag, const char* default_val);
 
 }  // namespace internal
 }  // namespace testing
 
 #if GTEST_INTERNAL_HAVE_CPP_ATTRIBUTE(clang::annotate)
+#undef GTEST_INTERNAL_DEPRECATE_AND_INLINE
 #define GTEST_INTERNAL_DEPRECATE_AND_INLINE(msg) \
   [[deprecated(msg), clang::annotate("inline-me")]]
 #else
+#undef GTEST_INTERNAL_DEPRECATE_AND_INLINE
 #define GTEST_INTERNAL_DEPRECATE_AND_INLINE(msg) [[deprecated(msg)]]
 #endif
 
 #if defined(__cpp_lib_span) || (GTEST_INTERNAL_HAS_INCLUDE(<span>) && \
                                 GTEST_INTERNAL_CPLUSPLUS_LANG >= 202002L)
+#undef GTEST_INTERNAL_HAS_STD_SPAN
 #define GTEST_INTERNAL_HAS_STD_SPAN 1
 #endif  // __cpp_lib_span
 
 #ifndef GTEST_INTERNAL_HAS_STD_SPAN
+#undef GTEST_INTERNAL_HAS_STD_SPAN
 #define GTEST_INTERNAL_HAS_STD_SPAN 0
 #endif
 
 #ifdef GTEST_HAS_ABSL
 // Always use absl::string_view for Matcher<> specializations if googletest
 // is built with absl support.
+#ifndef GTEST_USE_MODULES
 #include "absl/strings/string_view.h"
+#endif
 namespace testing {
 namespace internal {
 using StringView = ::absl::string_view;
@@ -2457,15 +2648,16 @@ using StringView = ::absl::string_view;
 // specializations.
 namespace testing {
 namespace internal {
-using StringView = std::string_view;
+GTEST_EXPORT using StringView = std::string_view;
 }  // namespace internal
 }  // namespace testing
 #endif  // GTEST_HAS_ABSL
-#define GTEST_INTERNAL_HAS_STRING_VIEW 1
 
 #if defined(__cpp_lib_three_way_comparison)
+#undef GTEST_INTERNAL_HAS_COMPARE_LIB
 #define GTEST_INTERNAL_HAS_COMPARE_LIB 1
 #else
+#undef GTEST_INTERNAL_HAS_COMPARE_LIB
 #define GTEST_INTERNAL_HAS_COMPARE_LIB 0
 #endif
 

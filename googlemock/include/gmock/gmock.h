@@ -31,6 +31,43 @@
 //
 // This is the main header file a user should include.
 
+#include "gmock/gmock-export.h"
+#ifndef GMOCK_USE_MODULES
+#include "gmock/gmock-macros.h"
+#endif
+// Copyright 2007, Google Inc.
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are
+// met:
+//
+//     * Redistributions of source code must retain the above copyright
+// notice, this list of conditions and the following disclaimer.
+//     * Redistributions in binary form must reproduce the above
+// copyright notice, this list of conditions and the following disclaimer
+// in the documentation and/or other materials provided with the
+// distribution.
+//     * Neither the name of Google Inc. nor the names of its
+// contributors may be used to endorse or promote products derived from
+// this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+// Google Mock - a framework for writing C++ mock classes.
+//
+// This is the main header file a user should include.
+
 #ifndef GOOGLEMOCK_INCLUDE_GMOCK_GMOCK_H_
 #define GOOGLEMOCK_INCLUDE_GMOCK_GMOCK_H_
 
@@ -53,6 +90,7 @@
 //
 // where all clauses are optional and WillOnce() can be repeated.
 
+#ifndef GMOCK_USE_MODULES
 #include "gmock/gmock-actions.h"  // IWYU pragma: export
 #include "gmock/gmock-cardinalities.h"  // IWYU pragma: export
 #include "gmock/gmock-function-mocker.h"  // IWYU pragma: export
@@ -63,11 +101,12 @@
 #include "gmock/gmock-spec-builders.h"  // IWYU pragma: export
 #include "gmock/internal/gmock-internal-utils.h"
 #include "gmock/internal/gmock-port.h"
+#endif
 
 // Declares Google Mock flags that we want a user to use programmatically.
-GMOCK_DECLARE_bool_(catch_leaked_mocks);
-GMOCK_DECLARE_string_(verbose);
-GMOCK_DECLARE_int32_(default_mock_behavior);
+GMOCK_EXPORT GMOCK_DECLARE_bool_(catch_leaked_mocks);
+GMOCK_EXPORT GMOCK_DECLARE_string_(verbose);
+GMOCK_EXPORT GMOCK_DECLARE_int32_(default_mock_behavior);
 
 namespace testing {
 
@@ -82,15 +121,15 @@ namespace testing {
 // Since Google Test is needed for Google Mock to work, this function
 // also initializes Google Test and parses its flags, if that hasn't
 // been done.
-GTEST_API_ void InitGoogleMock(int* argc, char** argv);
+GMOCK_EXPORT GMOCK_EXTERN_CXX_DECL GTEST_API_ void InitGoogleMock(int* argc, char** argv);
 
 // This overloaded version can be used in Windows programs compiled in
 // UNICODE mode.
-GTEST_API_ void InitGoogleMock(int* argc, wchar_t** argv);
+GMOCK_EXPORT GMOCK_EXTERN_CXX_DECL GTEST_API_ void InitGoogleMock(int* argc, wchar_t** argv);
 
 // This overloaded version can be used on Arduino/embedded platforms where
 // there is no argc/argv.
-GTEST_API_ void InitGoogleMock();
+GMOCK_EXPORT GMOCK_EXTERN_CXX_DECL GTEST_API_ void InitGoogleMock();
 
 }  // namespace testing
 

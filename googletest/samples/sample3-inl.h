@@ -1,3 +1,5 @@
+#include <stddef.h>
+import std.compat;
 // Copyright 2005, Google Inc.
 // All rights reserved.
 //
@@ -32,7 +34,6 @@
 #ifndef GOOGLETEST_SAMPLES_SAMPLE3_INL_H_
 #define GOOGLETEST_SAMPLES_SAMPLE3_INL_H_
 
-#include <stddef.h>
 
 // Queue is a simple queue implemented as a singled-linked list.
 //

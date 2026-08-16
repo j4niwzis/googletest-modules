@@ -35,13 +35,28 @@
 
 #include <stdlib.h>
 
-#include <algorithm>
-#include <iterator>
-#include <string>
 
-#include "gtest/gtest-spi.h"
-#include "gtest/gtest.h"
-#include "src/gtest-internal-inl.h"
+#include <stdio.h>
+#include <string.h>
+import std.compat;
+import gtest.gtest_spi;
+import gtest;
+import gtest.gtest_internal_inl;
+import gtest.gtest_assertion_result;
+import gtest.gtest_matchers;
+import gtest.gtest_message;
+import gtest.gtest_printers;
+import gtest.gtest_test_part;
+import gtest.internal.gtest_death_test_internal;
+import gtest.internal.gtest_filepath;
+import gtest.internal.gtest_internal;
+import gtest.internal.gtest_param_util;
+import gtest.internal.gtest_port;
+import gtest.internal.gtest_string;
+import gtest.internal.gtest_type_util;
+#include "gtest/gtest-spi-macros.h"
+#include "gtest/gtest-macros.h"
+#include "gtest-internal-inl-macros.h"
 
 GTEST_DISABLE_MSC_WARNINGS_PUSH_(4127 /* conditional expression is constant */)
 

@@ -30,7 +30,34 @@
 // Google Mock - a framework for writing C++ mock classes.
 //
 // This file tests the function mocker classes.
-#include "gmock/gmock-function-mocker.h"
+#include <string.h>
+import gtest;
+import gtest.gtest_assertion_result;
+import gtest.gtest_internal_inl;
+import gtest.gtest_matchers;
+import gtest.gtest_message;
+import gtest.gtest_printers;
+import gtest.gtest_test_part;
+import gtest.internal.gtest_death_test_internal;
+import gtest.internal.gtest_filepath;
+import gtest.internal.gtest_internal;
+import gtest.internal.gtest_param_util;
+import gtest.internal.gtest_port;
+import gtest.internal.gtest_string;
+import gtest.internal.gtest_type_util;
+#include "gtest/gtest-macros.h"
+import std.compat;
+import gmock.gmock_function_mocker;
+import gmock;
+import gmock.gmock_actions;
+import gmock.gmock_matchers;
+import gmock.gmock_more_actions;
+import gmock.gmock_more_matchers;
+import gmock.gmock_nice_strict;
+import gmock.gmock_spec_builders;
+import gmock.internal.gmock_internal_utils;
+#include "gmock/gmock-function-mocker-macros.h"
+#include "gmock/gmock-macros.h"
 
 // Silence C4503 (decorated name length exceeded) for MSVC.
 GTEST_DISABLE_MSC_WARNINGS_PUSH_(4503)
@@ -49,13 +76,7 @@ GTEST_DISABLE_MSC_WARNINGS_PUSH_(4503)
 #include <objbase.h>
 #endif  // GTEST_OS_WINDOWS
 
-#include <functional>
-#include <map>
-#include <string>
-#include <type_traits>
 
-#include "gmock/gmock.h"
-#include "gtest/gtest.h"
 
 namespace testing {
 namespace gmock_function_mocker_test {

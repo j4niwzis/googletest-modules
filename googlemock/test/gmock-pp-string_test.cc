@@ -30,10 +30,21 @@
 // Google Mock - a framework for writing C++ mock classes.
 //
 // This file tests the internal preprocessor macro library.
-#include <string>
 
-#include "gmock/gmock.h"
-#include "gmock/internal/gmock-pp.h"
+#include <string.h>
+import std.compat;
+import gmock;
+import gmock.internal.gmock_pp;
+import gmock.gmock_actions;
+import gmock.gmock_function_mocker;
+import gmock.gmock_matchers;
+import gmock.gmock_more_actions;
+import gmock.gmock_more_matchers;
+import gmock.gmock_nice_strict;
+import gmock.gmock_spec_builders;
+import gmock.internal.gmock_internal_utils;
+#include "gmock/gmock-macros.h"
+#include "gmock/internal/gmock-pp-macros.h"
 
 namespace testing {
 namespace {

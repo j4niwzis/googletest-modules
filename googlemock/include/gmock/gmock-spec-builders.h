@@ -58,9 +58,74 @@
 // IWYU pragma: private, include "gmock/gmock.h"
 // IWYU pragma: friend gmock/.*
 
+#include "gmock/gmock-export.h"
+#ifndef GMOCK_USE_MODULES
+#include "gmock/gmock-spec-builders-macros.h"
+#endif
+// Copyright 2007, Google Inc.
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are
+// met:
+//
+//     * Redistributions of source code must retain the above copyright
+// notice, this list of conditions and the following disclaimer.
+//     * Redistributions in binary form must reproduce the above
+// copyright notice, this list of conditions and the following disclaimer
+// in the documentation and/or other materials provided with the
+// distribution.
+//     * Neither the name of Google Inc. nor the names of its
+// contributors may be used to endorse or promote products derived from
+// this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+// Google Mock - a framework for writing C++ mock classes.
+//
+// This file implements the ON_CALL() and EXPECT_CALL() macros.
+//
+// A user can use the ON_CALL() macro to specify the default action of
+// a mock method.  The syntax is:
+//
+//   ON_CALL(mock_object, Method(argument-matchers))
+//       .With(multi-argument-matcher)
+//       .WillByDefault(action);
+//
+//  where the .With() clause is optional.
+//
+// A user can use the EXPECT_CALL() macro to specify an expectation on
+// a mock method.  The syntax is:
+//
+//   EXPECT_CALL(mock_object, Method(argument-matchers))
+//       .With(multi-argument-matchers)
+//       .Times(cardinality)
+//       .InSequence(sequences)
+//       .After(expectations)
+//       .WillOnce(action)
+//       .WillRepeatedly(action)
+//       .RetiresOnSaturation();
+//
+// where all clauses are optional, and .InSequence()/.After()/
+// .WillOnce() can appear any number of times.
+
+// IWYU pragma: private, include "gmock/gmock.h"
+// IWYU pragma: friend gmock/.*
+
 #ifndef GOOGLEMOCK_INCLUDE_GMOCK_GMOCK_SPEC_BUILDERS_H_
 #define GOOGLEMOCK_INCLUDE_GMOCK_GMOCK_SPEC_BUILDERS_H_
 
+#ifndef GMOCK_USE_MODULES
 #include <cstdint>
 #include <functional>
 #include <map>
@@ -72,16 +137,21 @@
 #include <type_traits>
 #include <utility>
 #include <vector>
+#endif
 
+#ifndef GMOCK_USE_MODULES
 #include "gmock/gmock-actions.h"
 #include "gmock/gmock-cardinalities.h"
 #include "gmock/gmock-matchers.h"
 #include "gmock/internal/gmock-internal-utils.h"
 #include "gmock/internal/gmock-port.h"
 #include "gtest/gtest.h"
+#endif
 
 #if GTEST_HAS_EXCEPTIONS
+#ifndef GMOCK_USE_MODULES
 #include <stdexcept>  // NOLINT
+#endif
 #endif
 
 GTEST_DISABLE_MSC_WARNINGS_PUSH_(4251 \
@@ -90,35 +160,35 @@ GTEST_DISABLE_MSC_WARNINGS_PUSH_(4251 \
 namespace testing {
 
 // An abstract handle of an expectation.
-class Expectation;
+GMOCK_EXPORT class Expectation;
 
 // A set of expectation handles.
-class ExpectationSet;
+GMOCK_EXPORT class ExpectationSet;
 
 // Anything inside the 'internal' namespace IS INTERNAL IMPLEMENTATION
 // and MUST NOT BE USED IN USER CODE!!!
 namespace internal {
 
 // Implements a mock function.
-template <typename F>
+GMOCK_EXPORT GMOCK_EXTERN_CXX_DECL template <typename F>
 class FunctionMocker;
 
 // Base class for expectations.
-class ExpectationBase;
+GMOCK_EXPORT class ExpectationBase;
 
 // Implements an expectation.
-template <typename F>
+GMOCK_EXPORT GMOCK_EXTERN_CXX_DECL template <typename F>
 class TypedExpectation;
 
 // Helper class for testing the Expectation class template.
-class ExpectationTester;
+GMOCK_EXPORT GMOCK_EXTERN_CXX_DECL class ExpectationTester;
 
 // Helper classes for implementing NiceMock, StrictMock, and NaggyMock.
-template <typename MockClass>
+GMOCK_EXPORT GMOCK_EXTERN_CXX_DECL template <typename MockClass>
 class NiceMockImpl;
-template <typename MockClass>
+GMOCK_EXPORT GMOCK_EXTERN_CXX_DECL template <typename MockClass>
 class StrictMockImpl;
-template <typename MockClass>
+GMOCK_EXPORT GMOCK_EXTERN_CXX_DECL template <typename MockClass>
 class NaggyMockImpl;
 
 // Protects the mock object registry (in class Mock), all function
@@ -132,12 +202,12 @@ class NaggyMockImpl;
 // expectations when InSequence() is used, and thus affect which
 // expectation gets picked.  Therefore, we sequence all mock function
 // calls to ensure the integrity of the mock objects' states.
-GTEST_API_ GTEST_DECLARE_STATIC_MUTEX_(g_gmock_mutex);
+GMOCK_EXPORT GTEST_API_ GTEST_DECLARE_STATIC_MUTEX_(g_gmock_mutex);
 
 // Abstract base class of FunctionMocker.  This is the
 // type-agnostic part of the function mocker interface.  Its pure
 // virtual methods are implemented by FunctionMocker.
-class GTEST_API_ UntypedFunctionMockerBase {
+GMOCK_EXPORT class GTEST_API_ UntypedFunctionMockerBase {
  public:
   UntypedFunctionMockerBase();
   virtual ~UntypedFunctionMockerBase();
@@ -236,7 +306,7 @@ class GTEST_API_ UntypedFunctionMockerBase {
 };  // class UntypedFunctionMockerBase
 
 // Untyped base class for OnCallSpec<F>.
-class UntypedOnCallSpecBase {
+GMOCK_EXPORT class UntypedOnCallSpecBase {
  public:
   // The arguments are the location of the ON_CALL() statement.
   UntypedOnCallSpecBase(const char* a_file, int a_line)
@@ -277,7 +347,7 @@ class UntypedOnCallSpecBase {
 };  // class UntypedOnCallSpecBase
 
 // This template class implements an ON_CALL spec.
-template <typename F>
+GMOCK_EXPORT template <typename F>
 class OnCallSpec : public UntypedOnCallSpecBase {
  public:
   typedef typename Function<F>::ArgumentTuple ArgumentTuple;
@@ -352,7 +422,7 @@ class OnCallSpec : public UntypedOnCallSpecBase {
 };  // class OnCallSpec
 
 // Possible reactions on uninteresting calls.
-enum CallReaction {
+GMOCK_EXPORT enum CallReaction {
   kAllow,
   kWarn,
   kFail,
@@ -361,7 +431,7 @@ enum CallReaction {
 }  // namespace internal
 
 // Utilities for manipulating mock objects.
-class GTEST_API_ Mock {
+GMOCK_EXPORT class GTEST_API_ Mock {
  public:
   // The following public methods can be called concurrently.
 
@@ -478,7 +548,7 @@ class GTEST_API_ Mock {
 //     be modified, but the mutable methods of the ExpectationBase
 //     object it references can be called via expectation_base().
 
-class GTEST_API_ Expectation {
+GMOCK_EXPORT class GTEST_API_ Expectation {
  public:
   // Constructs a null object that doesn't reference any expectation.
   Expectation();
@@ -557,7 +627,7 @@ class GTEST_API_ Expectation {
 // after the first two have both been satisfied.
 //
 // This class is copyable and has value semantics.
-class ExpectationSet {
+GMOCK_EXPORT class ExpectationSet {
  public:
   // A bidirectional iterator that can read a const element in the set.
   typedef Expectation::Set::const_iterator const_iterator;
@@ -612,7 +682,7 @@ class ExpectationSet {
 // Sequence objects are used by a user to specify the relative order
 // in which the expectations should match.  They are copyable (we rely
 // on the compiler-defined copy constructor and assignment operator).
-class GTEST_API_ Sequence {
+GMOCK_EXPORT class GTEST_API_ Sequence {
  public:
   // Constructs an empty sequence.
   Sequence() : last_expectation_(new Expectation) {}
@@ -650,7 +720,7 @@ class GTEST_API_ Sequence {
 // thread.  However, for clarity of your tests we recommend you to set
 // up mocks in the main thread unless you have a good reason not to do
 // so.
-class GTEST_API_ InSequence {
+GMOCK_EXPORT class GTEST_API_ InSequence {
  public:
   InSequence();
   ~InSequence();
@@ -666,7 +736,7 @@ namespace internal {
 
 // Points to the implicit sequence introduced by a living InSequence
 // object (if any) in the current thread or NULL.
-GTEST_API_ extern ThreadLocal<Sequence*> g_gmock_implicit_sequence;
+GMOCK_EXPORT GTEST_API_ extern ThreadLocal<Sequence*> g_gmock_implicit_sequence;
 
 // Base class for implementing expectations.
 //
@@ -682,7 +752,7 @@ GTEST_API_ extern ThreadLocal<Sequence*> g_gmock_implicit_sequence;
 //   on the template argument of Expectation to the base class.
 //
 // This class is internal and mustn't be used by user code directly.
-class GTEST_API_ ExpectationBase {
+GMOCK_EXPORT class GTEST_API_ ExpectationBase {
  public:
   // source_text is the EXPECT_CALL(...) source that created this Expectation.
   ExpectationBase(const char* file, int line, const std::string& source_text);
@@ -870,11 +940,11 @@ class GTEST_API_ ExpectationBase {
   mutable Mutex mutex_;                // Protects action_count_checked_.
 };  // class ExpectationBase
 
-template <typename F>
+GMOCK_EXPORT GMOCK_EXTERN_CXX_DECL template <typename F>
 class TypedExpectation;
 
 // Implements an expectation for the given function type.
-template <typename R, typename... Args>
+GMOCK_EXTERN_CXX_DECL template <typename R, typename... Args>
 class TypedExpectation<R(Args...)> : public ExpectationBase {
  private:
   using F = R(Args...);
@@ -1274,11 +1344,11 @@ class TypedExpectation<R(Args...)> : public ExpectationBase {
 // ::testing::internal and import it into ::testing.
 
 // Logs a message including file and line number information.
-GTEST_API_ void LogWithLocation(testing::internal::LogSeverity severity,
+GMOCK_EXPORT GMOCK_EXTERN_CXX_DECL GTEST_API_ void LogWithLocation(testing::internal::LogSeverity severity,
                                 const char* file, int line,
                                 const std::string& message);
 
-template <typename F>
+GMOCK_EXPORT GMOCK_EXTERN_CXX_DECL template <typename F>
 class MockSpec {
  public:
   typedef typename internal::Function<F>::ArgumentTuple ArgumentTuple;
@@ -1339,7 +1409,7 @@ class MockSpec {
 // The primary template defines handling for values, but function header
 // comments describe the contract for the whole template (including
 // specializations).
-template <typename T>
+GMOCK_EXPORT template <typename T>
 class ReferenceOrValueWrapper {
  public:
   // Constructs a wrapper from the given value/reference.
@@ -1377,7 +1447,7 @@ class ReferenceOrValueWrapper<T&> {
 };
 
 // Prints the held value as an action's result to os.
-template <typename T>
+GMOCK_EXPORT template <typename T>
 void PrintAsActionResult(const T& result, std::ostream& os) {
   os << "\n          Returns: ";
   // T may be a reference type, so we don't use UniversalPrint().
@@ -1386,11 +1456,11 @@ void PrintAsActionResult(const T& result, std::ostream& os) {
 
 // Reports an uninteresting call (whose description is in msg) in the
 // manner specified by 'reaction'.
-GTEST_API_ void ReportUninterestingCall(CallReaction reaction,
+GMOCK_EXPORT GMOCK_EXTERN_CXX_DECL GTEST_API_ void ReportUninterestingCall(CallReaction reaction,
                                         const std::string& msg);
 
 // A generic RAII type that runs a user-provided function in its destructor.
-class Cleanup final {
+GMOCK_EXPORT class Cleanup final {
  public:
   explicit Cleanup(std::function<void()> f) : f_(std::move(f)) {}
   ~Cleanup() { f_(); }
@@ -1434,10 +1504,10 @@ struct UntypedFunctionMockerBase::FailureCleanupHandler {
   }
 };
 
-template <typename F>
+GMOCK_EXPORT GMOCK_EXTERN_CXX_DECL template <typename F>
 class FunctionMocker;
 
-template <typename R, typename... Args>
+GMOCK_EXTERN_CXX_DECL template <typename R, typename... Args>
 class FunctionMocker<R(Args...)> final : public UntypedFunctionMockerBase {
   using F = R(Args...);
 
@@ -1785,7 +1855,7 @@ class FunctionMocker<R(Args...)> final : public UntypedFunctionMockerBase {
 
 // Calculates the result of invoking this mock function with the given
 // arguments, prints it, and returns it.
-template <typename R, typename... Args>
+GMOCK_EXTERN_CXX_DECL template <typename R, typename... Args>
 R FunctionMocker<R(Args...)>::InvokeWith(ArgumentTuple&& args)
     GTEST_LOCK_EXCLUDED_(g_gmock_mutex) {
   // See the definition of untyped_expectations_ for why access to it
@@ -1899,10 +1969,10 @@ R FunctionMocker<R(Args...)>::InvokeWith(ArgumentTuple&& args)
 
 namespace internal {
 
-template <typename F>
+GMOCK_EXPORT GMOCK_EXTERN_CXX_DECL template <typename F>
 class MockFunction;
 
-template <typename R, typename... Args>
+GMOCK_EXTERN_CXX_DECL template <typename R, typename... Args>
 class MockFunction<R(Args...)> {
  public:
   MockFunction(const MockFunction&) = delete;
@@ -1949,20 +2019,20 @@ that can be parameterized with a signature, including std::function and
 boost::function.
 */
 
-template <typename F, typename = void>
+GMOCK_EXPORT GMOCK_EXTERN_CXX_DECL template <typename F, typename = void>
 struct SignatureOf;
 
-template <typename R, typename... Args>
+GMOCK_EXTERN_CXX_DECL template <typename R, typename... Args>
 struct SignatureOf<R(Args...)> {
   using type = R(Args...);
 };
 
-template <typename R, typename... Args>
+GMOCK_EXTERN_CXX_DECL template <typename R, typename... Args>
 struct SignatureOf<R(Args...) const> {
   using type = R(Args...);
 };
 
-template <template <typename> class C, typename F>
+GMOCK_EXTERN_CXX_DECL template <template <typename> class C, typename F>
 struct SignatureOf<C<F>,
                    typename std::enable_if<std::is_function<F>::value>::type>
     : SignatureOf<F> {};
@@ -2032,7 +2102,7 @@ using SignatureOfT = typename SignatureOf<F>::type;
 //   EXPECT_CALL(predicateMock, Call(_)).WillRepeatedly(Return(true));
 //   MyFilterAlgorithm(predicateMock.AsStdFunction());
 // }
-template <typename F>
+GMOCK_EXPORT template <typename F>
 class MockFunction : public internal::MockFunction<internal::SignatureOfT<F>> {
   using Base = internal::MockFunction<internal::SignatureOfT<F>>;
 
@@ -2045,7 +2115,7 @@ class MockFunction : public internal::MockFunction<internal::SignatureOfT<F>> {
 // meant to be defined in the ::testing namespace.  The following line
 // is just a trick for working around a bug in MSVC 8.0, which cannot
 // handle it if we define MockSpec in ::testing.
-using internal::MockSpec;
+GMOCK_EXPORT using internal::MockSpec;
 
 // Const(x) is a convenient function for obtaining a const reference
 // to x.  This is useful for setting expectations on an overloaded
@@ -2062,7 +2132,7 @@ using internal::MockSpec;
 //   EXPECT_CALL(foo, Bar());
 //   // Expects a call to const MockFoo::Bar().
 //   EXPECT_CALL(Const(foo), Bar());
-template <typename T>
+GMOCK_EXPORT template <typename T>
 inline const T& Const(const T& x) {
   return x;
 }
@@ -2075,77 +2145,7 @@ inline Expectation::Expectation(internal::ExpectationBase& exp)  // NOLINT
 
 GTEST_DISABLE_MSC_WARNINGS_POP_()  //  4251
 
-// Implementation for ON_CALL and EXPECT_CALL macros. A separate macro is
-// required to avoid compile errors when the name of the method used in call is
-// a result of macro expansion. See CompilesWithMethodNameExpandedFromMacro
-// tests in internal/gmock-spec-builders_test.cc for more details.
-//
-// This macro supports statements both with and without parameter matchers. If
-// the parameter list is omitted, gMock will accept any parameters, which allows
-// tests to be written that don't need to encode the number of method
-// parameter. This technique may only be used for non-overloaded methods.
-//
-//   // These are the same:
-//   ON_CALL(mock, NoArgsMethod()).WillByDefault(...);
-//   ON_CALL(mock, NoArgsMethod).WillByDefault(...);
-//
-//   // As are these:
-//   ON_CALL(mock, TwoArgsMethod(_, _)).WillByDefault(...);
-//   ON_CALL(mock, TwoArgsMethod).WillByDefault(...);
-//
-//   // Can also specify args if you want, of course:
-//   ON_CALL(mock, TwoArgsMethod(_, 45)).WillByDefault(...);
-//
-//   // Overloads work as long as you specify parameters:
-//   ON_CALL(mock, OverloadedMethod(_)).WillByDefault(...);
-//   ON_CALL(mock, OverloadedMethod(_, _)).WillByDefault(...);
-//
-//   // Oops! Which overload did you want?
-//   ON_CALL(mock, OverloadedMethod).WillByDefault(...);
-//     => ERROR: call to member function 'gmock_OverloadedMethod' is ambiguous
-//
-// How this works: The mock class uses two overloads of the gmock_Method
-// expectation setter method plus an operator() overload on the MockSpec object.
-// In the matcher list form, the macro expands to:
-//
-//   // This statement:
-//   ON_CALL(mock, TwoArgsMethod(_, 45))...
-//
-//   // ...expands to:
-//   mock.gmock_TwoArgsMethod(_, 45)(WithoutMatchers(), nullptr)...
-//   |-------------v---------------||------------v-------------|
-//       invokes first overload        swallowed by operator()
-//
-//   // ...which is essentially:
-//   mock.gmock_TwoArgsMethod(_, 45)...
-//
-// Whereas the form without a matcher list:
-//
-//   // This statement:
-//   ON_CALL(mock, TwoArgsMethod)...
-//
-//   // ...expands to:
-//   mock.gmock_TwoArgsMethod(WithoutMatchers(), nullptr)...
-//   |-----------------------v--------------------------|
-//                 invokes second overload
-//
-//   // ...which is essentially:
-//   mock.gmock_TwoArgsMethod(_, _)...
-//
-// The WithoutMatchers() argument is used to disambiguate overloads and to
-// block the caller from accidentally invoking the second overload directly. The
-// second argument is an internal type derived from the method signature. The
-// failure to disambiguate two overloads of this method in the ON_CALL statement
-// is how we block callers from setting expectations on overloaded methods.
-#define GMOCK_ON_CALL_IMPL_(mock_expr, Setter, call)                      \
-  ((mock_expr).gmock_##call)(::testing::internal::WithoutMatchers::Get(), \
-                             nullptr)                                     \
-      .Setter(__FILE__, __LINE__, #mock_expr, #call)
 
-#define ON_CALL(obj, call) \
-  GMOCK_ON_CALL_IMPL_(obj, InternalDefaultActionSetAt, call)
 
-#define EXPECT_CALL(obj, call) \
-  GMOCK_ON_CALL_IMPL_(obj, InternalExpectedAt, call)
 
 #endif  // GOOGLEMOCK_INCLUDE_GMOCK_GMOCK_SPEC_BUILDERS_H_

@@ -1,4 +1,7 @@
-#include "gmock/internal/gmock-pp.h"
+#include <string.h>
+import std.compat;
+import gmock.internal.gmock_pp;
+#include "gmock/internal/gmock-pp-macros.h"
 
 // Used to test MSVC treating __VA_ARGS__ with a comma in it as one value
 #define GMOCK_TEST_REPLACE_comma_WITH_COMMA_I_comma ,

@@ -31,37 +31,44 @@
 //
 // This file tests some commonly used argument matchers.
 
+import gtest;
+import gtest.gtest_assertion_result;
+import gtest.gtest_internal_inl;
+import gtest.gtest_matchers;
+import gtest.gtest_message;
+import gtest.gtest_printers;
+import gtest.gtest_test_part;
+import gtest.internal.gtest_death_test_internal;
+import gtest.internal.gtest_filepath;
+import gtest.internal.gtest_internal;
+import gtest.internal.gtest_param_util;
+import gtest.internal.gtest_port;
+import gtest.internal.gtest_string;
+import gtest.internal.gtest_type_util;
+import std.compat;
+import gmock.gmock_actions;
+import gmock.gmock_function_mocker;
+import gmock.gmock_matchers;
+import gmock.gmock_more_actions;
+import gmock.gmock_more_matchers;
+import gmock.gmock_nice_strict;
+import gmock.gmock_spec_builders;
+import gmock.internal.gmock_internal_utils;
 #ifndef GOOGLEMOCK_TEST_GMOCK_MATCHERS_TEST_H_
 #define GOOGLEMOCK_TEST_GMOCK_MATCHERS_TEST_H_
 
-#include <string.h>
-#include <time.h>
 
-#include <array>
-#include <cstdint>
-#include <deque>
-#include <forward_list>
-#include <functional>
-#include <iostream>
-#include <iterator>
-#include <limits>
-#include <list>
-#include <map>
-#include <memory>
-#include <set>
-#include <sstream>
-#include <string>
-#include <type_traits>
-#include <unordered_map>
-#include <unordered_set>
-#include <utility>
-#include <vector>
 
-#include "gmock/gmock-matchers.h"
-#include "gmock/gmock-more-matchers.h"
-#include "gmock/gmock.h"
-#include "gtest/gtest-spi.h"
-#include "gtest/gtest.h"
+import gmock.gmock_matchers;
+#include "gmock/gmock-matchers-macros.h"
+import gmock.gmock_more_matchers;
+#include "gmock/gmock-more-matchers-macros.h"
+import gmock;
+#include "gmock/gmock-macros.h"
+import gtest.gtest_spi;
+#include "gtest/gtest-spi-macros.h"
+import gtest;
+#include "gtest/gtest-macros.h"
 
 namespace testing {
 namespace gmock_matchers_test {

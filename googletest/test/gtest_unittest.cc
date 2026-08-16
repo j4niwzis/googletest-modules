@@ -31,9 +31,39 @@
 // Tests for Google Test itself.  This verifies that the basic constructs of
 // Google Test work.
 
-#include "gtest/gtest.h"
+#include <limits.h>  // For INT_MAX.
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+#include <sched.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+#include <wchar.h>
+#include <string.h>
+import std.compat;
+import gtest;
+import gtest.gtest_spi;
+import gtest.gtest_internal_inl;
+import gtest.gtest_assertion_result;
+import gtest.gtest_matchers;
+import gtest.gtest_message;
+import gtest.gtest_printers;
+import gtest.gtest_test_part;
+import gtest.internal.gtest_death_test_internal;
+import gtest.internal.gtest_filepath;
+import gtest.internal.gtest_internal;
+import gtest.internal.gtest_param_util;
+import gtest.internal.gtest_port;
+import gtest.internal.gtest_string;
+import gtest.internal.gtest_type_util;
+#include "gtest/gtest-macros.h"
+#include "gtest/gtest-spi-macros.h"
+#include "gtest-internal-inl-macros.h"
 
-#include <iterator>
 
 // Verifies that the command line flag variables can be accessed in
 // code once "gtest.h" has been #included.
@@ -55,25 +85,8 @@ TEST(CommandLineFlagsTest, CanBeAccessedInCodeOnceGTestHIsIncluded) {
   EXPECT_TRUE(dummy || !dummy);  // Suppresses warning that dummy is unused.
 }
 
-#include <limits.h>  // For INT_MAX.
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
 
-#include <cstdint>
-#include <map>
-#include <memory>
-#include <ostream>
-#include <set>
-#include <stdexcept>
-#include <string>
-#include <type_traits>
-#include <unordered_set>
-#include <utility>
-#include <vector>
 
-#include "gtest/gtest-spi.h"
-#include "src/gtest-internal-inl.h"
 
 struct ConvertibleGlobalType {
   // The inner enable_if is to ensure invoking is_constructible doesn't fail.

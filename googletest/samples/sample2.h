@@ -1,3 +1,6 @@
+#include <stddef.h>
+#include <string.h>
+import std.compat;
 // Copyright 2005, Google Inc.
 // All rights reserved.
 //
@@ -32,7 +35,6 @@
 #ifndef GOOGLETEST_SAMPLES_SAMPLE2_H_
 #define GOOGLETEST_SAMPLES_SAMPLE2_H_
 
-#include <string.h>
 
 // A simple string class.
 class MyString {

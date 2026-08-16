@@ -31,46 +31,40 @@
 //
 // This file tests the universal value printer.
 
-#include <algorithm>
-#include <any>
-#include <cctype>
-#include <cstdint>
-#include <cstring>
-#include <deque>
-#include <forward_list>
-#include <functional>
-#include <iterator>
-#include <limits>
-#include <list>
-#include <map>
-#include <memory>
-#include <optional>
-#include <ostream>
-#include <set>
-#include <sstream>
-#include <string>
-#include <string_view>
-#include <tuple>
-#include <unordered_map>
-#include <unordered_set>
-#include <utility>
-#include <variant>
-#include <vector>
 
-#include "gtest/gtest-printers.h"
-#include "gtest/gtest.h"
-#include "gtest/internal/gtest-port.h"
+#include <ctype.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <string.h>
+#include <sys/types.h>
+#include <string.h>
+import std.compat;
+import gtest.gtest_printers;
+import gtest;
+import gtest.internal.gtest_port;
+import gtest.gtest_assertion_result;
+import gtest.gtest_internal_inl;
+import gtest.gtest_matchers;
+import gtest.gtest_message;
+import gtest.gtest_test_part;
+import gtest.internal.gtest_death_test_internal;
+import gtest.internal.gtest_filepath;
+import gtest.internal.gtest_internal;
+import gtest.internal.gtest_param_util;
+import gtest.internal.gtest_string;
+import gtest.internal.gtest_type_util;
+#include "gtest/gtest-printers-macros.h"
+#include "gtest/gtest-macros.h"
+#include "gtest/internal/gtest-port-macros.h"
 
 #ifdef GTEST_HAS_ABSL
 #include "absl/strings/str_format.h"
 #endif
 
 #if GTEST_INTERNAL_HAS_STD_SPAN
-#include <span>  // NOLINT
 #endif           // GTEST_INTERNAL_HAS_STD_SPAN
 
 #if GTEST_INTERNAL_HAS_COMPARE_LIB
-#include <compare>  // NOLINT
 #endif              // GTEST_INTERNAL_HAS_COMPARE_LIB
 
 // Some user-defined types for testing the universal value printer.

@@ -31,9 +31,26 @@
 //
 // This file tests the internal cross-platform support utilities.
 
-#include "gmock/internal/gmock-port.h"
+#include <string.h>
+import gtest;
+import gtest.gtest_assertion_result;
+import gtest.gtest_internal_inl;
+import gtest.gtest_matchers;
+import gtest.gtest_message;
+import gtest.gtest_printers;
+import gtest.gtest_test_part;
+import gtest.internal.gtest_death_test_internal;
+import gtest.internal.gtest_filepath;
+import gtest.internal.gtest_internal;
+import gtest.internal.gtest_param_util;
+import gtest.internal.gtest_port;
+import gtest.internal.gtest_string;
+import gtest.internal.gtest_type_util;
+#include "gtest/gtest-macros.h"
+import std.compat;
+import gmock.internal.gmock_port;
+#include "gmock/internal/gmock-port-macros.h"
 
-#include "gtest/gtest.h"
 
 // NOTE: if this file is left without tests for some reason, put a dummy
 // test here to make references to symbols in the gtest library and avoid

@@ -33,11 +33,53 @@
 // IWYU pragma: friend gtest/.*
 // IWYU pragma: friend gmock/.*
 
+#include "gtest/gtest-export.h"
+#ifndef GTEST_USE_MODULES
+#include "gtest/internal/gtest-param-util-macros.h"
+#endif
+// Copyright 2008 Google Inc.
+// All Rights Reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are
+// met:
+//
+//     * Redistributions of source code must retain the above copyright
+// notice, this list of conditions and the following disclaimer.
+//     * Redistributions in binary form must reproduce the above
+// copyright notice, this list of conditions and the following disclaimer
+// in the documentation and/or other materials provided with the
+// distribution.
+//     * Neither the name of Google Inc. nor the names of its
+// contributors may be used to endorse or promote products derived from
+// this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+// Type and function utilities for implementing parameterized tests.
+
+// IWYU pragma: private, include "gtest/gtest.h"
+// IWYU pragma: friend gtest/.*
+// IWYU pragma: friend gmock/.*
+
 #ifndef GOOGLETEST_INCLUDE_GTEST_INTERNAL_GTEST_PARAM_UTIL_H_
 #define GOOGLETEST_INCLUDE_GTEST_INTERNAL_GTEST_PARAM_UTIL_H_
 
+#ifndef GTEST_USE_MODULES
 #include <ctype.h>
+#endif
 
+#ifndef GTEST_USE_MODULES
 #include <cassert>
 #include <functional>
 #include <iterator>
@@ -51,16 +93,19 @@
 #include <unordered_map>
 #include <utility>
 #include <vector>
+#endif
 
+#ifndef GTEST_USE_MODULES
 #include "gtest/gtest-printers.h"
 #include "gtest/gtest-test-part.h"
 #include "gtest/internal/gtest-internal.h"
 #include "gtest/internal/gtest-port.h"
+#endif
 
 namespace testing {
 // Input to a parameterized test name generator, describing a test parameter.
 // Consists of the parameter value and the integer parameter index.
-template <class ParamType>
+GTEST_EXPORT template <class ParamType>
 struct TestParamInfo {
   TestParamInfo(const ParamType& a_param, size_t an_index)
       : param(a_param), index(an_index) {}
@@ -70,7 +115,7 @@ struct TestParamInfo {
 
 // A builtin parameterized test name generator which returns the result of
 // testing::PrintToString.
-struct PrintToStringParamName {
+GTEST_EXPORT struct PrintToStringParamName {
   template <class ParamType>
   std::string operator()(const TestParamInfo<ParamType>& info) const {
     return PrintToString(info.param);
@@ -86,17 +131,17 @@ namespace internal {
 // fixture class for the same test suite. This may happen when
 // TEST_P macro is used to define two tests with the same name
 // but in different namespaces.
-GTEST_API_ void ReportInvalidTestSuiteType(const char* test_suite_name,
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL GTEST_API_ void ReportInvalidTestSuiteType(const char* test_suite_name,
                                            const CodeLocation& code_location);
 
-template <typename>
+GTEST_EXPORT template <typename>
 class [[nodiscard]] ParamGeneratorInterface;
-template <typename>
+GTEST_EXPORT template <typename>
 class [[nodiscard]] ParamGenerator;
 
 // Interface for iterating over elements provided by an implementation
 // of ParamGeneratorInterface<T>.
-template <typename T>
+GTEST_EXPORT template <typename T>
 class [[nodiscard]] ParamIteratorInterface {
  public:
   virtual ~ParamIteratorInterface() = default;
@@ -126,7 +171,7 @@ class [[nodiscard]] ParamIteratorInterface {
 // Class iterating over elements provided by an implementation of
 // ParamGeneratorInterface<T>. It wraps ParamIteratorInterface<T>
 // and implements the const forward iterator concept.
-template <typename T>
+GTEST_EXPORT template <typename T>
 class [[nodiscard]] ParamIterator {
  public:
   typedef T value_type;
@@ -168,7 +213,7 @@ class [[nodiscard]] ParamIterator {
 
 // ParamGeneratorInterface<T> is the binary interface to access generators
 // defined in other translation units.
-template <typename T>
+GTEST_EXPORT template <typename T>
 class [[nodiscard]] ParamGeneratorInterface {
  public:
   typedef T ParamType;
@@ -185,7 +230,7 @@ class [[nodiscard]] ParamGeneratorInterface {
 // This class implements copy initialization semantics and the contained
 // ParamGeneratorInterface<T> instance is shared among all copies
 // of the original object. This is possible because that instance is immutable.
-template <typename T>
+GTEST_EXPORT template <typename T>
 class [[nodiscard]] ParamGenerator {
  public:
   typedef ParamIterator<T> iterator;
@@ -209,7 +254,7 @@ class [[nodiscard]] ParamGenerator {
 // generate sequences of user-defined types that implement operator+() and
 // operator<().
 // This class is used in the Range() function.
-template <typename T, typename IncrementT>
+GTEST_EXPORT template <typename T, typename IncrementT>
 class [[nodiscard]] RangeGenerator : public ParamGeneratorInterface<T> {
  public:
   RangeGenerator(T begin, T end, IncrementT step)
@@ -295,7 +340,7 @@ class [[nodiscard]] RangeGenerator : public ParamGeneratorInterface<T> {
 // ValuesIn() function. The elements are copied from the source range
 // since the source can be located on the stack, and the generator
 // is likely to persist beyond that stack frame.
-template <typename T>
+GTEST_EXPORT template <typename T>
 class [[nodiscard]] ValuesInIteratorRangeGenerator
     : public ParamGeneratorInterface<T> {
  public:
@@ -380,23 +425,23 @@ class [[nodiscard]] ValuesInIteratorRangeGenerator
 //
 // Default parameterized test name generator, returns a string containing the
 // integer test parameter index.
-template <class ParamType>
+GTEST_EXPORT template <class ParamType>
 std::string DefaultParamName(const TestParamInfo<ParamType>& info) {
   return std::to_string(info.index);
 }
 
-template <typename T = int>
+GTEST_EXPORT template <typename T = int>
 void TestNotEmpty() {
   static_assert(sizeof(T) == 0, "Empty arguments are not allowed.");
 }
-template <typename T = int>
+GTEST_EXPORT template <typename T = int>
 void TestNotEmpty(const T&) {}
 
 // INTERNAL IMPLEMENTATION - DO NOT USE IN USER CODE.
 //
 // Stores a parameter value and later creates tests parameterized with that
 // value.
-template <class TestClass>
+GTEST_EXPORT template <class TestClass>
 class [[nodiscard]] ParameterizedTestFactory : public TestFactoryBase {
  public:
   typedef typename TestClass::ParamType ParamType;
@@ -418,7 +463,7 @@ class [[nodiscard]] ParameterizedTestFactory : public TestFactoryBase {
 //
 // TestMetaFactoryBase is a base class for meta-factories that create
 // test factories for passing into MakeAndRegisterTestInfo function.
-template <class ParamType>
+GTEST_EXPORT template <class ParamType>
 class [[nodiscard]] TestMetaFactoryBase {
  public:
   virtual ~TestMetaFactoryBase() = default;
@@ -434,7 +479,7 @@ class [[nodiscard]] TestMetaFactoryBase {
 // into that method twice. But ParameterizedTestSuiteInfo is going to call
 // it for each Test/Parameter value combination. Thus it needs meta factory
 // creator class.
-template <class TestSuite>
+GTEST_EXPORT template <class TestSuite>
 class [[nodiscard]] TestMetaFactory
     : public TestMetaFactoryBase<typename TestSuite::ParamType> {
  public:
@@ -461,7 +506,7 @@ class [[nodiscard]] TestMetaFactory
 // in RegisterTests method. The ParameterizeTestSuiteRegistry class holds
 // a collection of pointers to the ParameterizedTestSuiteInfo objects
 // and calls RegisterTests() on each of them when asked.
-class [[nodiscard]] ParameterizedTestSuiteInfoBase {
+GTEST_EXPORT class [[nodiscard]] ParameterizedTestSuiteInfoBase {
  public:
   virtual ~ParameterizedTestSuiteInfoBase() = default;
 
@@ -489,11 +534,11 @@ class [[nodiscard]] ParameterizedTestSuiteInfoBase {
 //
 // Report a the name of a test_suit as safe to ignore
 // as the side effect of construction of this type.
-struct GTEST_API_ MarkAsIgnored {
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL struct GTEST_API_ MarkAsIgnored {
   explicit MarkAsIgnored(const char* test_suite);
 };
 
-GTEST_API_ void InsertSyntheticTestCase(const std::string& name,
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL GTEST_API_ void InsertSyntheticTestCase(const std::string& name,
                                         CodeLocation location, bool has_test_p);
 
 // INTERNAL IMPLEMENTATION - DO NOT USE IN USER CODE.
@@ -503,7 +548,7 @@ GTEST_API_ void InsertSyntheticTestCase(const std::string& name,
 // obtained from INSTANTIATE_TEST_SUITE_P macro invocations for that
 // test suite. It registers tests with all values generated by all
 // generators when asked.
-template <class TestSuite>
+GTEST_EXPORT template <class TestSuite>
 class [[nodiscard]] ParameterizedTestSuiteInfo
     : public ParameterizedTestSuiteInfoBase {
  public:
@@ -680,7 +725,7 @@ class [[nodiscard]] ParameterizedTestSuiteInfo
 
 //  Legacy API is deprecated but still available
 #ifndef GTEST_REMOVE_LEGACY_TEST_CASEAPI_
-template <class TestCase>
+GTEST_EXPORT template <class TestCase>
 using ParameterizedTestCaseInfo = ParameterizedTestSuiteInfo<TestCase>;
 #endif  //  GTEST_REMOVE_LEGACY_TEST_CASEAPI_
 
@@ -690,7 +735,7 @@ using ParameterizedTestCaseInfo = ParameterizedTestSuiteInfo<TestCase>;
 // ParameterizedTestSuiteInfoBase classes accessed by test suite names. TEST_P
 // and INSTANTIATE_TEST_SUITE_P macros use it to locate their corresponding
 // ParameterizedTestSuiteInfo descriptors.
-class [[nodiscard]] ParameterizedTestSuiteRegistry {
+GTEST_EXPORT class [[nodiscard]] ParameterizedTestSuiteRegistry {
  public:
   ParameterizedTestSuiteRegistry() = default;
   ~ParameterizedTestSuiteRegistry() {
@@ -764,7 +809,7 @@ class [[nodiscard]] ParameterizedTestSuiteRegistry {
 // Keep track of what type-parameterized test suite are defined and
 // where as well as which are intatiated. This allows susequently
 // identifying suits that are defined but never used.
-class [[nodiscard]] TypeParameterizedTestSuiteRegistry {
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL class [[nodiscard]] TypeParameterizedTestSuiteRegistry {
  public:
   // Add a suite definition
   void RegisterTestSuite(const char* test_suite_name,
@@ -793,7 +838,7 @@ class [[nodiscard]] TypeParameterizedTestSuiteRegistry {
 
 // Forward declarations of ValuesIn(), which is implemented in
 // include/gtest/gtest-param-test.h.
-template <class Container>
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL template <class Container>
 internal::ParamGenerator<typename Container::value_type> ValuesIn(
     const Container& container);
 
@@ -802,7 +847,7 @@ namespace internal {
 
 GTEST_DISABLE_MSC_WARNINGS_PUSH_(4100)
 
-template <typename... Ts>
+GTEST_EXPORT template <typename... Ts>
 class [[nodiscard]] ValueArray {
  public:
   explicit ValueArray(Ts... v) : v_(FlatTupleConstructTag{}, std::move(v)...) {}
@@ -823,7 +868,7 @@ class [[nodiscard]] ValueArray {
 
 GTEST_DISABLE_MSC_WARNINGS_POP_()  // 4100
 
-template <typename... T>
+GTEST_EXPORT template <typename... T>
 class [[nodiscard]] CartesianProductGenerator
     : public ParamGeneratorInterface<::std::tuple<T...>> {
  public:
@@ -940,7 +985,7 @@ class [[nodiscard]] CartesianProductGenerator
   std::tuple<ParamGenerator<T>...> generators_;
 };
 
-template <class... Gen>
+GTEST_EXPORT template <class... Gen>
 class [[nodiscard]] CartesianProductHolder {
  public:
   CartesianProductHolder(const Gen&... g) : generators_(g...) {}
@@ -954,7 +999,7 @@ class [[nodiscard]] CartesianProductHolder {
   std::tuple<Gen...> generators_;
 };
 
-template <typename From, typename To, typename Func>
+GTEST_EXPORT template <typename From, typename To, typename Func>
 class [[nodiscard]] ParamGeneratorConverter
     : public ParamGeneratorInterface<To> {
  public:
@@ -1023,7 +1068,7 @@ class [[nodiscard]] ParamGeneratorConverter
   Func converter_;
 };  // class ParamGeneratorConverter
 
-template <class GeneratedT,
+GTEST_EXPORT template <class GeneratedT,
           typename StdFunction =
               std::function<const GeneratedT&(const GeneratedT&)>>
 class [[nodiscard]] ParamConverterGenerator {
@@ -1049,14 +1094,14 @@ class [[nodiscard]] ParamConverterGenerator {
 };
 
 // Template to determine the param type of a single-param std::function.
-template <typename T>
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL template <typename T>
 struct FuncSingleParamType;
-template <typename R, typename P>
+GTEST_EXTERN_CXX_DECL template <typename R, typename P>
 struct FuncSingleParamType<std::function<R(P)>> {
   using type = std::remove_cv_t<std::remove_reference_t<P>>;
 };
 
-template <typename T>
+GTEST_EXPORT template <typename T>
 struct IsSingleArgStdFunction : public std::false_type {};
 template <typename R, typename P>
 struct IsSingleArgStdFunction<std::function<R(P)>> : public std::true_type {};

@@ -30,6 +30,8 @@
 //
 // This is part of the unit test for gtest_prod.h.
 
+#include <string.h>
+import std.compat;
 #include "production.h"
 
 PrivateCode::PrivateCode() : x_(0) {}

@@ -36,9 +36,52 @@
 // IWYU pragma: friend gtest/.*
 // IWYU pragma: friend gmock/.*
 
+#include "gtest/gtest-export.h"
+#ifndef GTEST_USE_MODULES
+#include "gtest/gtest-matchers-macros.h"
+#endif
+// Copyright 2007, Google Inc.
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are
+// met:
+//
+//     * Redistributions of source code must retain the above copyright
+// notice, this list of conditions and the following disclaimer.
+//     * Redistributions in binary form must reproduce the above
+// copyright notice, this list of conditions and the following disclaimer
+// in the documentation and/or other materials provided with the
+// distribution.
+//     * Neither the name of Google Inc. nor the names of its
+// contributors may be used to endorse or promote products derived from
+// this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+// The Google C++ Testing and Mocking Framework (Google Test)
+//
+// This file implements just enough of the matcher interface to allow
+// EXPECT_DEATH and friends to accept a matcher argument.
+
+// IWYU pragma: private, include "gtest/gtest.h"
+// IWYU pragma: friend gtest/.*
+// IWYU pragma: friend gmock/.*
+
 #ifndef GOOGLETEST_INCLUDE_GTEST_GTEST_MATCHERS_H_
 #define GOOGLETEST_INCLUDE_GTEST_GTEST_MATCHERS_H_
 
+#ifndef GTEST_USE_MODULES
 #include <atomic>
 #include <cstddef>
 #include <functional>
@@ -47,15 +90,20 @@
 #include <string>
 #include <string_view>
 #include <type_traits>
+#endif
 
+#ifndef GTEST_USE_MODULES
 #include "gtest/gtest-printers.h"
 #include "gtest/internal/gtest-internal.h"
 #include "gtest/internal/gtest-port.h"
+#endif
 
 // MSVC warning C5046 is new as of VS2017 version 15.8.
 #if defined(_MSC_VER) && _MSC_VER >= 1915
+#undef GTEST_MAYBE_5046_
 #define GTEST_MAYBE_5046_ 5046
 #else
+#undef GTEST_MAYBE_5046_
 #define GTEST_MAYBE_5046_
 #endif
 
@@ -77,7 +125,7 @@ namespace testing {
 //   2. a factory function that creates a Matcher<T> object from a
 //      FooMatcherMatcher.
 
-class [[nodiscard]] MatchResultListener {
+GTEST_EXPORT class [[nodiscard]] MatchResultListener {
  public:
   // Creates a listener object with the given underlying ostream.  The
   // listener does not own the ostream, and does not dereference it
@@ -113,7 +161,7 @@ inline MatchResultListener::~MatchResultListener() = default;
 
 // An instance of a subclass of this knows how to describe itself as a
 // matcher.
-class GTEST_API_ [[nodiscard]] MatcherDescriberInterface {
+GTEST_EXPORT class GTEST_API_ [[nodiscard]] MatcherDescriberInterface {
  public:
   virtual ~MatcherDescriberInterface() = default;
 
@@ -138,7 +186,7 @@ class GTEST_API_ [[nodiscard]] MatcherDescriberInterface {
 };
 
 // The implementation of a matcher.
-template <typename T>
+GTEST_EXPORT template <typename T>
 class [[nodiscard]] MatcherInterface : public MatcherDescriberInterface {
  public:
   // Returns true if and only if the matcher matches x; also explains the
@@ -182,7 +230,7 @@ class [[nodiscard]] MatcherInterface : public MatcherDescriberInterface {
 namespace internal {
 
 // A match result listener that ignores the explanation.
-class [[nodiscard]] DummyMatchResultListener : public MatchResultListener {
+GTEST_EXPORT class [[nodiscard]] DummyMatchResultListener : public MatchResultListener {
  public:
   DummyMatchResultListener() : MatchResultListener(nullptr) {}
 
@@ -194,7 +242,7 @@ class [[nodiscard]] DummyMatchResultListener : public MatchResultListener {
 // A match result listener that forwards the explanation to a given
 // ostream.  The difference between this and MatchResultListener is
 // that the former is concrete.
-class [[nodiscard]] StreamMatchResultListener : public MatchResultListener {
+GTEST_EXPORT class [[nodiscard]] StreamMatchResultListener : public MatchResultListener {
  public:
   explicit StreamMatchResultListener(::std::ostream* os)
       : MatchResultListener(os) {}
@@ -205,13 +253,13 @@ class [[nodiscard]] StreamMatchResultListener : public MatchResultListener {
       delete;
 };
 
-struct SharedPayloadBase {
+GTEST_EXPORT struct SharedPayloadBase {
   std::atomic<int> ref{1};
   void Ref() { ref.fetch_add(1, std::memory_order_relaxed); }
   bool Unref() { return ref.fetch_sub(1, std::memory_order_acq_rel) == 1; }
 };
 
-template <typename T>
+GTEST_EXPORT template <typename T>
 struct SharedPayload : SharedPayloadBase {
   explicit SharedPayload(const T& v) : value(v) {}
   explicit SharedPayload(T&& v) : value(std::move(v)) {}
@@ -226,7 +274,7 @@ struct SharedPayload : SharedPayloadBase {
 // An internal class for implementing Matcher<T>, which will derive
 // from it.  We put functionalities common to all Matcher<T>
 // specializations here to avoid code duplication.
-template <typename T>
+GTEST_EXPORT template <typename T>
 class [[nodiscard]] MatcherBase : private MatcherDescriberInterface {
  public:
   // Returns true if and only if the matcher matches x; also explains the
@@ -460,7 +508,7 @@ class [[nodiscard]] MatcherBase : private MatcherDescriberInterface {
 // object that can check whether a value of type T matches.  The
 // implementation of Matcher<T> is just a std::shared_ptr to const
 // MatcherInterface<T>.  Don't inherit from Matcher!
-template <typename T>
+GTEST_EXPORT template <typename T>
 class [[nodiscard]] Matcher : public internal::MatcherBase<T> {
  public:
   // Constructs a null matcher.  Needed for storing Matcher objects in STL
@@ -601,7 +649,7 @@ class GTEST_API_ [[nodiscard]] Matcher<internal::StringView>
 };
 
 // Prints a matcher in a human-readable format.
-template <typename T>
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL template <typename T>
 std::ostream& operator<<(std::ostream& os, const Matcher<T>& matcher) {
   matcher.DescribeTo(&os);
   return os;
@@ -619,7 +667,7 @@ std::ostream& operator<<(std::ostream& os, const Matcher<T>& matcher) {
 //                        MatchResultListener* listener) const;
 //
 // See the definition of NotNull() for a complete example.
-template <class Impl>
+GTEST_EXPORT template <class Impl>
 class [[nodiscard]] PolymorphicMatcher {
  public:
   explicit PolymorphicMatcher(const Impl& an_impl) : impl_(an_impl) {}
@@ -666,7 +714,7 @@ class [[nodiscard]] PolymorphicMatcher {
 //
 // MakeMatcher may create a Matcher that accepts its argument by value, which
 // leads to unnecessary copies & lack of support for non-copyable types.
-template <typename T>
+GTEST_EXPORT template <typename T>
 inline Matcher<T> MakeMatcher(const MatcherInterface<T>* impl) {
   return Matcher<T>(impl);
 }
@@ -678,7 +726,7 @@ inline Matcher<T> MakeMatcher(const MatcherInterface<T>* impl) {
 //   MakePolymorphicMatcher(foo);
 // vs
 //   PolymorphicMatcher<TypeOfFoo>(foo);
-template <class Impl>
+GTEST_EXPORT template <class Impl>
 inline PolymorphicMatcher<Impl> MakePolymorphicMatcher(const Impl& impl) {
   return PolymorphicMatcher<Impl>(impl);
 }
@@ -694,7 +742,7 @@ namespace internal {
 //
 // The following template definition assumes that the Rhs parameter is
 // a "bare" type (i.e. neither 'const T' nor 'T&').
-template <typename D, typename Rhs, typename Op>
+GTEST_EXPORT template <typename D, typename Rhs, typename Op>
 class [[nodiscard]] ComparisonBase {
  public:
   explicit ComparisonBase(const Rhs& rhs) : rhs_(rhs) {}
@@ -727,7 +775,7 @@ class [[nodiscard]] ComparisonBase {
   Rhs rhs_;
 };
 
-template <typename Rhs>
+GTEST_EXPORT template <typename Rhs>
 class [[nodiscard]] EqMatcher
     : public ComparisonBase<EqMatcher<Rhs>, Rhs, std::equal_to<>> {
  public:
@@ -736,7 +784,7 @@ class [[nodiscard]] EqMatcher
   static const char* Desc() { return "is equal to"; }
   static const char* NegatedDesc() { return "isn't equal to"; }
 };
-template <typename Rhs>
+GTEST_EXPORT template <typename Rhs>
 class [[nodiscard]] NeMatcher
     : public ComparisonBase<NeMatcher<Rhs>, Rhs, std::not_equal_to<>> {
  public:
@@ -745,7 +793,7 @@ class [[nodiscard]] NeMatcher
   static const char* Desc() { return "isn't equal to"; }
   static const char* NegatedDesc() { return "is equal to"; }
 };
-template <typename Rhs>
+GTEST_EXPORT template <typename Rhs>
 class [[nodiscard]] LtMatcher
     : public ComparisonBase<LtMatcher<Rhs>, Rhs, std::less<>> {
  public:
@@ -754,7 +802,7 @@ class [[nodiscard]] LtMatcher
   static const char* Desc() { return "is <"; }
   static const char* NegatedDesc() { return "isn't <"; }
 };
-template <typename Rhs>
+GTEST_EXPORT template <typename Rhs>
 class [[nodiscard]] GtMatcher
     : public ComparisonBase<GtMatcher<Rhs>, Rhs, std::greater<>> {
  public:
@@ -763,7 +811,7 @@ class [[nodiscard]] GtMatcher
   static const char* Desc() { return "is >"; }
   static const char* NegatedDesc() { return "isn't >"; }
 };
-template <typename Rhs>
+GTEST_EXPORT template <typename Rhs>
 class [[nodiscard]] LeMatcher
     : public ComparisonBase<LeMatcher<Rhs>, Rhs, std::less_equal<>> {
  public:
@@ -772,7 +820,7 @@ class [[nodiscard]] LeMatcher
   static const char* Desc() { return "is <="; }
   static const char* NegatedDesc() { return "isn't <="; }
 };
-template <typename Rhs>
+GTEST_EXPORT template <typename Rhs>
 class [[nodiscard]] GeMatcher
     : public ComparisonBase<GeMatcher<Rhs>, Rhs, std::greater_equal<>> {
  public:
@@ -784,7 +832,7 @@ class [[nodiscard]] GeMatcher
 
 // Same as `EqMatcher<Rhs>`, except that the `rhs` is stored as `StoredRhs` and
 // must be implicitly convertible to `Rhs`.
-template <typename Rhs, typename StoredRhs>
+GTEST_EXPORT template <typename Rhs, typename StoredRhs>
 class [[nodiscard]] ImplicitCastEqMatcher {
  public:
   explicit ImplicitCastEqMatcher(const StoredRhs& rhs) : stored_rhs_(rhs) {}
@@ -814,28 +862,28 @@ class [[nodiscard]] ImplicitCastEqMatcher {
 // Dummy function (never defined) whose return type evaluates to std::string if
 // the given type is a string-like type that can be converted to std::string,
 // either directly or through an intermediate std::string_view.
-template <class T>
-extern std::enable_if_t<std::is_constructible_v<std::string, T>, std::string>
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL template <class T>
+GTEST_EXTERN_DECL std::enable_if_t<std::is_constructible_v<std::string, T>, std::string>
 ResolveAsString(const void* /* preferred */);
 
 #if GTEST_HAS_STD_WSTRING
 // Same as above, but for std::wstring. In cases where both conversions are
 // possible, this overload takes lower priority.
-template <class T>
-extern std::enable_if_t<std::is_constructible_v<std::wstring, T>, std::wstring>
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL template <class T>
+GTEST_EXTERN_DECL std::enable_if_t<std::is_constructible_v<std::wstring, T>, std::wstring>
 ResolveAsString(... /* fallback */);
 #endif
 
 // Evaluates to the std::basic_string type that the given string-like type can
 // be converted to. Prefers std::string over std::wstring if both are possible.
 // Fails in a SFINAE-friendly way if no conversion was viable.
-template <typename T>
+GTEST_EXPORT template <typename T>
 using StringType = decltype(ResolveAsString<T>(nullptr));
 
 // Implements polymorphic matchers MatchesRegex(regex) and
 // ContainsRegex(regex), which can be used as a Matcher<T> as long as
 // T can be converted to a string.
-class [[nodiscard]] MatchesRegexMatcher {
+GTEST_EXPORT class [[nodiscard]] MatchesRegexMatcher {
  public:
   MatchesRegexMatcher(const RE* regex, bool full_match)
       : regex_(regex), full_match_(full_match) {}
@@ -886,11 +934,11 @@ class [[nodiscard]] MatchesRegexMatcher {
 
 // Matches a string that fully matches regular expression 'regex'.
 // The matcher takes ownership of 'regex'.
-inline PolymorphicMatcher<internal::MatchesRegexMatcher> MatchesRegex(
+GTEST_EXPORT inline PolymorphicMatcher<internal::MatchesRegexMatcher> MatchesRegex(
     const internal::RE* regex) {
   return MakePolymorphicMatcher(internal::MatchesRegexMatcher(regex, true));
 }
-template <typename T = std::string>
+GTEST_EXPORT template <typename T = std::string>
 std::enable_if_t<std::is_constructible_v<internal::RE, internal::StringType<T>>,
                  PolymorphicMatcher<internal::MatchesRegexMatcher>>
 MatchesRegex(const T& regex) {
@@ -899,11 +947,11 @@ MatchesRegex(const T& regex) {
 
 // Matches a string that contains regular expression 'regex'.
 // The matcher takes ownership of 'regex'.
-inline PolymorphicMatcher<internal::MatchesRegexMatcher> ContainsRegex(
+GTEST_EXPORT inline PolymorphicMatcher<internal::MatchesRegexMatcher> ContainsRegex(
     const internal::RE* regex) {
   return MakePolymorphicMatcher(internal::MatchesRegexMatcher(regex, false));
 }
-template <typename T = std::string>
+GTEST_EXPORT template <typename T = std::string>
 std::enable_if_t<std::is_constructible_v<internal::RE, internal::StringType<T>>,
                  PolymorphicMatcher<internal::MatchesRegexMatcher>>
 ContainsRegex(const T& regex) {
@@ -913,7 +961,7 @@ ContainsRegex(const T& regex) {
 // Creates a polymorphic matcher that matches anything equal to x.
 // Note: if the parameter of Eq() were declared as const T&, Eq("foo")
 // wouldn't compile.
-template <typename T>
+GTEST_EXPORT template <typename T>
 inline internal::EqMatcher<T> Eq(T x) {
   return internal::EqMatcher<T>(x);
 }
@@ -945,37 +993,37 @@ Matcher<T>::Matcher(U, std::enable_if_t<std::is_same_v<U, std::nullptr_t>>*) {
 // it yet as those are used much less than Eq() in practice.  A user
 // can always write Matcher<T>(Lt(5)) to be explicit about the type,
 // for example.
-template <typename Lhs, typename Rhs>
+GTEST_EXPORT template <typename Lhs, typename Rhs>
 inline Matcher<Lhs> TypedEq(const Rhs& rhs) {
   return Eq(rhs);
 }
 
 // Creates a polymorphic matcher that matches anything >= x.
-template <typename Rhs>
+GTEST_EXPORT template <typename Rhs>
 inline internal::GeMatcher<Rhs> Ge(Rhs x) {
   return internal::GeMatcher<Rhs>(x);
 }
 
 // Creates a polymorphic matcher that matches anything > x.
-template <typename Rhs>
+GTEST_EXPORT template <typename Rhs>
 inline internal::GtMatcher<Rhs> Gt(Rhs x) {
   return internal::GtMatcher<Rhs>(x);
 }
 
 // Creates a polymorphic matcher that matches anything <= x.
-template <typename Rhs>
+GTEST_EXPORT template <typename Rhs>
 inline internal::LeMatcher<Rhs> Le(Rhs x) {
   return internal::LeMatcher<Rhs>(x);
 }
 
 // Creates a polymorphic matcher that matches anything < x.
-template <typename Rhs>
+GTEST_EXPORT template <typename Rhs>
 inline internal::LtMatcher<Rhs> Lt(Rhs x) {
   return internal::LtMatcher<Rhs>(x);
 }
 
 // Creates a polymorphic matcher that matches anything != x.
-template <typename Rhs>
+GTEST_EXPORT template <typename Rhs>
 inline internal::NeMatcher<Rhs> Ne(Rhs x) {
   return internal::NeMatcher<Rhs>(x);
 }

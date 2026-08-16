@@ -32,65 +32,108 @@
 // This file implements just enough of the matcher interface to allow
 // EXPECT_DEATH and friends to accept a matcher argument.
 
-#include "gtest/gtest-matchers.h"
+// IWYU pragma: private, include "gtest/gtest.h"
+// IWYU pragma: friend gtest/.*
+// IWYU pragma: friend gmock/.*
 
+module;
+#include <version>  // C++20 or <version> support.
+#include <stdio.h>
+#include <cerrno>
+#include <cstdio>
+#define GTEST_USE_MODULES 1
+#include "gtest/gtest-matchers-macros.h"
+#ifndef GTEST_IMPORT_STD
+#include <atomic>
+#include <cstddef>
+#include <functional>
+#include <memory>
+#include <ostream>
 #include <string>
+#include <string_view>
+#include <type_traits>
+#include <tuple>
+#include <utility>
+#include <vector>
+#include <map>
+#include <locale>
+#include <ios>
+#include <exception>
+# include <unordered_map>
+#include <streambuf>
+# include <stop_token>	// std::stop_source, std::stop_token, std::nostopstate
+# include <format>
+#endif
+#ifndef GTEST_IMPORT_STD
+#include <functional>
+#include <memory>
+#include <ostream>  // NOLINT
+#include <string>
+#include <string_view>
+#include <tuple>
+#include <type_traits>
+#include <utility>
+#include <vector>
+#include <map>
+#include <locale>
+#include <ios>
+#include <exception>
+# include <unordered_map>
+#include <streambuf>
+# include <stop_token>	// std::stop_source, std::stop_token, std::nostopstate
+# include <format>
+#endif
+#if GTEST_HAS_PTHREAD
+#include <pthread.h>  // NOLINT
+#endif
+#ifndef GTEST_IMPORT_STD
+#ifdef GTEST_IS_THREADSAFE
+#include <condition_variable>  // NOLINT
+#include <mutex>               // NOLINT
+#endif
+#endif
+#ifndef GTEST_IMPORT_STD
+#ifdef GTEST_IS_THREADSAFE
+#include <condition_variable>  // NOLINT
+#include <mutex>               // NOLINT
+#endif
+#endif
+#ifndef GTEST_IMPORT_STD
+#ifdef GTEST_HAS_ABSL
+#include <type_traits>
+#endif
+#endif
+#ifndef GTEST_IMPORT_STD
+#ifdef GTEST_HAS_ABSL
+#include <type_traits>
+#endif
+#endif
 
-#include "gtest/internal/gtest-internal.h"
-#include "gtest/internal/gtest-port.h"
-
+export module gtest.gtest_matchers;
+#ifdef GTEST_USE_IMPORT_STD
+import std.compat;
+#endif
+export import gtest.gtest_printers;
+export import gtest.internal.gtest_internal;
+export import gtest.internal.gtest_port;
+export import gtest.gtest_message;
+import gtest.internal.gtest_filepath;
+import gtest.internal.gtest_string;
+export import gtest.internal.gtest_type_util;
+import gtest.internal.gtest_port_arch;
+#include "gtest/gtest-export.h"
+#ifdef GTEST_EXTERN_CXX
+extern "C++" {
+#endif
 namespace testing {
-
-// Constructs a matcher that matches a const std::string& whose value is
-// equal to s.
-Matcher<const std::string&>::Matcher(const std::string& s) { *this = Eq(s); }
-
-// Constructs a matcher that matches a const std::string& whose value is
-// equal to s.
-Matcher<const std::string&>::Matcher(const char* s) {
-  *this = Eq(std::string(s));
+namespace internal {
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL template <typename C, bool>
+struct IsRecursiveContainerImpl;
 }
-
-// Constructs a matcher that matches a std::string whose value is equal to
-// s.
-Matcher<std::string>::Matcher(const std::string& s) { *this = Eq(s); }
-
-// Constructs a matcher that matches a std::string whose value is equal to
-// s.
-Matcher<std::string>::Matcher(const char* s) { *this = Eq(std::string(s)); }
-
-// Constructs a matcher that matches a const StringView& whose value is
-// equal to s.
-Matcher<const internal::StringView&>::Matcher(const std::string& s) {
-  *this = Eq(s);
 }
-
-// Constructs a matcher that matches a const StringView& whose value is
-// equal to s.
-Matcher<const internal::StringView&>::Matcher(const char* s) {
-  *this = Eq(std::string(s));
-}
-
-// Constructs a matcher that matches a const StringView& whose value is
-// equal to s.
-Matcher<const internal::StringView&>::Matcher(internal::StringView s) {
-  *this = Eq(std::string(s));
-}
-
-// Constructs a matcher that matches a StringView whose value is equal to
-// s.
-Matcher<internal::StringView>::Matcher(const std::string& s) { *this = Eq(s); }
-
-// Constructs a matcher that matches a StringView whose value is equal to
-// s.
-Matcher<internal::StringView>::Matcher(const char* s) {
-  *this = Eq(std::string(s));
-}
-
-// Constructs a matcher that matches a StringView whose value is equal to
-// s.
-Matcher<internal::StringView>::Matcher(internal::StringView s) {
-  *this = Eq(std::string(s));
-}
-
-}  // namespace testing
+#define GTEST_USE_MODULES 1
+#undef GTEST_MAYBE_5046_
+#include "gtest/gtest-matchers.h"
+#ifdef GTEST_EXTERN_CXX
+}  // extern "C++"
+#endif

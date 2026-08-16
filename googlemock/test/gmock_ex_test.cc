@@ -29,10 +29,34 @@
 
 // Tests Google Mock's functionality that depends on exceptions.
 
-#include <exception>
 
-#include "gmock/gmock.h"
-#include "gtest/gtest.h"
+#include <string.h>
+import gtest;
+import gtest.gtest_assertion_result;
+import gtest.gtest_internal_inl;
+import gtest.gtest_matchers;
+import gtest.gtest_message;
+import gtest.gtest_printers;
+import gtest.gtest_test_part;
+import gtest.internal.gtest_death_test_internal;
+import gtest.internal.gtest_filepath;
+import gtest.internal.gtest_internal;
+import gtest.internal.gtest_param_util;
+import gtest.internal.gtest_port;
+import gtest.internal.gtest_string;
+import gtest.internal.gtest_type_util;
+#include "gtest/gtest-macros.h"
+import std.compat;
+import gmock;
+import gmock.gmock_actions;
+import gmock.gmock_function_mocker;
+import gmock.gmock_matchers;
+import gmock.gmock_more_actions;
+import gmock.gmock_more_matchers;
+import gmock.gmock_nice_strict;
+import gmock.gmock_spec_builders;
+import gmock.internal.gmock_internal_utils;
+#include "gmock/gmock-macros.h"
 
 #if GTEST_HAS_EXCEPTIONS
 namespace {

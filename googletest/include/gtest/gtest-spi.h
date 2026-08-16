@@ -30,12 +30,52 @@
 // Utilities for testing Google Test itself and code that uses Google Test
 // (e.g. frameworks built on top of Google Test).
 
+#include "gtest/gtest-export.h"
+#ifndef GTEST_USE_MODULES
+#include "gtest/gtest-spi-macros.h"
+#endif
+// Copyright 2007, Google Inc.
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are
+// met:
+//
+//     * Redistributions of source code must retain the above copyright
+// notice, this list of conditions and the following disclaimer.
+//     * Redistributions in binary form must reproduce the above
+// copyright notice, this list of conditions and the following disclaimer
+// in the documentation and/or other materials provided with the
+// distribution.
+//     * Neither the name of Google Inc. nor the names of its
+// contributors may be used to endorse or promote products derived from
+// this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+// Utilities for testing Google Test itself and code that uses Google Test
+// (e.g. frameworks built on top of Google Test).
+
 #ifndef GOOGLETEST_INCLUDE_GTEST_GTEST_SPI_H_
 #define GOOGLETEST_INCLUDE_GTEST_GTEST_SPI_H_
 
+#ifndef GTEST_USE_MODULES
 #include <string>
+#endif
 
+#ifndef GTEST_USE_MODULES
 #include "gtest/gtest.h"
+#endif
 
 GTEST_DISABLE_MSC_WARNINGS_PUSH_(4251 \
 /* class A needs to have dll-interface to be used by clients of class B */)
@@ -51,7 +91,7 @@ namespace testing {
 // generated in the same thread that created this object or it can intercept
 // all generated failures. The scope of this mock object can be controlled with
 // the second argument to the two arguments constructor.
-class GTEST_API_ [[nodiscard]] ScopedFakeTestPartResultReporter
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL class GTEST_API_ [[nodiscard]] ScopedFakeTestPartResultReporter
     : public TestPartResultReporterInterface {
  public:
   // The two possible mocking modes of this object.
@@ -100,7 +140,7 @@ namespace internal {
 // TestPartResultArray contains exactly one failure that has the given
 // type and contains the given substring.  If that's not the case, a
 // non-fatal failure will be generated.
-class GTEST_API_ [[nodiscard]] SingleFailureChecker {
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL class GTEST_API_ [[nodiscard]] SingleFailureChecker {
  public:
   // The constructor remembers the arguments.
   SingleFailureChecker(const TestPartResultArray* results,
@@ -122,129 +162,8 @@ class GTEST_API_ [[nodiscard]] SingleFailureChecker {
 
 GTEST_DISABLE_MSC_WARNINGS_POP_()  //  4251
 
-// A set of macros for testing Google Test assertions or code that's expected
-// to generate Google Test fatal failures (e.g. a failure from an ASSERT_EQ, but
-// not a non-fatal failure, as from EXPECT_EQ).  It verifies that the given
-// statement will cause exactly one fatal Google Test failure with 'substr'
-// being part of the failure message.
-//
-// There are two different versions of this macro. EXPECT_FATAL_FAILURE only
-// affects and considers failures generated in the current thread and
-// EXPECT_FATAL_FAILURE_ON_ALL_THREADS does the same but for all threads.
-//
-// The verification of the assertion is done correctly even when the statement
-// throws an exception or aborts the current function.
-//
-// Known restrictions:
-//   - 'statement' cannot reference local non-static variables or
-//     non-static members of the current object.
-//   - 'statement' cannot return a value.
-//   - You cannot stream a failure message to this macro.
-//
-// Note that even though the implementations of the following two
-// macros are much alike, we cannot refactor them to use a common
-// helper macro, due to some peculiarity in how the preprocessor
-// works.  The AcceptsMacroThatExpandsToUnprotectedComma test in
-// gtest_unittest.cc will fail to compile if we do that.
-#define EXPECT_FATAL_FAILURE(statement, substr)                               \
-  do {                                                                        \
-    class GTestExpectFatalFailureHelper {                                     \
-     public:                                                                  \
-      static void Execute() { statement; }                                    \
-    };                                                                        \
-    ::testing::TestPartResultArray gtest_failures;                            \
-    ::testing::internal::SingleFailureChecker gtest_checker(                  \
-        &gtest_failures, ::testing::TestPartResult::kFatalFailure, (substr)); \
-    {                                                                         \
-      ::testing::ScopedFakeTestPartResultReporter gtest_reporter(             \
-          ::testing::ScopedFakeTestPartResultReporter::                       \
-              INTERCEPT_ONLY_CURRENT_THREAD,                                  \
-          &gtest_failures);                                                   \
-      GTestExpectFatalFailureHelper::Execute();                               \
-    }                                                                         \
-  } while (::testing::internal::AlwaysFalse())
 
-#define EXPECT_FATAL_FAILURE_ON_ALL_THREADS(statement, substr)                \
-  do {                                                                        \
-    class GTestExpectFatalFailureHelper {                                     \
-     public:                                                                  \
-      static void Execute() { statement; }                                    \
-    };                                                                        \
-    ::testing::TestPartResultArray gtest_failures;                            \
-    ::testing::internal::SingleFailureChecker gtest_checker(                  \
-        &gtest_failures, ::testing::TestPartResult::kFatalFailure, (substr)); \
-    {                                                                         \
-      ::testing::ScopedFakeTestPartResultReporter gtest_reporter(             \
-          ::testing::ScopedFakeTestPartResultReporter::INTERCEPT_ALL_THREADS, \
-          &gtest_failures);                                                   \
-      GTestExpectFatalFailureHelper::Execute();                               \
-    }                                                                         \
-  } while (::testing::internal::AlwaysFalse())
 
-// A macro for testing Google Test assertions or code that's expected to
-// generate Google Test non-fatal failures (e.g. a failure from an EXPECT_EQ,
-// but not from an ASSERT_EQ). It asserts that the given statement will cause
-// exactly one non-fatal Google Test failure with 'substr' being part of the
-// failure message.
-//
-// There are two different versions of this macro. EXPECT_NONFATAL_FAILURE only
-// affects and considers failures generated in the current thread and
-// EXPECT_NONFATAL_FAILURE_ON_ALL_THREADS does the same but for all threads.
-//
-// 'statement' is allowed to reference local variables and members of
-// the current object.
-//
-// The verification of the assertion is done correctly even when the statement
-// throws an exception or aborts the current function.
-//
-// Known restrictions:
-//   - You cannot stream a failure message to this macro.
-//
-// Note that even though the implementations of the following two
-// macros are much alike, we cannot refactor them to use a common
-// helper macro, due to some peculiarity in how the preprocessor
-// works.  If we do that, the code won't compile when the user gives
-// EXPECT_NONFATAL_FAILURE() a statement that contains a macro that
-// expands to code containing an unprotected comma.  The
-// AcceptsMacroThatExpandsToUnprotectedComma test in gtest_unittest.cc
-// catches that.
-//
-// For the same reason, we have to write
-//   if (::testing::internal::AlwaysTrue()) { statement; }
-// instead of
-//   GTEST_SUPPRESS_UNREACHABLE_CODE_WARNING_BELOW_(statement)
-// to avoid an MSVC warning on unreachable code.
-#define EXPECT_NONFATAL_FAILURE(statement, substr)                    \
-  do {                                                                \
-    ::testing::TestPartResultArray gtest_failures;                    \
-    ::testing::internal::SingleFailureChecker gtest_checker(          \
-        &gtest_failures, ::testing::TestPartResult::kNonFatalFailure, \
-        (substr));                                                    \
-    {                                                                 \
-      ::testing::ScopedFakeTestPartResultReporter gtest_reporter(     \
-          ::testing::ScopedFakeTestPartResultReporter::               \
-              INTERCEPT_ONLY_CURRENT_THREAD,                          \
-          &gtest_failures);                                           \
-      if (::testing::internal::AlwaysTrue()) {                        \
-        statement;                                                    \
-      }                                                               \
-    }                                                                 \
-  } while (::testing::internal::AlwaysFalse())
 
-#define EXPECT_NONFATAL_FAILURE_ON_ALL_THREADS(statement, substr)             \
-  do {                                                                        \
-    ::testing::TestPartResultArray gtest_failures;                            \
-    ::testing::internal::SingleFailureChecker gtest_checker(                  \
-        &gtest_failures, ::testing::TestPartResult::kNonFatalFailure,         \
-        (substr));                                                            \
-    {                                                                         \
-      ::testing::ScopedFakeTestPartResultReporter gtest_reporter(             \
-          ::testing::ScopedFakeTestPartResultReporter::INTERCEPT_ALL_THREADS, \
-          &gtest_failures);                                                   \
-      if (::testing::internal::AlwaysTrue()) {                                \
-        statement;                                                            \
-      }                                                                       \
-    }                                                                         \
-  } while (::testing::internal::AlwaysFalse())
 
 #endif  // GOOGLETEST_INCLUDE_GTEST_GTEST_SPI_H_

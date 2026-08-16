@@ -37,13 +37,60 @@
 // IWYU pragma: private, include "gmock/gmock.h"
 // IWYU pragma: friend gmock/.*
 
+#include "gmock/gmock-export.h"
+#ifndef GMOCK_USE_MODULES
+#include "gmock/gmock-more-matchers-macros.h"
+#endif
+// Copyright 2013, Google Inc.
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are
+// met:
+//
+//     * Redistributions of source code must retain the above copyright
+// notice, this list of conditions and the following disclaimer.
+//     * Redistributions in binary form must reproduce the above
+// copyright notice, this list of conditions and the following disclaimer
+// in the documentation and/or other materials provided with the
+// distribution.
+//     * Neither the name of Google Inc. nor the names of its
+// contributors may be used to endorse or promote products derived from
+// this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+// Google Mock - a framework for writing C++ mock classes.
+//
+// This file implements some matchers that depend on gmock-matchers.h.
+//
+// Note that tests are implemented in gmock-matchers_test.cc rather than
+// gmock-more-matchers-test.cc.
+
+// IWYU pragma: private, include "gmock/gmock.h"
+// IWYU pragma: friend gmock/.*
+
 #ifndef GOOGLEMOCK_INCLUDE_GMOCK_GMOCK_MORE_MATCHERS_H_
 #define GOOGLEMOCK_INCLUDE_GMOCK_GMOCK_MORE_MATCHERS_H_
 
+#ifndef GMOCK_USE_MODULES
 #include <ostream>
 #include <string>
+#endif
 
+#ifndef GMOCK_USE_MODULES
 #include "gmock/gmock-matchers.h"
+#endif
 
 namespace testing {
 
@@ -61,7 +108,7 @@ namespace internal {
 // Implements the polymorphic IsEmpty matcher, which
 // can be used as a Matcher<T> as long as T is either a container that defines
 // empty() and size() (e.g. std::vector or std::string), or a C-style string.
-class [[nodiscard]] IsEmptyMatcher {
+GMOCK_EXPORT class [[nodiscard]] IsEmptyMatcher {
  public:
   // Matches anything that defines empty() and size().
   template <typename MatcheeContainerType>
@@ -103,7 +150,7 @@ class [[nodiscard]] IsEmptyMatcher {
 // Creates a polymorphic matcher that matches an empty container or C-style
 // string. The container must support both size() and empty(), which all
 // STL-like containers provide.
-inline PolymorphicMatcher<internal::IsEmptyMatcher> IsEmpty() {
+GMOCK_EXPORT inline PolymorphicMatcher<internal::IsEmptyMatcher> IsEmpty() {
   return MakePolymorphicMatcher(internal::IsEmptyMatcher());
 }
 

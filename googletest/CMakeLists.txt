@@ -1,198 +1,241 @@
-########################################################################
-# Note: CMake support is community-based. The maintainers do not use CMake
-# internally.
+# googletest rewritten as C++20 modules.
 #
-# CMake build script for Google Test.
+# `src/` holds the module interface units (one .cc per header) and `src/impl/`
+# holds the module implementation units. `include/` holds the generated
+# `*_macros.h` macro headers and the `gtest_export.h` export-macro header.
 #
-# To run the tests for Google Test itself on Linux, use 'make test' or
-# ctest. You can select which tests to run using 'ctest -R regex'.
-# For more options, run 'ctest --help'.
+# Two upstream-compatible targets are provided on top of the modules:
+#   * `gtest`       — the gtest modules WITHOUT `gtest.gtest_main` (no main()).
+#   * `gtest_main`  — `gtest` plus the `gtest.gtest_main` module (provides main).
+# The combined `gtest_modules` target (gtest + main, as originally generated)
+# is kept as an alias for consumers that want every module.
+cmake_minimum_required(VERSION 4.3.4 FATAL_ERROR)
+project(googletest-modules-googletest CXX)
 
-# When other libraries are using a shared version of runtime libraries,
-# Google Test also has to use one.
-option(
-  gtest_force_shared_crt
-  "Use shared (DLL) run-time lib even when Google Test is built as static lib."
-  OFF)
-
-option(gtest_build_tests "Build all of gtest's own tests." OFF)
-
-option(gtest_build_samples "Build gtest's sample programs." OFF)
-
-option(gtest_disable_pthreads "Disable uses of pthreads in gtest." OFF)
-
-option(
-  gtest_hide_internal_symbols
-  "Build gtest with internal symbols hidden in shared libraries."
-  OFF)
-
-# Defines pre_project_set_up_hermetic_build() and set_up_hermetic_build().
-include(cmake/hermetic_build.cmake OPTIONAL)
-
-if (COMMAND pre_project_set_up_hermetic_build)
-  pre_project_set_up_hermetic_build()
+# `import std;` settings (see the top-level CMakeLists.txt): the experimental
+# support lets CMake build/find the std module so the interface/implementation
+# units and tests can `import std;` (C++23+). Module build only.
+if(gtest_build_modules)
+  # The UUID is a gate: CMake compares it against the value of the release it
+  # ships in and rejects any other, so a hard-coded one ties this tree to a
+  # single CMake. Pick it from the CMake that is running instead — Alpine ships
+  # 4.3, Kitware's binaries are 4.4. Each value is the one published in
+  # `Help/dev/experimental.rst` of that release.
+  if(CMAKE_VERSION VERSION_GREATER_EQUAL 4.4)
+    set(CMAKE_EXPERIMENTAL_CXX_IMPORT_STD "f35a9ac6-8463-4d38-8eec-5d6008153e7d")
+  elseif(CMAKE_VERSION VERSION_GREATER_EQUAL 4.3)
+    set(CMAKE_EXPERIMENTAL_CXX_IMPORT_STD "451f2fe2-a8a2-47c3-bc32-94786d8fc91b")
+  elseif(CMAKE_VERSION VERSION_GREATER_EQUAL 4.2)
+    set(CMAKE_EXPERIMENTAL_CXX_IMPORT_STD "1942b4fa-b2c5-4546-9385-83f254070067")
+  else()
+    message(FATAL_ERROR
+      "The module build needs CMake 4.2 or newer for `import std` "
+      "(found ${CMAKE_VERSION}); configure with -Dgtest_build_modules=OFF "
+      "to build the classic library instead.")
+  endif()
+  set(CMAKE_CXX_MODULE_STD 1)
 endif()
 
-########################################################################
-#
-# Project-wide settings.
+set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Name of the project.
-#
-# CMake files in this project can refer to the root source directory
-# as ${gtest_SOURCE_DIR} and to the root binary directory as
-# ${gtest_BINARY_DIR}.
-# Language "C" is required for find_package(Threads).
-
-# Project version.
-
-cmake_minimum_required(VERSION 3.13)
-project(gtest VERSION ${GOOGLETEST_VERSION} LANGUAGES CXX C)
-
-if (COMMAND set_up_hermetic_build)
-  set_up_hermetic_build()
-endif()
-
-# These commands only run if this is the main project.
-if(CMAKE_PROJECT_NAME STREQUAL "gtest" OR CMAKE_PROJECT_NAME STREQUAL "googletest-distribution")
-
-  # BUILD_SHARED_LIBS is a standard CMake variable, but we declare it here to
-  # make it prominent in the GUI.
-  option(BUILD_SHARED_LIBS "Build shared libraries (DLLs)." OFF)
-
+# The module build compiles the interface units plus the module implementation
+# units in `src/impl/modules/`; the classic build compiles the plain
+# translation units in `src/impl/` and no module units at all. Never both:
+# `src/impl/modules/<stem>.cc` is a module wrapper around `src/impl/<stem>.cc`.
+if(gtest_build_modules)
+  file(GLOB GTEST_INTERFACES
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/internal/*.cc)
+  # GCC cannot build the module implementation units at all (see
+  # gtest_extern_cxx): it takes the plain translation units instead, which under
+  # the extern "C++" wrapping define the same global-module entities the
+  # interface units declare.
+  if(gtest_extern_cxx)
+    file(GLOB GTEST_IMPL
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/impl/*.cc)
+  else()
+    file(GLOB GTEST_IMPL
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/impl/modules/*.cc)
+  endif()
+  list(REMOVE_ITEM GTEST_INTERFACES
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/gtest_main.cc)
+  if(gtest_extern_cxx)
+    list(REMOVE_ITEM GTEST_IMPL
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/impl/gtest_main.cc)
+  else()
+    list(REMOVE_ITEM GTEST_IMPL
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/impl/modules/gtest_main.cc)
+  endif()
+  set(GTEST_MAIN_INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/src/gtest_main.cc)
+  if(gtest_extern_cxx)
+    set(GTEST_MAIN_IMPL ${CMAKE_CURRENT_SOURCE_DIR}/src/impl/gtest_main.cc)
+  else()
+    set(GTEST_MAIN_IMPL ${CMAKE_CURRENT_SOURCE_DIR}/src/impl/modules/gtest_main.cc)
+  endif()
 else()
-
-  mark_as_advanced(
-    gtest_force_shared_crt
-    gtest_build_tests
-    gtest_build_samples
-    gtest_disable_pthreads
-    gtest_hide_internal_symbols)
-
+  set(GTEST_INTERFACES)
+  file(GLOB GTEST_IMPL
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/impl/*.cc)
+  list(REMOVE_ITEM GTEST_IMPL
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/impl/gtest_main.cc)
+  set(GTEST_MAIN_INTERFACE)
+  set(GTEST_MAIN_IMPL ${CMAKE_CURRENT_SOURCE_DIR}/src/impl/gtest_main.cc)
 endif()
 
-
-if (gtest_hide_internal_symbols)
-  set(CMAKE_CXX_VISIBILITY_PRESET hidden)
-  set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
+# ---- gtest (no main) ----
+add_library(gtest)
+if(gtest_build_modules)
+  target_sources(gtest PUBLIC
+    FILE_SET CXX_MODULES FILES ${GTEST_INTERFACES})
 endif()
-
-# Define helper functions and macros used by Google Test.
-include(cmake/internal_utils.cmake)
-
-config_compiler_and_linker()  # Defined in internal_utils.cmake.
-
-# Needed to set the namespace for both the export targets and the
-# alias libraries.
-set(cmake_package_name GTest CACHE INTERNAL "")
-
-# Create the CMake package file descriptors.
-if (INSTALL_GTEST)
-  include(CMakePackageConfigHelpers)
-  set(targets_export_name ${cmake_package_name}Targets CACHE INTERNAL "")
-  set(generated_dir "${CMAKE_CURRENT_BINARY_DIR}/generated" CACHE INTERNAL "")
-  set(cmake_files_install_dir "${CMAKE_INSTALL_LIBDIR}/cmake/${cmake_package_name}")
-  set(version_file "${generated_dir}/${cmake_package_name}ConfigVersion.cmake")
-  write_basic_package_version_file(${version_file} VERSION ${GOOGLETEST_VERSION} COMPATIBILITY AnyNewerVersion)
-  install(EXPORT ${targets_export_name}
-    COMPONENT "${PROJECT_NAME}"
-    NAMESPACE ${cmake_package_name}::
-    DESTINATION ${cmake_files_install_dir})
-  set(config_file "${generated_dir}/${cmake_package_name}Config.cmake")
-  configure_package_config_file("${gtest_SOURCE_DIR}/cmake/Config.cmake.in"
-    "${config_file}" INSTALL_DESTINATION ${cmake_files_install_dir})
-  install(FILES ${version_file} ${config_file}
-    COMPONENT "${PROJECT_NAME}"
-    DESTINATION ${cmake_files_install_dir})
-endif()
-
-# Where Google Test's .h files can be found.
-set(gtest_build_include_dirs
-  "${gtest_SOURCE_DIR}/include"
-  "${gtest_SOURCE_DIR}")
-include_directories(${gtest_build_include_dirs})
-
-########################################################################
+target_sources(gtest PRIVATE ${GTEST_IMPL})
+target_include_directories(gtest PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+# The library root, so the units keep including googletest's own
+# `src/gtest-internal-inl.h` the way the library always has (upstream adds the
+# same directory).
+target_include_directories(gtest PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_compile_features(gtest PUBLIC cxx_std_23)
+# Use `import std;` in the interface/implementation units: GTEST_USE_IMPORT_STD
+# emits `import std;`, GTEST_IMPORT_STD suppresses the stdlib #includes in the
+# global module fragment (guarded by `#ifndef GTEST_IMPORT_STD`). Public so
+# consumers (and gmock) inherit the same std view. The classic build defines
+# neither, which is what leaves the headers including their dependencies.
 #
-# Defines the gtest & gtest_main libraries. User tests should link
-# with one of them.
-
-# Google Test libraries. We build them using more strict warnings than what
-# are used for other targets, to ensure that gtest can be compiled by a user
-# aggressive about warnings.
-cxx_library(gtest "${cxx_strict}" src/gtest-all.cc)
+# GTEST_USE_MODULES is deliberately NOT defined here. Each generated unit
+# defines it itself, immediately before including its header, and it must stay
+# undefined for everyone else: the generated macro headers bake the export
+# marker into macro bodies (`MATCHER` expands to `GMOCK_EXPORT class …`), so a
+# consumer that invokes such a macro in its own translation unit would emit
+# `export` outside a module interface.
+if(gtest_build_modules)
+  target_compile_definitions(gtest PUBLIC
+    GTEST_USE_IMPORT_STD GTEST_IMPORT_STD)
+  # Public: the wrapping decides the linkage of every entity the consumer sees,
+  # so a consumer compiled without it would disagree with the library about
+  # which module each name is attached to.
+  if(gtest_extern_cxx)
+    target_compile_definitions(gtest PUBLIC GTEST_EXTERN_CXX)
+  endif()
+endif()
+if(NOT gtest_disable_pthreads)
+  target_link_libraries(gtest PUBLIC Threads::Threads)
+endif()
 set_target_properties(gtest PROPERTIES VERSION ${GOOGLETEST_VERSION})
-if(GTEST_HAS_ABSL)
-  target_compile_definitions(gtest PUBLIC GTEST_HAS_ABSL=1)
-  target_link_libraries(gtest PUBLIC
-    absl::failure_signal_handler
-    absl::stacktrace
-    absl::symbolize
-    absl::flags_parse
-    absl::flags_reflection
-    absl::flags_usage
-    absl::strings
-    re2::re2
-  )
+
+# ---- gtest_main (with main) ----
+add_library(gtest_main)
+if(gtest_build_modules)
+  target_sources(gtest_main PUBLIC
+    FILE_SET CXX_MODULES FILES ${GTEST_MAIN_INTERFACE})
 endif()
-cxx_library(gtest_main "${cxx_strict}" src/gtest_main.cc)
-set_target_properties(gtest_main PROPERTIES VERSION ${GOOGLETEST_VERSION})
-string(REPLACE ";" "$<SEMICOLON>" dirs "${gtest_build_include_dirs}")
-target_include_directories(gtest SYSTEM INTERFACE
-  "$<BUILD_INTERFACE:${dirs}>"
-  "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>")
-target_include_directories(gtest_main SYSTEM INTERFACE
-  "$<BUILD_INTERFACE:${dirs}>"
-  "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>")
-if(CMAKE_SYSTEM_NAME MATCHES "QNX" AND CMAKE_SYSTEM_VERSION VERSION_GREATER_EQUAL 7.1)
-  target_link_libraries(gtest PUBLIC regex)
-endif()
+target_sources(gtest_main PRIVATE ${GTEST_MAIN_IMPL})
+target_include_directories(gtest_main PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(gtest_main PUBLIC gtest)
+set_target_properties(gtest_main PROPERTIES VERSION ${GOOGLETEST_VERSION})
+
+# For the installed GTestConfig.cmake package config.
+set(GTEST_HAS_PTHREAD 1)
+set(THREADS_PREFER_PTHREAD_FLAG 1)
+
+# Backwards-compatible combined target (all gtest modules including main).
+add_library(gtest_modules ALIAS gtest_main)
 
 ########################################################################
 #
 # Install rules.
-install_project(gtest gtest_main)
+#
+# The module interface units, the compiled library and the generated macro /
+# export headers are installed so consumers can `find_package` this project
+# and link `gtest`/`gtest_main`.
+
+include(GNUInstallDirs)
+include(CMakePackageConfigHelpers)
+
+set(targets_export_name GTestTargets)
+set(generated_dir "${CMAKE_CURRENT_BINARY_DIR}/generated")
+set(cmake_files_install_dir "${CMAKE_INSTALL_LIBDIR}/cmake/GTest")
+set(version_file "${generated_dir}/GTestConfigVersion.cmake")
+write_basic_package_version_file(${version_file} VERSION ${GOOGLETEST_VERSION}
+  COMPATIBILITY AnyNewerVersion)
+
+if(gtest_build_modules)
+  install(TARGETS gtest gtest_main
+    EXPORT ${targets_export_name}
+    FILE_SET CXX_MODULES
+    COMPONENT "gtest"
+    DESTINATION "${CMAKE_INSTALL_LIBDIR}")
+else()
+  install(TARGETS gtest gtest_main
+    EXPORT ${targets_export_name}
+    COMPONENT "gtest"
+    DESTINATION "${CMAKE_INSTALL_LIBDIR}")
+endif()
+install(DIRECTORY include/
+  COMPONENT "gtest"
+  DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
+install(EXPORT ${targets_export_name}
+  NAMESPACE GTest::
+  DESTINATION ${cmake_files_install_dir})
+configure_package_config_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Config.cmake.in"
+  "${generated_dir}/GTestConfig.cmake"
+  INSTALL_DESTINATION ${cmake_files_install_dir})
+install(FILES ${version_file} "${generated_dir}/GTestConfig.cmake"
+  COMPONENT "gtest"
+  DESTINATION ${cmake_files_install_dir})
 
 ########################################################################
 #
-# Samples on how to link user tests with gtest or gtest_main.
+# Samples.
 #
-# They are not built by default. To build them, set the
-# gtest_build_samples option to ON. You can do it by running ccmake
-# or specifying the -Dgtest_build_samples=ON flag when running cmake.
-
-if (gtest_build_samples)
-  cxx_executable(sample1_unittest samples gtest_main samples/sample1.cc)
-  cxx_executable(sample2_unittest samples gtest_main samples/sample2.cc)
-  cxx_executable(sample3_unittest samples gtest_main)
-  cxx_executable(sample4_unittest samples gtest_main samples/sample4.cc)
-  cxx_executable(sample5_unittest samples gtest_main samples/sample1.cc)
-  cxx_executable(sample6_unittest samples gtest_main)
-  cxx_executable(sample7_unittest samples gtest_main)
-  cxx_executable(sample8_unittest samples gtest_main)
-  cxx_executable(sample9_unittest samples gtest)
-  cxx_executable(sample10_unittest samples gtest)
+# The samples are converted to `import gtest;` + the generated macro headers.
+if(gtest_build_samples)
+  set(samples_include_dirs
+    "${CMAKE_CURRENT_SOURCE_DIR}/include")
+  function(add_sample name)
+    set(extra_sources ${ARGN})
+    add_executable(${name}
+      samples/${name}.cc ${extra_sources})
+    target_include_directories(${name} PRIVATE ${samples_include_dirs})
+    target_link_libraries(${name} gtest_main)
+    add_test(NAME ${name} COMMAND ${name})
+  endfunction()
+  add_sample(sample1_unittest samples/sample1.cc)
+  add_sample(sample2_unittest samples/sample2.cc)
+  add_sample(sample3_unittest)
+  add_sample(sample4_unittest samples/sample4.cc)
+  add_sample(sample5_unittest samples/sample1.cc)
+  add_sample(sample6_unittest)
+  add_sample(sample7_unittest)
+  add_sample(sample8_unittest)
+  add_sample(sample9_unittest)
+  add_sample(sample10_unittest)
 endif()
 
 ########################################################################
 #
 # Google Test's own tests.
 #
-# You can skip this section if you aren't interested in testing
-# Google Test itself.
-#
-# The tests are not built by default. To build them, set the
-# gtest_build_tests option to ON. You can do it by running ccmake
-# or specifying the -Dgtest_build_tests=ON flag when running cmake.
+# The test sources are converted to `import gtest;`/`import gtest.X;` plus the
+# generated macro headers. Each `cxx_test` builds one test executable against
+# the module library and registers it with CTest.
 
-if (gtest_build_tests)
-  # This must be set in the root directory for the tests to be run by
-  # 'make test' or ctest.
-  enable_testing()
+if(gtest_build_tests)
+  set(gtest_test_include_dirs
+    "${CMAKE_CURRENT_SOURCE_DIR}/include"
+    "${CMAKE_CURRENT_SOURCE_DIR}")
 
-  ############################################################
-  # C++ tests built with standard compiler flags.
+  function(cxx_test name lib)
+    set(sources ${ARGN})
+    add_executable(${name} ${sources} test/${name}.cc)
+    target_include_directories(${name} PRIVATE ${gtest_test_include_dirs})
+    target_link_libraries(${name} ${lib})
+    add_test(NAME ${name} COMMAND ${name})
+  endfunction()
 
   cxx_test(googletest-death-test-test gtest_main)
   cxx_test(gtest_environment_test gtest)
@@ -206,8 +249,6 @@ if (gtest_build_tests)
     test/googletest-param-test2-test.cc)
   cxx_test(googletest-port-test gtest_main)
   cxx_test(gtest_pred_impl_unittest gtest_main)
-  cxx_test(gtest_premature_exit_test gtest
-    test/gtest_premature_exit_test.cc)
   cxx_test(googletest-printers-test gtest_main)
   cxx_test(gtest_prod_test gtest_main
     test/production.cc)
@@ -222,106 +263,4 @@ if (gtest_build_tests)
   cxx_test(gtest-unittest-api_test gtest)
   cxx_test(gtest_skip_in_environment_setup_test gtest_main)
   cxx_test(gtest_skip_test gtest_main)
-
-  ############################################################
-  # C++ tests built with non-standard compiler flags.
-
-  # MSVC 7.1 does not support STL with exceptions disabled.
-  if (NOT MSVC OR MSVC_VERSION GREATER 1310)
-    cxx_library(gtest_no_exception "${cxx_no_exception}"
-      src/gtest-all.cc)
-    cxx_library(gtest_main_no_exception "${cxx_no_exception}"
-      src/gtest-all.cc src/gtest_main.cc)
-  endif()
-  cxx_library(gtest_main_no_rtti "${cxx_no_rtti}"
-    src/gtest-all.cc src/gtest_main.cc)
-
-  cxx_test_with_flags(gtest-death-test_ex_nocatch_test
-    "${cxx_exception} -DGTEST_ENABLE_CATCH_EXCEPTIONS_=0"
-    gtest test/googletest-death-test_ex_test.cc)
-  cxx_test_with_flags(gtest-death-test_ex_catch_test
-    "${cxx_exception} -DGTEST_ENABLE_CATCH_EXCEPTIONS_=1"
-    gtest test/googletest-death-test_ex_test.cc)
-
-  cxx_test_with_flags(gtest_no_rtti_unittest "${cxx_no_rtti}"
-    gtest_main_no_rtti test/gtest_unittest.cc)
-
-  cxx_shared_library(gtest_dll "${cxx_default}"
-    src/gtest-all.cc src/gtest_main.cc)
-
-  cxx_executable_with_flags(gtest_dll_test_ "${cxx_default}"
-    gtest_dll test/gtest_all_test.cc)
-  set_target_properties(gtest_dll_test_
-                        PROPERTIES
-                        COMPILE_DEFINITIONS "GTEST_LINKED_AS_SHARED_LIBRARY=1")
-
-  ############################################################
-  # Python tests.
-
-  cxx_executable(googletest-break-on-failure-unittest_ test gtest)
-  py_test(googletest-break-on-failure-unittest)
-
-  py_test(gtest_skip_check_output_test)
-  py_test(gtest_skip_environment_check_output_test)
-
-  # Visual Studio .NET 2003 does not support STL with exceptions disabled.
-  if (NOT MSVC OR MSVC_VERSION GREATER 1310) # 1310 is Visual Studio .NET 2003
-    cxx_executable_with_flags(
-      googletest-catch-exceptions-no-ex-test_
-      "${cxx_no_exception}"
-      gtest_main_no_exception
-      test/googletest-catch-exceptions-test_.cc)
-  endif()
-
-  cxx_executable_with_flags(
-    googletest-catch-exceptions-ex-test_
-    "${cxx_exception}"
-    gtest_main
-    test/googletest-catch-exceptions-test_.cc)
-  py_test(googletest-catch-exceptions-test)
-
-  cxx_executable(googletest-color-test_ test gtest)
-  py_test(googletest-color-test)
-
-  cxx_executable(googletest-env-var-test_ test gtest)
-  py_test(googletest-env-var-test)
-
-  cxx_executable(googletest-filter-unittest_ test gtest)
-  py_test(googletest-filter-unittest)
-
-  cxx_executable(gtest_help_test_ test gtest_main)
-  py_test(gtest_help_test)
-
-  cxx_executable(googletest-list-tests-unittest_ test gtest)
-  py_test(googletest-list-tests-unittest)
-
-  cxx_executable(googletest-output-test_ test gtest)
-  py_test(googletest-output-test --no_stacktrace_support)
-
-  cxx_executable(googletest-shuffle-test_ test gtest)
-  py_test(googletest-shuffle-test)
-
-  # MSVC 7.1 does not support STL with exceptions disabled.
-  if (NOT MSVC OR MSVC_VERSION GREATER 1310)
-    cxx_executable(googletest-throw-on-failure-test_ test gtest_no_exception)
-    set_target_properties(googletest-throw-on-failure-test_
-      PROPERTIES
-      COMPILE_FLAGS "${cxx_no_exception}")
-    py_test(googletest-throw-on-failure-test)
-  endif()
-
-  cxx_executable(googletest-uninitialized-test_ test gtest)
-  py_test(googletest-uninitialized-test)
-
-  cxx_executable(gtest_list_output_unittest_ test gtest)
-  py_test(gtest_list_output_unittest)
-
-  cxx_executable(gtest_xml_outfile1_test_ test gtest_main)
-  cxx_executable(gtest_xml_outfile2_test_ test gtest_main)
-  py_test(gtest_xml_outfiles_test)
-  py_test(googletest-json-outfiles-test)
-
-  cxx_executable(gtest_xml_output_unittest_ test gtest)
-  py_test(gtest_xml_output_unittest --no_stacktrace_support)
-  py_test(googletest-json-output-unittest --no_stacktrace_support)
 endif()

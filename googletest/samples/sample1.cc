@@ -29,6 +29,8 @@
 
 // A sample program demonstrating using Google C++ testing framework.
 
+#include <string.h>
+import std.compat;
 #include "sample1.h"
 
 // Returns n! (the factorial of n).  For negative n, n! is defined to be 1.

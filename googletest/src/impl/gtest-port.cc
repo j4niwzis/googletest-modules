@@ -1,3 +1,20 @@
+#if defined(GTEST_USE_MODULES) && !defined(GTEST_MODULE_UNIT)
+import gtest.internal.gtest_port;
+import std.compat;
+import gtest.gtest_message;
+import gtest.gtest_spi;
+import gtest.umbrella;
+import gtest.internal.gtest_internal;
+import gtest.internal.gtest_string;
+import gtest.gtest_internal_inl;
+import gtest.gtest_assertion_result;
+import gtest.gtest_param_test;
+import gtest.gtest_test_part;
+import gtest.internal.gtest_param_util;
+#endif
+#ifdef GTEST_EXTERN_CXX
+extern "C++" {
+#endif
 // Copyright 2008, Google Inc.
 // All rights reserved.
 //
@@ -27,6 +44,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#ifndef GTEST_USE_MODULES
 #include "gtest/internal/gtest-port.h"
 
 #include <limits.h>
@@ -41,58 +59,79 @@
 #include <string>
 #include <utility>
 #include <vector>
+#endif  // GTEST_USE_MODULES
 
 #ifdef GTEST_OS_WINDOWS
+#ifndef GTEST_USE_MODULES
 #include <io.h>
 #include <sys/stat.h>
 #include <windows.h>
 
 #include <map>  // Used in ThreadLocal.
+#endif  // GTEST_USE_MODULES
 #ifdef _MSC_VER
+#ifndef GTEST_USE_MODULES
 #include <crtdbg.h>
+#endif  // GTEST_USE_MODULES
 #endif  // _MSC_VER
 #else
+#ifndef GTEST_USE_MODULES
 #include <unistd.h>
+#endif  // GTEST_USE_MODULES
 #endif  // GTEST_OS_WINDOWS
 
 #ifdef GTEST_OS_MAC
+#ifndef GTEST_USE_MODULES
 #include <mach/mach_init.h>
 #include <mach/task.h>
 #include <mach/vm_map.h>
+#endif  // GTEST_USE_MODULES
 #endif  // GTEST_OS_MAC
 
 #if defined(GTEST_OS_DRAGONFLY) || defined(GTEST_OS_FREEBSD) ||   \
     defined(GTEST_OS_GNU_KFREEBSD) || defined(GTEST_OS_NETBSD) || \
     defined(GTEST_OS_OPENBSD)
+#ifndef GTEST_USE_MODULES
 #include <sys/sysctl.h>
+#endif  // GTEST_USE_MODULES
 #if defined(GTEST_OS_DRAGONFLY) || defined(GTEST_OS_FREEBSD) || \
     defined(GTEST_OS_GNU_KFREEBSD)
+#ifndef GTEST_USE_MODULES
 #include <sys/user.h>
+#endif  // GTEST_USE_MODULES
 #endif
 #endif
 
 #ifdef GTEST_OS_QNX
+#ifndef GTEST_USE_MODULES
 #include <devctl.h>
 #include <fcntl.h>
 #include <sys/procfs.h>
+#endif  // GTEST_USE_MODULES
 #endif  // GTEST_OS_QNX
 
 #ifdef GTEST_OS_AIX
+#ifndef GTEST_USE_MODULES
 #include <procinfo.h>
 #include <sys/types.h>
+#endif  // GTEST_USE_MODULES
 #endif  // GTEST_OS_AIX
 
 #ifdef GTEST_OS_FUCHSIA
+#ifndef GTEST_USE_MODULES
 #include <zircon/process.h>
 #include <zircon/syscalls.h>
+#endif  // GTEST_USE_MODULES
 #endif  // GTEST_OS_FUCHSIA
 
+#ifndef GTEST_USE_MODULES
 #include "gtest/gtest-message.h"
 #include "gtest/gtest-spi.h"
 #include "gtest/gtest.h"
 #include "gtest/internal/gtest-internal.h"
 #include "gtest/internal/gtest-string.h"
 #include "src/gtest-internal-inl.h"
+#endif  // GTEST_USE_MODULES
 
 namespace testing {
 namespace internal {
@@ -114,7 +153,7 @@ T ReadProcFileField(const std::string& filename, int field) {
 }  // namespace
 
 // Returns the number of active threads, or 0 when there is an error.
-size_t GetThreadCount() {
+GTEST_EXTERN_CXX_DECL size_t GetThreadCount() {
   const std::string filename =
       (Message() << "/proc/" << getpid() << "/stat").GetString();
   return ReadProcFileField<size_t>(filename, 19);
@@ -1017,7 +1056,7 @@ const char kUnknownFile[] = "unknown file";
 
 // Formats a source file path and a line number as they would appear
 // in an error message from the compiler used to compile this code.
-GTEST_API_ ::std::string FormatFileLocation(const char* file, int line) {
+GTEST_EXTERN_CXX_DECL GTEST_API_ ::std::string FormatFileLocation(const char* file, int line) {
   const std::string file_name(file == nullptr ? kUnknownFile : file);
 
   if (line < 0) {
@@ -1035,7 +1074,7 @@ GTEST_API_ ::std::string FormatFileLocation(const char* file, int line) {
 // FormatFileLocation in order to contrast the two functions.
 // Note that FormatCompilerIndependentFileLocation() does NOT append colon
 // to the file location it produces, unlike FormatFileLocation().
-GTEST_API_ ::std::string FormatCompilerIndependentFileLocation(const char* file,
+GTEST_EXTERN_CXX_DECL GTEST_API_ ::std::string FormatCompilerIndependentFileLocation(const char* file,
                                                                int line) {
   const std::string file_name(file == nullptr ? kUnknownFile : file);
 
@@ -1082,7 +1121,7 @@ bool EndsWithPathSeparator(const std::string& path) {
 }  // namespace
 
 // Object that captures an output stream (stdout/stderr).
-class CapturedStream {
+GTEST_EXTERN_CXX_DECL class CapturedStream {
  public:
   // The ctor redirects the stream to a temporary file.
   explicit CapturedStream(int fd) : fd_(fd), uncaptured_fd_(dup(fd)) {
@@ -1237,33 +1276,33 @@ const int kStdErrFileno = STDERR_FILENO;
 #endif  // defined(_MSC_VER) || defined(__BORLANDC__)
 
 // Starts capturing stdout.
-void CaptureStdout() {
+GTEST_EXTERN_CXX_DECL void CaptureStdout() {
   CaptureStream(kStdOutFileno, "stdout", &g_captured_stdout);
 }
 
 // Starts capturing stderr.
-void CaptureStderr() {
+GTEST_EXTERN_CXX_DECL void CaptureStderr() {
   CaptureStream(kStdErrFileno, "stderr", &g_captured_stderr);
 }
 
 // Stops capturing stdout and returns the captured string.
-std::string GetCapturedStdout() {
+GTEST_EXTERN_CXX_DECL std::string GetCapturedStdout() {
   return GetCapturedStream(&g_captured_stdout);
 }
 
 // Stops capturing stderr and returns the captured string.
-std::string GetCapturedStderr() {
+GTEST_EXTERN_CXX_DECL std::string GetCapturedStderr() {
   return GetCapturedStream(&g_captured_stderr);
 }
 
 #endif  // GTEST_HAS_STREAM_REDIRECTION
 
-size_t GetFileSize(FILE* file) {
+GTEST_EXTERN_CXX_DECL size_t GetFileSize(FILE* file) {
   fseek(file, 0, SEEK_END);
   return static_cast<size_t>(ftell(file));
 }
 
-std::string ReadEntireFile(FILE* file) {
+GTEST_EXTERN_CXX_DECL std::string ReadEntireFile(FILE* file) {
   const size_t file_size = GetFileSize(file);
   char* const buffer = new char[file_size];
 
@@ -1290,24 +1329,24 @@ std::string ReadEntireFile(FILE* file) {
 static const std::vector<std::string>* g_injected_test_argvs =
     nullptr;  // Owned.
 
-std::vector<std::string> GetInjectableArgvs() {
+GTEST_EXTERN_CXX_DECL std::vector<std::string> GetInjectableArgvs() {
   if (g_injected_test_argvs != nullptr) {
     return *g_injected_test_argvs;
   }
   return GetArgvs();
 }
 
-void SetInjectableArgvs(const std::vector<std::string>* new_argvs) {
+GTEST_EXTERN_CXX_DECL void SetInjectableArgvs(const std::vector<std::string>* new_argvs) {
   if (g_injected_test_argvs != new_argvs) delete g_injected_test_argvs;
   g_injected_test_argvs = new_argvs;
 }
 
-void SetInjectableArgvs(const std::vector<std::string>& new_argvs) {
+GTEST_EXTERN_CXX_DECL void SetInjectableArgvs(const std::vector<std::string>& new_argvs) {
   SetInjectableArgvs(
       new std::vector<std::string>(new_argvs.begin(), new_argvs.end()));
 }
 
-void ClearInjectableArgvs() {
+GTEST_EXTERN_CXX_DECL void ClearInjectableArgvs() {
   delete g_injected_test_argvs;
   g_injected_test_argvs = nullptr;
 }
@@ -1340,7 +1379,7 @@ static std::string FlagToEnvVar(const char* flag) {
 // Parses 'str' for a 32-bit signed integer.  If successful, writes
 // the result to *value and returns true; otherwise leaves *value
 // unchanged and returns false.
-bool ParseInt32(const Message& src_text, const char* str, int32_t* value) {
+GTEST_EXTERN_CXX_DECL bool ParseInt32(const Message& src_text, const char* str, int32_t* value) {
   // Parses the environment variable as a decimal integer.
   char* end = nullptr;
   const long long_value = strtol(str, &end, 10);  // NOLINT
@@ -1382,7 +1421,7 @@ bool ParseInt32(const Message& src_text, const char* str, int32_t* value) {
 // the given flag; if it's not set, returns default_value.
 //
 // The value is considered true if and only if it's not "0".
-bool BoolFromGTestEnv(const char* flag, bool default_value) {
+GTEST_EXTERN_CXX_DECL bool BoolFromGTestEnv(const char* flag, bool default_value) {
 #if defined(GTEST_GET_BOOL_FROM_ENV_)
   return GTEST_GET_BOOL_FROM_ENV_(flag, default_value);
 #else
@@ -1396,7 +1435,7 @@ bool BoolFromGTestEnv(const char* flag, bool default_value) {
 // Reads and returns a 32-bit integer stored in the environment
 // variable corresponding to the given flag; if it isn't set or
 // doesn't represent a valid 32-bit integer, returns default_value.
-int32_t Int32FromGTestEnv(const char* flag, int32_t default_value) {
+GTEST_EXTERN_CXX_DECL int32_t Int32FromGTestEnv(const char* flag, int32_t default_value) {
 #if defined(GTEST_GET_INT32_FROM_ENV_)
   return GTEST_GET_INT32_FROM_ENV_(flag, default_value);
 #else
@@ -1428,7 +1467,7 @@ int32_t Int32FromGTestEnv(const char* flag, int32_t default_value) {
 // not check that the flag is 'output'
 // In essence this checks an env variable called XML_OUTPUT_FILE
 // and if it is set we prepend "xml:" to its value, if it not set we return ""
-std::string OutputFlagAlsoCheckEnvVar() {
+GTEST_EXTERN_CXX_DECL std::string OutputFlagAlsoCheckEnvVar() {
   std::string default_value_for_output_flag = "";
   const char* xml_output_file_env = posix::GetEnv("XML_OUTPUT_FILE");
   if (nullptr != xml_output_file_env) {
@@ -1439,7 +1478,7 @@ std::string OutputFlagAlsoCheckEnvVar() {
 
 // Reads and returns the string environment variable corresponding to
 // the given flag; if it's not set, returns default_value.
-const char* StringFromGTestEnv(const char* flag, const char* default_value) {
+GTEST_EXTERN_CXX_DECL const char* StringFromGTestEnv(const char* flag, const char* default_value) {
 #if defined(GTEST_GET_STRING_FROM_ENV_)
   return GTEST_GET_STRING_FROM_ENV_(flag, default_value);
 #else
@@ -1451,3 +1490,6 @@ const char* StringFromGTestEnv(const char* flag, const char* default_value) {
 
 }  // namespace internal
 }  // namespace testing
+#ifdef GTEST_EXTERN_CXX
+}  // extern "C++"
+#endif

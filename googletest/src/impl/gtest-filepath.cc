@@ -1,3 +1,13 @@
+#if defined(GTEST_USE_MODULES) && !defined(GTEST_MODULE_UNIT)
+import gtest.internal.gtest_filepath;
+import std.compat;
+import gtest.gtest_message;
+import gtest.internal.gtest_port;
+import gtest.internal.gtest_string;
+#endif
+#ifdef GTEST_EXTERN_CXX
+extern "C++" {
+#endif
 // Copyright 2008, Google Inc.
 // All rights reserved.
 //
@@ -27,6 +37,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#ifndef GTEST_USE_MODULES
 #include "gtest/internal/gtest-filepath.h"
 
 #include <stdlib.h>
@@ -36,19 +47,28 @@
 
 #include "gtest/gtest-message.h"
 #include "gtest/internal/gtest-port.h"
+#endif  // GTEST_USE_MODULES
 
 #ifdef GTEST_OS_WINDOWS_MOBILE
+#ifndef GTEST_USE_MODULES
 #include <windows.h>
+#endif  // GTEST_USE_MODULES
 #elif defined(GTEST_OS_WINDOWS)
+#ifndef GTEST_USE_MODULES
 #include <direct.h>
 #include <io.h>
+#endif  // GTEST_USE_MODULES
 #else
+#ifndef GTEST_USE_MODULES
 #include <limits.h>
 
 #include <climits>  // Some Linux distributions define PATH_MAX here.
+#endif  // GTEST_USE_MODULES
 #endif              // GTEST_OS_WINDOWS_MOBILE
 
+#ifndef GTEST_USE_MODULES
 #include "gtest/internal/gtest-string.h"
+#endif  // GTEST_USE_MODULES
 
 #ifdef GTEST_OS_WINDOWS
 #define GTEST_PATH_MAX_ _MAX_PATH
@@ -412,3 +432,6 @@ void FilePath::Normalize() {
 }  // namespace testing
 
 #endif  // GTEST_HAS_FILE_SYSTEM
+#ifdef GTEST_EXTERN_CXX
+}  // extern "C++"
+#endif

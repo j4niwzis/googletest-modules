@@ -29,9 +29,13 @@
 
 // A sample program demonstrating using Google C++ testing framework.
 
+#include <string.h>
+#include <stddef.h>
+#include <string.h>
+#include <string.h>
+import std.compat;
 #include "sample2.h"
 
-#include <string.h>
 
 // Clones a 0-terminated C string, allocating memory using new.
 const char* MyString::CloneCString(const char* a_c_string) {

@@ -1,3 +1,5 @@
+#include <stddef.h>
+import std.compat;
 // Copyright 2008 Google Inc.
 // All Rights Reserved.
 //
@@ -34,7 +36,6 @@
 #ifndef GOOGLETEST_SAMPLES_PRIME_TABLES_H_
 #define GOOGLETEST_SAMPLES_PRIME_TABLES_H_
 
-#include <algorithm>
 
 // The prime table interface.
 class PrimeTable {

@@ -1,4 +1,4 @@
-// Copyright 2008, Google Inc.
+// Copyright 2005, Google Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -27,23 +27,62 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+// The Google C++ Testing and Mocking Framework (Google Test)
 //
-// Google C++ Testing and Mocking Framework (Google Test)
+// This header file declares the String class and functions used internally by
+// Google Test.  They are subject to change without notice. They should not used
+// by code external to Google Test.
 //
-// Sometimes it's desirable to build Google Test by compiling a single file.
-// This file serves this purpose.
+// This header file is #included by gtest-internal.h.
+// It should not be #included by other files.
 
-// This line ensures that gtest.h can be compiled on its own, even
-// when it's fused.
-#include "gtest/gtest.h"
+// IWYU pragma: private, include "gtest/gtest.h"
+// IWYU pragma: friend gtest/.*
+// IWYU pragma: friend gmock/.*
 
-// The following lines pull in the real gtest *.cc files.
-#include "src/gtest-assertion-result.cc"
-#include "src/gtest-death-test.cc"
-#include "src/gtest-filepath.cc"
-#include "src/gtest-matchers.cc"
-#include "src/gtest-port.cc"
-#include "src/gtest-printers.cc"
-#include "src/gtest-test-part.cc"
-#include "src/gtest-typed-test.cc"
-#include "src/gtest.cc"
+module;
+#include <string.h>
+#include <version>  // C++20 or <version> support.
+#include <stdio.h>
+#include <cerrno>
+#include <cstdio>
+#define GTEST_USE_MODULES 1
+#include "gtest/internal/gtest-string-macros.h"
+#ifdef __BORLANDC__
+#include <mem.h>
+#endif
+#ifndef GTEST_IMPORT_STD
+#include <cstdint>
+#include <sstream>
+#include <string>
+#include <locale>
+#include <istream>
+#include <ios>
+#include <streambuf>
+#endif
+#ifndef GTEST_IMPORT_STD
+#include <locale>
+#include <string>
+#include <istream>
+#include <ios>
+#include <streambuf>
+#endif
+#if GTEST_HAS_PTHREAD
+#include <pthread.h>  // NOLINT
+#endif
+
+export module gtest.internal.gtest_string;
+#ifdef GTEST_USE_IMPORT_STD
+import std.compat;
+#endif
+export import gtest.internal.gtest_port;
+import gtest.internal.gtest_port_arch;
+#include "gtest/gtest-export.h"
+#ifdef GTEST_EXTERN_CXX
+extern "C++" {
+#endif
+#define GTEST_USE_MODULES 1
+#include "gtest/internal/gtest-string.h"
+#ifdef GTEST_EXTERN_CXX
+}  // extern "C++"
+#endif

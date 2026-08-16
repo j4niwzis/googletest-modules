@@ -32,9 +32,40 @@
 
 #include <stdlib.h>
 
-#include "gtest/gtest-death-test.h"
-#include "gtest/gtest.h"
-#include "gtest/internal/gtest-filepath.h"
+#include <asm-generic/errno-base.h>
+#include <errno.h>
+#include <limits.h>
+#include <pthread.h>
+#include <signal.h>
+#include <stddef.h>
+#include <stdio.h>
+#include <string.h>
+#include <sys/select.h>
+#include <sys/time.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
+#include <string.h>
+import std.compat;
+import gtest.gtest_death_test;
+import gtest;
+import gtest.internal.gtest_filepath;
+import gtest.gtest_assertion_result;
+import gtest.gtest_internal_inl;
+import gtest.gtest_matchers;
+import gtest.gtest_message;
+import gtest.gtest_printers;
+import gtest.gtest_spi;
+import gtest.gtest_test_part;
+import gtest.internal.gtest_death_test_internal;
+import gtest.internal.gtest_internal;
+import gtest.internal.gtest_param_util;
+import gtest.internal.gtest_port;
+import gtest.internal.gtest_string;
+import gtest.internal.gtest_type_util;
+#include "gtest/gtest-death-test-macros.h"
+#include "gtest/gtest-macros.h"
+#include "gtest/internal/gtest-filepath-macros.h"
 
 using testing::internal::AlwaysFalse;
 using testing::internal::AlwaysTrue;
@@ -54,15 +85,15 @@ using testing::internal::AlwaysTrue;
 #include <signal.h>
 #include <stdio.h>
 
-#include <string>
-#include <vector>
 
 #ifdef GTEST_OS_LINUX
 #include <sys/time.h>
 #endif  // GTEST_OS_LINUX
 
-#include "gtest/gtest-spi.h"
-#include "src/gtest-internal-inl.h"
+import gtest.gtest_spi;
+#include "gtest/gtest-spi-macros.h"
+import gtest.gtest_internal_inl;
+#include "gtest-internal-inl-macros.h"
 
 namespace posix = ::testing::internal::posix;
 

@@ -31,22 +31,48 @@
 //
 // This file tests the internal utilities.
 
-#include "gmock/internal/gmock-internal-utils.h"
-
 #include <stdlib.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include <string.h>
+import gtest.gtest_spi;
+import gtest;
+import gtest.gtest_internal_inl;
+import gtest.gtest_assertion_result;
+import gtest.gtest_matchers;
+import gtest.gtest_message;
+import gtest.gtest_printers;
+import gtest.gtest_test_part;
+import gtest.internal.gtest_death_test_internal;
+import gtest.internal.gtest_filepath;
+import gtest.internal.gtest_internal;
+import gtest.internal.gtest_param_util;
+import gtest.internal.gtest_port;
+import gtest.internal.gtest_string;
+import gtest.internal.gtest_type_util;
+#include "gtest/gtest-spi-macros.h"
+#include "gtest/gtest-macros.h"
+#include "gtest-internal-inl-macros.h"
+import std.compat;
+import gmock.internal.gmock_internal_utils;
+import gmock;
+import gmock.internal.gmock_port;
+import gmock.gmock_actions;
+import gmock.gmock_function_mocker;
+import gmock.gmock_matchers;
+import gmock.gmock_more_actions;
+import gmock.gmock_more_matchers;
+import gmock.gmock_nice_strict;
+import gmock.gmock_spec_builders;
+#include "gmock/internal/gmock-internal-utils-macros.h"
+#include "gmock/gmock-macros.h"
+#include "gmock/internal/gmock-port-macros.h"
 
-#include <cstdint>
-#include <map>
-#include <memory>
-#include <sstream>
-#include <string>
-#include <tuple>
-#include <vector>
 
-#include "gmock/gmock.h"
-#include "gmock/internal/gmock-port.h"
-#include "gtest/gtest-spi.h"
-#include "gtest/gtest.h"
+
 
 // Indicates that this translation unit is part of Google Test's
 // implementation.  It must come before gtest-internal-inl.h is
@@ -54,7 +80,6 @@
 // prevent a user from accidentally including gtest-internal-inl.h in
 // their code.
 #define GTEST_IMPLEMENTATION_ 1
-#include "src/gtest-internal-inl.h"
 #undef GTEST_IMPLEMENTATION_
 
 #ifdef GTEST_OS_CYGWIN

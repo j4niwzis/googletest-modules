@@ -29,9 +29,12 @@
 
 // A sample program demonstrating using Google C++ testing framework.
 
+#include <stdio.h>
+#include <stdio.h>
+#include <string.h>
+import std.compat;
 #include "sample4.h"
 
-#include <stdio.h>
 
 // Returns the current counter value, and increments it.
 int Counter::Increment() { return counter_++; }

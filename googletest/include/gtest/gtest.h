@@ -46,9 +46,62 @@
 // registration from Barthelemy Dagenais' (barthelemy@prologique.com)
 // easyUnit framework.
 
+#include "gtest/gtest-export.h"
+#ifndef GTEST_USE_MODULES
+#include "gtest/gtest-macros.h"
+#endif
+// Copyright 2005, Google Inc.
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are
+// met:
+//
+//     * Redistributions of source code must retain the above copyright
+// notice, this list of conditions and the following disclaimer.
+//     * Redistributions in binary form must reproduce the above
+// copyright notice, this list of conditions and the following disclaimer
+// in the documentation and/or other materials provided with the
+// distribution.
+//     * Neither the name of Google Inc. nor the names of its
+// contributors may be used to endorse or promote products derived from
+// this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+// The Google C++ Testing and Mocking Framework (Google Test)
+//
+// This header file defines the public API for Google Test.  It should be
+// included by any test program that uses Google Test.
+//
+// IMPORTANT NOTE: Due to limitation of the C++ language, we have to
+// leave some internal implementation details in this header file.
+// They are clearly marked by comments like this:
+//
+//   // INTERNAL IMPLEMENTATION - DO NOT USE IN A USER PROGRAM.
+//
+// Such code is NOT meant to be used by a user directly, and is subject
+// to CHANGE WITHOUT NOTICE.  Therefore DO NOT DEPEND ON IT in a user
+// program!
+//
+// Acknowledgment: Google Test borrowed the idea of automatic test
+// registration from Barthelemy Dagenais' (barthelemy@prologique.com)
+// easyUnit framework.
+
 #ifndef GOOGLETEST_INCLUDE_GTEST_GTEST_H_
 #define GOOGLETEST_INCLUDE_GTEST_GTEST_H_
 
+#ifndef GTEST_USE_MODULES
 #include <cstddef>
 #include <cstdint>
 #include <limits>
@@ -60,7 +113,9 @@
 #include <string_view>
 #include <type_traits>
 #include <vector>
+#endif
 
+#ifndef GTEST_USE_MODULES
 #include "gtest/gtest-assertion-result.h"  // IWYU pragma: export
 #include "gtest/gtest-death-test.h"  // IWYU pragma: export
 #include "gtest/gtest-matchers.h"  // IWYU pragma: export
@@ -73,6 +128,7 @@
 #include "gtest/gtest_prod.h"  // IWYU pragma: export
 #include "gtest/internal/gtest-internal.h"
 #include "gtest/internal/gtest-string.h"
+#endif
 
 GTEST_DISABLE_MSC_WARNINGS_PUSH_(4251 \
 /* class A needs to have dll-interface to be used by clients of class B */)
@@ -80,90 +136,90 @@ GTEST_DISABLE_MSC_WARNINGS_PUSH_(4251 \
 // Declares the flags.
 
 // This flag temporary enables the disabled tests.
-GTEST_DECLARE_bool_(also_run_disabled_tests);
+GTEST_EXPORT GTEST_DECLARE_bool_(also_run_disabled_tests);
 
 // This flag brings the debugger on an assertion failure.
-GTEST_DECLARE_bool_(break_on_failure);
+GTEST_EXPORT GTEST_DECLARE_bool_(break_on_failure);
 
 // This flag controls whether Google Test catches all test-thrown exceptions
 // and logs them as failures.
-GTEST_DECLARE_bool_(catch_exceptions);
+GTEST_EXPORT GTEST_DECLARE_bool_(catch_exceptions);
 
 // This flag enables using colors in terminal output. Available values are
 // "yes" to enable colors, "no" (disable colors), or "auto" (the default)
 // to let Google Test decide.
-GTEST_DECLARE_string_(color);
+GTEST_EXPORT GTEST_DECLARE_string_(color);
 
 // This flag controls whether the test runner should continue execution past
 // first failure.
-GTEST_DECLARE_bool_(fail_fast);
+GTEST_EXPORT GTEST_DECLARE_bool_(fail_fast);
 
 // This flag sets up the filter to select by name using a glob pattern
 // the tests to run. If the filter is not given all tests are executed.
-GTEST_DECLARE_string_(filter);
+GTEST_EXPORT GTEST_DECLARE_string_(filter);
 
 // This flag controls whether Google Test installs a signal handler that dumps
 // debugging information when fatal signals are raised.
-GTEST_DECLARE_bool_(install_failure_signal_handler);
+GTEST_EXPORT GTEST_DECLARE_bool_(install_failure_signal_handler);
 
 // This flag causes the Google Test to list tests. None of the tests listed
 // are actually run if the flag is provided.
-GTEST_DECLARE_bool_(list_tests);
+GTEST_EXPORT GTEST_DECLARE_bool_(list_tests);
 
 // This flag controls whether Google Test emits a detailed XML report to a file
 // in addition to its normal textual output.
-GTEST_DECLARE_string_(output);
+GTEST_EXPORT GTEST_DECLARE_string_(output);
 
 // This flags control whether Google Test prints only test failures.
-GTEST_DECLARE_bool_(brief);
+GTEST_EXPORT GTEST_DECLARE_bool_(brief);
 
 // This flags control whether Google Test prints the elapsed time for each
 // test.
-GTEST_DECLARE_bool_(print_time);
+GTEST_EXPORT GTEST_DECLARE_bool_(print_time);
 
 // This flags control whether Google Test prints UTF8 characters as text.
-GTEST_DECLARE_bool_(print_utf8);
+GTEST_EXPORT GTEST_DECLARE_bool_(print_utf8);
 
 // This flag specifies the random number seed.
-GTEST_DECLARE_int32_(random_seed);
+GTEST_EXPORT GTEST_DECLARE_int32_(random_seed);
 
 // This flag sets how many times the tests are repeated. The default value
 // is 1. If the value is -1 the tests are repeating forever.
-GTEST_DECLARE_int32_(repeat);
+GTEST_EXPORT GTEST_DECLARE_int32_(repeat);
 
 // This flag controls whether Google Test Environments are recreated for each
 // repeat of the tests. The default value is true. If set to false the global
 // test Environment objects are only set up once, for the first iteration, and
 // only torn down once, for the last.
-GTEST_DECLARE_bool_(recreate_environments_when_repeating);
+GTEST_EXPORT GTEST_DECLARE_bool_(recreate_environments_when_repeating);
 
 // Together these flags determine which tests are run if the test is sharded.
-GTEST_DECLARE_int32_(shard_index);
-GTEST_DECLARE_int32_(total_shards);
+GTEST_EXPORT GTEST_DECLARE_int32_(shard_index);
+GTEST_EXPORT GTEST_DECLARE_int32_(total_shards);
 
 // This flag controls whether Google Test includes Google Test internal
 // stack frames in failure stack traces.
-GTEST_DECLARE_bool_(show_internal_stack_frames);
+GTEST_EXPORT GTEST_DECLARE_bool_(show_internal_stack_frames);
 
 // When this flag is specified, tests' order is randomized on every iteration.
-GTEST_DECLARE_bool_(shuffle);
+GTEST_EXPORT GTEST_DECLARE_bool_(shuffle);
 
 // This flag specifies the maximum number of stack frames to be
 // printed in a failure message.
-GTEST_DECLARE_int32_(stack_trace_depth);
+GTEST_EXPORT GTEST_DECLARE_int32_(stack_trace_depth);
 
 // When this flag is specified, a failed assertion will throw an
 // exception if exceptions are enabled, or exit the program with a
 // non-zero code otherwise. For use with an external test framework.
-GTEST_DECLARE_bool_(throw_on_failure);
+GTEST_EXPORT GTEST_DECLARE_bool_(throw_on_failure);
 
 // When this flag is set with a "host:port" string, on supported
 // platforms test results are streamed to the specified port on
 // the specified host machine.
-GTEST_DECLARE_string_(stream_result_to);
+GTEST_EXPORT GTEST_DECLARE_string_(stream_result_to);
 
 #if GTEST_USE_OWN_FLAGFILE_FLAG_
-GTEST_DECLARE_string_(flagfile);
+GTEST_EXPORT GTEST_DECLARE_string_(flagfile);
 #endif  // GTEST_USE_OWN_FLAGFILE_FLAG_
 
 namespace testing {
@@ -173,32 +229,32 @@ namespace testing {
 GTEST_DISABLE_MSC_WARNINGS_PUSH_(4805 4100)
 
 // The upper limit for valid stack trace depths.
-const int kMaxStackTraceDepth = 100;
+GTEST_EXPORT inline const int kMaxStackTraceDepth = 100;
 
 namespace internal {
 
-class AssertHelper;
-class DefaultGlobalTestPartResultReporter;
-class ExecDeathTest;
-class NoExecDeathTest;
-class FinalSuccessChecker;
-class GTestFlagSaver;
-class StreamingListenerTest;
-class TestResultAccessor;
-class TestEventListenersAccessor;
-class TestEventRepeater;
-class UnitTestRecordPropertyTestHelper;
-class WindowsDeathTest;
-class FuchsiaDeathTest;
-class UnitTestImpl* GetUnitTestImpl();
-void ReportFailureInUnknownLocation(TestPartResult::Type result_type,
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL class AssertHelper;
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL class DefaultGlobalTestPartResultReporter;
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL class ExecDeathTest;
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL class NoExecDeathTest;
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL class FinalSuccessChecker;
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL class GTestFlagSaver;
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL class StreamingListenerTest;
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL class TestResultAccessor;
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL class TestEventListenersAccessor;
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL class TestEventRepeater;
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL class UnitTestRecordPropertyTestHelper;
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL class WindowsDeathTest;
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL class FuchsiaDeathTest;
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL class UnitTestImpl* GetUnitTestImpl();
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL void ReportFailureInUnknownLocation(TestPartResult::Type result_type,
                                     const std::string& message);
-std::set<std::string>* GetIgnoredParameterizedTestSuites();
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL std::set<std::string>* GetIgnoredParameterizedTestSuites();
 
 // A base class that prevents subclasses from being copyable.
 // We do this instead of using '= delete' so as to avoid triggering warnings
 // inside user code regarding any of our declarations.
-class [[nodiscard]] GTestNonCopyable {
+GTEST_EXPORT class [[nodiscard]] GTestNonCopyable {
  public:
   GTestNonCopyable() = default;
   GTestNonCopyable(const GTestNonCopyable&) = delete;
@@ -211,15 +267,15 @@ class [[nodiscard]] GTestNonCopyable {
 // The friend relationship of some of these classes is cyclic.
 // If we don't forward declare them the compiler might confuse the classes
 // in friendship clauses with same named classes on the scope.
-class [[nodiscard]] Test;
-class [[nodiscard]] TestSuite;
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL class [[nodiscard]] Test;
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL class [[nodiscard]] TestSuite;
 
 // Old API is still available but deprecated
 #ifndef GTEST_REMOVE_LEGACY_TEST_CASEAPI_
-using TestCase = TestSuite;
+GTEST_EXPORT using TestCase = TestSuite;
 #endif
-class [[nodiscard]] TestInfo;
-class [[nodiscard]] UnitTest;
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL class [[nodiscard]] TestInfo;
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL class [[nodiscard]] UnitTest;
 
 // The abstract class that all tests inherit from.
 //
@@ -244,7 +300,7 @@ class [[nodiscard]] UnitTest;
 //   TEST_F(FooTest, Baz) { ... }
 //
 // Test is not copyable.
-class GTEST_API_ [[nodiscard]] Test {
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL class GTEST_API_ [[nodiscard]] Test {
  public:
   friend class TestInfo;
 
@@ -365,13 +421,13 @@ class GTEST_API_ [[nodiscard]] Test {
   Test& operator=(const Test&) = delete;
 };
 
-typedef internal::TimeInMillis TimeInMillis;
+GTEST_EXPORT typedef internal::TimeInMillis TimeInMillis;
 
 // A copyable object representing a user specified test property which can be
 // output as a key/value string pair.
 //
 // Don't inherit from TestProperty as its destructor is not virtual.
-class [[nodiscard]] TestProperty {
+GTEST_EXPORT class [[nodiscard]] TestProperty {
  public:
   // C'tor.  TestProperty does NOT have a default constructor.
   // Always use this constructor (with parameters) to create a
@@ -401,7 +457,7 @@ class [[nodiscard]] TestProperty {
 // the Test.
 //
 // TestResult is not copyable.
-class GTEST_API_ [[nodiscard]] TestResult {
+GTEST_EXPORT class GTEST_API_ [[nodiscard]] TestResult {
  public:
   // Creates an empty TestResult.
   TestResult();
@@ -535,7 +591,7 @@ class GTEST_API_ [[nodiscard]] TestResult {
 // The constructor of TestInfo registers itself with the UnitTest
 // singleton such that the RUN_ALL_TESTS() macro knows which tests to
 // run.
-class GTEST_API_ [[nodiscard]] TestInfo {
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL class GTEST_API_ [[nodiscard]] TestInfo {
  public:
   // Destructs a TestInfo object.  This function is not virtual, so
   // don't inherit from TestInfo.
@@ -674,7 +730,7 @@ class GTEST_API_ [[nodiscard]] TestInfo {
 // A test suite, which consists of a vector of TestInfos.
 //
 // TestSuite is not copyable.
-class GTEST_API_ [[nodiscard]] TestSuite {
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL class GTEST_API_ [[nodiscard]] TestSuite {
  public:
   // Creates a TestSuite with the given name.
   //
@@ -895,7 +951,7 @@ class GTEST_API_ [[nodiscard]] TestSuite {
 //      available.
 //   2. You cannot use ASSERT_* directly in a constructor or
 //      destructor.
-class [[nodiscard]] Environment {
+GTEST_EXPORT class [[nodiscard]] Environment {
  public:
   // The d'tor is virtual as we need to subclass Environment.
   virtual ~Environment() = default;
@@ -916,7 +972,7 @@ class [[nodiscard]] Environment {
 #if GTEST_HAS_EXCEPTIONS
 
 // Exception which can be thrown from TestEventListener::OnTestPartResult.
-class GTEST_API_ [[nodiscard]] AssertionException
+GTEST_EXPORT class GTEST_API_ [[nodiscard]] AssertionException
     : public internal::GoogleTestFailureException {
  public:
   explicit AssertionException(const TestPartResult& result)
@@ -927,7 +983,7 @@ class GTEST_API_ [[nodiscard]] AssertionException
 
 // The interface for tracing execution of tests. The methods are organized in
 // the order the corresponding events are fired.
-class [[nodiscard]] TestEventListener {
+GTEST_EXPORT class [[nodiscard]] TestEventListener {
  public:
   virtual ~TestEventListener() = default;
 
@@ -994,7 +1050,7 @@ class [[nodiscard]] TestEventListener {
 // the methods they override will not be caught during the build.  For
 // comments about each method please see the definition of TestEventListener
 // above.
-class [[nodiscard]] EmptyTestEventListener : public TestEventListener {
+GTEST_EXPORT class [[nodiscard]] EmptyTestEventListener : public TestEventListener {
  public:
   void OnTestProgramStart(const UnitTest& /*unit_test*/) override {}
   void OnTestIterationStart(const UnitTest& /*unit_test*/,
@@ -1024,7 +1080,7 @@ class [[nodiscard]] EmptyTestEventListener : public TestEventListener {
 };
 
 // TestEventListeners lets users add listeners to track events in Google Test.
-class GTEST_API_ [[nodiscard]] TestEventListeners {
+GTEST_EXPORT class GTEST_API_ [[nodiscard]] TestEventListeners {
  public:
   TestEventListeners();
   ~TestEventListeners();
@@ -1115,7 +1171,7 @@ class GTEST_API_ [[nodiscard]] TestEventListeners {
 //
 // This class is thread-safe as long as the methods are called
 // according to their specification.
-class GTEST_API_ [[nodiscard]] UnitTest {
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL class GTEST_API_ [[nodiscard]] UnitTest {
  public:
   // Gets the singleton UnitTest object.  The first time this method
   // is called, a UnitTest object is constructed and returned.
@@ -1347,7 +1403,7 @@ class GTEST_API_ [[nodiscard]] UnitTest {
 // translation units and the environments have dependencies among them
 // (remember that the compiler doesn't guarantee the order in which
 // global variables from different translation units are initialized).
-inline Environment* AddGlobalTestEnvironment(Environment* env) {
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL inline Environment* AddGlobalTestEnvironment(Environment* env) {
   return UnitTest::GetInstance()->AddEnvironment(env);
 }
 
@@ -1360,22 +1416,22 @@ inline Environment* AddGlobalTestEnvironment(Environment* env) {
 // updated.
 //
 // Calling the function for the second time has no user-visible effect.
-GTEST_API_ void InitGoogleTest(int* argc, char** argv);
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL GTEST_API_ void InitGoogleTest(int* argc, char** argv);
 
 // This overloaded version can be used in Windows programs compiled in
 // UNICODE mode.
-GTEST_API_ void InitGoogleTest(int* argc, wchar_t** argv);
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL GTEST_API_ void InitGoogleTest(int* argc, wchar_t** argv);
 
 // This overloaded version can be used on Arduino/embedded platforms where
 // there is no argc/argv.
-GTEST_API_ void InitGoogleTest();
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL GTEST_API_ void InitGoogleTest();
 
 namespace internal {
 
 // Separate the error generating code from the code path to reduce the stack
 // frame size of CmpHelperEQ. This helps reduce the overhead of some sanitizers
 // when calling EXPECT_* in a tight loop.
-template <typename T1, typename T2>
+GTEST_EXPORT template <typename T1, typename T2>
 AssertionResult CmpHelperEQFailure(const char* lhs_expression,
                                    const char* rhs_expression, const T1& lhs,
                                    const T2& rhs) {
@@ -1387,12 +1443,12 @@ AssertionResult CmpHelperEQFailure(const char* lhs_expression,
 // This block of code defines operator==/!=
 // to block lexical scope lookup.
 // It prevents using invalid operator==/!= defined at namespace scope.
-struct faketype {};
-inline bool operator==(faketype, faketype) { return true; }
-inline bool operator!=(faketype, faketype) { return false; }
+GTEST_EXPORT struct faketype {};
+GTEST_EXPORT inline bool operator==(faketype, faketype) { return true; }
+GTEST_EXPORT inline bool operator!=(faketype, faketype) { return false; }
 
 // The helper function for {ASSERT|EXPECT}_EQ.
-template <typename T1, typename T2>
+GTEST_EXPORT template <typename T1, typename T2>
 AssertionResult CmpHelperEQ(const char* lhs_expression,
                             const char* rhs_expression, const T1& lhs,
                             const T2& rhs) {
@@ -1403,7 +1459,7 @@ AssertionResult CmpHelperEQ(const char* lhs_expression,
   return CmpHelperEQFailure(lhs_expression, rhs_expression, lhs, rhs);
 }
 
-class [[nodiscard]] EqHelper {
+GTEST_EXPORT class [[nodiscard]] EqHelper {
  public:
   // This templatized version is for the general case.
   template <
@@ -1444,7 +1500,7 @@ class [[nodiscard]] EqHelper {
 // Separate the error generating code from the code path to reduce the stack
 // frame size of CmpHelperOP. This helps reduce the overhead of some sanitizers
 // when calling EXPECT_OP in a tight loop.
-template <typename T1, typename T2>
+GTEST_EXPORT template <typename T1, typename T2>
 AssertionResult CmpHelperOpFailure(const char* expr1, const char* expr2,
                                    const T1& val1, const T2& val2,
                                    const char* op) {
@@ -1461,7 +1517,7 @@ AssertionResult CmpHelperOpFailure(const char* expr1, const char* expr2,
 // INTERNAL IMPLEMENTATION - DO NOT USE IN A USER PROGRAM.
 
 #define GTEST_IMPL_CMP_HELPER_(op_name, op)                                \
-  template <typename T1, typename T2>                                      \
+  GTEST_EXPORT template <typename T1, typename T2>                                      \
   AssertionResult CmpHelper##op_name(const char* expr1, const char* expr2, \
                                      const T1& val1, const T2& val2) {     \
     if (val1 op val2) {                                                    \
@@ -1489,42 +1545,42 @@ GTEST_IMPL_CMP_HELPER_(GT, >)
 // The helper function for {ASSERT|EXPECT}_STREQ.
 //
 // INTERNAL IMPLEMENTATION - DO NOT USE IN A USER PROGRAM.
-GTEST_API_ AssertionResult CmpHelperSTREQ(const char* s1_expression,
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL GTEST_API_ AssertionResult CmpHelperSTREQ(const char* s1_expression,
                                           const char* s2_expression,
                                           const char* s1, const char* s2);
 
 // The helper function for {ASSERT|EXPECT}_STRCASEEQ.
 //
 // INTERNAL IMPLEMENTATION - DO NOT USE IN A USER PROGRAM.
-GTEST_API_ AssertionResult CmpHelperSTRCASEEQ(const char* s1_expression,
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL GTEST_API_ AssertionResult CmpHelperSTRCASEEQ(const char* s1_expression,
                                               const char* s2_expression,
                                               const char* s1, const char* s2);
 
 // The helper function for {ASSERT|EXPECT}_STRNE.
 //
 // INTERNAL IMPLEMENTATION - DO NOT USE IN A USER PROGRAM.
-GTEST_API_ AssertionResult CmpHelperSTRNE(const char* s1_expression,
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL GTEST_API_ AssertionResult CmpHelperSTRNE(const char* s1_expression,
                                           const char* s2_expression,
                                           const char* s1, const char* s2);
 
 // The helper function for {ASSERT|EXPECT}_STRCASENE.
 //
 // INTERNAL IMPLEMENTATION - DO NOT USE IN A USER PROGRAM.
-GTEST_API_ AssertionResult CmpHelperSTRCASENE(const char* s1_expression,
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL GTEST_API_ AssertionResult CmpHelperSTRCASENE(const char* s1_expression,
                                               const char* s2_expression,
                                               const char* s1, const char* s2);
 
 // Helper function for *_STREQ on wide strings.
 //
 // INTERNAL IMPLEMENTATION - DO NOT USE IN A USER PROGRAM.
-GTEST_API_ AssertionResult CmpHelperSTREQ(const char* s1_expression,
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL GTEST_API_ AssertionResult CmpHelperSTREQ(const char* s1_expression,
                                           const char* s2_expression,
                                           const wchar_t* s1, const wchar_t* s2);
 
 // Helper function for *_STRNE on wide strings.
 //
 // INTERNAL IMPLEMENTATION - DO NOT USE IN A USER PROGRAM.
-GTEST_API_ AssertionResult CmpHelperSTRNE(const char* s1_expression,
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL GTEST_API_ AssertionResult CmpHelperSTRNE(const char* s1_expression,
                                           const char* s2_expression,
                                           const wchar_t* s1, const wchar_t* s2);
 
@@ -1538,37 +1594,37 @@ GTEST_API_ AssertionResult CmpHelperSTRNE(const char* s1_expression,
 //
 // The {needle,haystack}_expr arguments are the stringified
 // expressions that generated the two real arguments.
-GTEST_API_ AssertionResult IsSubstring(const char* needle_expr,
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL GTEST_API_ AssertionResult IsSubstring(const char* needle_expr,
                                        const char* haystack_expr,
                                        const char* needle,
                                        const char* haystack);
-GTEST_API_ AssertionResult IsSubstring(const char* needle_expr,
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL GTEST_API_ AssertionResult IsSubstring(const char* needle_expr,
                                        const char* haystack_expr,
                                        const wchar_t* needle,
                                        const wchar_t* haystack);
-GTEST_API_ AssertionResult IsNotSubstring(const char* needle_expr,
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL GTEST_API_ AssertionResult IsNotSubstring(const char* needle_expr,
                                           const char* haystack_expr,
                                           const char* needle,
                                           const char* haystack);
-GTEST_API_ AssertionResult IsNotSubstring(const char* needle_expr,
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL GTEST_API_ AssertionResult IsNotSubstring(const char* needle_expr,
                                           const char* haystack_expr,
                                           const wchar_t* needle,
                                           const wchar_t* haystack);
-GTEST_API_ AssertionResult IsSubstring(const char* needle_expr,
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL GTEST_API_ AssertionResult IsSubstring(const char* needle_expr,
                                        const char* haystack_expr,
                                        const ::std::string& needle,
                                        const ::std::string& haystack);
-GTEST_API_ AssertionResult IsNotSubstring(const char* needle_expr,
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL GTEST_API_ AssertionResult IsNotSubstring(const char* needle_expr,
                                           const char* haystack_expr,
                                           const ::std::string& needle,
                                           const ::std::string& haystack);
 
 #if GTEST_HAS_STD_WSTRING
-GTEST_API_ AssertionResult IsSubstring(const char* needle_expr,
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL GTEST_API_ AssertionResult IsSubstring(const char* needle_expr,
                                        const char* haystack_expr,
                                        const ::std::wstring& needle,
                                        const ::std::wstring& haystack);
-GTEST_API_ AssertionResult IsNotSubstring(const char* needle_expr,
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL GTEST_API_ AssertionResult IsNotSubstring(const char* needle_expr,
                                           const char* haystack_expr,
                                           const ::std::wstring& needle,
                                           const ::std::wstring& haystack);
@@ -1583,7 +1639,7 @@ namespace internal {
 //   RawType: the raw floating-point type (either float or double)
 //
 // INTERNAL IMPLEMENTATION - DO NOT USE IN A USER PROGRAM.
-template <typename RawType>
+GTEST_EXPORT template <typename RawType>
 AssertionResult CmpHelperFloatingPointEQ(const char* lhs_expression,
                                          const char* rhs_expression,
                                          RawType lhs_value, RawType rhs_value) {
@@ -1609,17 +1665,17 @@ AssertionResult CmpHelperFloatingPointEQ(const char* lhs_expression,
 // Helper function for implementing ASSERT_NEAR.
 //
 // INTERNAL IMPLEMENTATION - DO NOT USE IN A USER PROGRAM.
-GTEST_API_ AssertionResult DoubleNearPredFormat(const char* expr1,
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL GTEST_API_ AssertionResult DoubleNearPredFormat(const char* expr1,
                                                 const char* expr2,
                                                 const char* abs_error_expr,
                                                 double val1, double val2,
                                                 double abs_error);
 
-using GoogleTest_NotSupported_OnFunctionReturningNonVoid = void;
+GTEST_EXPORT using GoogleTest_NotSupported_OnFunctionReturningNonVoid = void;
 
 // INTERNAL IMPLEMENTATION - DO NOT USE IN USER CODE.
 // A class that enables one to stream messages to assertion macros
-class GTEST_API_ [[nodiscard]] AssertHelper {
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL class GTEST_API_ [[nodiscard]] AssertHelper {
  public:
   // Constructor.
   AssertHelper(TestPartResult::Type type, const char* file, int line,
@@ -1695,7 +1751,7 @@ class GTEST_API_ [[nodiscard]] AssertHelper {
 // }
 // INSTANTIATE_TEST_SUITE_P(OneToTenRange, FooTest, ::testing::Range(1, 10));
 
-template <typename T>
+GTEST_EXPORT template <typename T>
 class [[nodiscard]] WithParamInterface {
  public:
   typedef T ParamType;
@@ -1729,16 +1785,12 @@ const T* WithParamInterface<T>::parameter_ = nullptr;
 // Most value-parameterized classes can ignore the existence of
 // WithParamInterface, and can just inherit from ::testing::TestWithParam.
 
-template <typename T>
+GTEST_EXPORT template <typename T>
 class [[nodiscard]] TestWithParam : public Test,
                                     public WithParamInterface<T> {};
 
 // Macros for indicating success/failure in test code.
 
-// Skips test in runtime.
-// Skipping test aborts current function.
-// Skipped tests are neither successful nor failed.
-#define GTEST_SKIP() GTEST_SKIP_("")
 
 // ADD_FAILURE unconditionally adds a failure to the current test.
 // SUCCEED generates a success - it doesn't automatically make the
@@ -1757,264 +1809,94 @@ class [[nodiscard]] TestWithParam : public Test,
 // writing data-driven tests often find themselves using ADD_FAILURE
 // and EXPECT_* more.
 
-// Generates a nonfatal failure with a generic message.
-#define ADD_FAILURE() GTEST_NONFATAL_FAILURE_("Failed")
 
-// Generates a nonfatal failure at the given source file location with
-// a generic message.
-#define ADD_FAILURE_AT(file, line)        \
-  GTEST_MESSAGE_AT_(file, line, "Failed", \
-                    ::testing::TestPartResult::kNonFatalFailure)
 
-// Generates a fatal failure with a generic message.
-#define GTEST_FAIL() GTEST_FATAL_FAILURE_("Failed")
 
-// Like GTEST_FAIL(), but at the given source file location.
-#define GTEST_FAIL_AT(file, line)                \
-  return GTEST_MESSAGE_AT_(file, line, "Failed", \
-                           ::testing::TestPartResult::kFatalFailure)
 
 // Define this macro to 1 to omit the definition of FAIL(), which is a
 // generic name and clashes with some other libraries.
 #if !(defined(GTEST_DONT_DEFINE_FAIL) && GTEST_DONT_DEFINE_FAIL)
+#undef FAIL
 #define FAIL() GTEST_FAIL()
+#undef FAIL_AT
 #define FAIL_AT(file, line) GTEST_FAIL_AT(file, line)
 #endif
 
-// Generates a success with a generic message.
-#define GTEST_SUCCEED() GTEST_SUCCESS_("Succeeded")
 
 // Define this macro to 1 to omit the definition of SUCCEED(), which
 // is a generic name and clashes with some other libraries.
 #if !(defined(GTEST_DONT_DEFINE_SUCCEED) && GTEST_DONT_DEFINE_SUCCEED)
+#undef SUCCEED
 #define SUCCEED() GTEST_SUCCEED()
 #endif
 
-// Macros for testing exceptions.
-//
-//    * {ASSERT|EXPECT}_THROW(statement, expected_exception):
-//         Tests that the statement throws the expected exception.
-//    * {ASSERT|EXPECT}_NO_THROW(statement):
-//         Tests that the statement doesn't throw any exception.
-//    * {ASSERT|EXPECT}_ANY_THROW(statement):
-//         Tests that the statement throws an exception.
 
-#define EXPECT_THROW(statement, expected_exception) \
-  GTEST_TEST_THROW_(statement, expected_exception, GTEST_NONFATAL_FAILURE_)
-#define EXPECT_NO_THROW(statement) \
-  GTEST_TEST_NO_THROW_(statement, GTEST_NONFATAL_FAILURE_)
-#define EXPECT_ANY_THROW(statement) \
-  GTEST_TEST_ANY_THROW_(statement, GTEST_NONFATAL_FAILURE_)
-#define ASSERT_THROW(statement, expected_exception) \
-  GTEST_TEST_THROW_(statement, expected_exception, GTEST_FATAL_FAILURE_)
-#define ASSERT_NO_THROW(statement) \
-  GTEST_TEST_NO_THROW_(statement, GTEST_FATAL_FAILURE_)
-#define ASSERT_ANY_THROW(statement) \
-  GTEST_TEST_ANY_THROW_(statement, GTEST_FATAL_FAILURE_)
-
-// Boolean assertions. Condition can be either a Boolean expression or an
-// AssertionResult. For more information on how to use AssertionResult with
-// these macros see comments on that class.
-#define GTEST_EXPECT_TRUE(condition)                      \
-  GTEST_TEST_BOOLEAN_(condition, #condition, false, true, \
-                      GTEST_NONFATAL_FAILURE_)
-#define GTEST_EXPECT_FALSE(condition)                     \
-  GTEST_TEST_BOOLEAN_(condition, #condition, true, false, \
-                      GTEST_NONFATAL_FAILURE_)
-#define GTEST_ASSERT_TRUE(condition) \
-  GTEST_TEST_BOOLEAN_(condition, #condition, false, true, GTEST_FATAL_FAILURE_)
-#define GTEST_ASSERT_FALSE(condition) \
-  GTEST_TEST_BOOLEAN_(condition, #condition, true, false, GTEST_FATAL_FAILURE_)
 
 // Define these macros to 1 to omit the definition of the corresponding
 // EXPECT or ASSERT, which clashes with some users' own code.
 
 #if !(defined(GTEST_DONT_DEFINE_EXPECT_TRUE) && GTEST_DONT_DEFINE_EXPECT_TRUE)
+#undef EXPECT_TRUE
 #define EXPECT_TRUE(condition) GTEST_EXPECT_TRUE(condition)
 #endif
 
 #if !(defined(GTEST_DONT_DEFINE_EXPECT_FALSE) && GTEST_DONT_DEFINE_EXPECT_FALSE)
+#undef EXPECT_FALSE
 #define EXPECT_FALSE(condition) GTEST_EXPECT_FALSE(condition)
 #endif
 
 #if !(defined(GTEST_DONT_DEFINE_ASSERT_TRUE) && GTEST_DONT_DEFINE_ASSERT_TRUE)
+#undef ASSERT_TRUE
 #define ASSERT_TRUE(condition) GTEST_ASSERT_TRUE(condition)
 #endif
 
 #if !(defined(GTEST_DONT_DEFINE_ASSERT_FALSE) && GTEST_DONT_DEFINE_ASSERT_FALSE)
+#undef ASSERT_FALSE
 #define ASSERT_FALSE(condition) GTEST_ASSERT_FALSE(condition)
 #endif
 
-// Macros for testing equalities and inequalities.
-//
-//    * {ASSERT|EXPECT}_EQ(v1, v2): Tests that v1 == v2
-//    * {ASSERT|EXPECT}_NE(v1, v2): Tests that v1 != v2
-//    * {ASSERT|EXPECT}_LT(v1, v2): Tests that v1 < v2
-//    * {ASSERT|EXPECT}_LE(v1, v2): Tests that v1 <= v2
-//    * {ASSERT|EXPECT}_GT(v1, v2): Tests that v1 > v2
-//    * {ASSERT|EXPECT}_GE(v1, v2): Tests that v1 >= v2
-//
-// When they are not, Google Test prints both the tested expressions and
-// their actual values.  The values must be compatible built-in types,
-// or you will get a compiler error.  By "compatible" we mean that the
-// values can be compared by the respective operator.
-//
-// Note:
-//
-//   1. It is possible to make a user-defined type work with
-//   {ASSERT|EXPECT}_??(), but that requires overloading the
-//   comparison operators and is thus discouraged by the Google C++
-//   Usage Guide.  Therefore, you are advised to use the
-//   {ASSERT|EXPECT}_TRUE() macro to assert that two objects are
-//   equal.
-//
-//   2. The {ASSERT|EXPECT}_??() macros do pointer comparisons on
-//   pointers (in particular, C strings).  Therefore, if you use it
-//   with two C strings, you are testing how their locations in memory
-//   are related, not how their content is related.  To compare two C
-//   strings by content, use {ASSERT|EXPECT}_STR*().
-//
-//   3. {ASSERT|EXPECT}_EQ(v1, v2) is preferred to
-//   {ASSERT|EXPECT}_TRUE(v1 == v2), as the former tells you
-//   what the actual value is when it fails, and similarly for the
-//   other comparisons.
-//
-//   4. Do not depend on the order in which {ASSERT|EXPECT}_??()
-//   evaluate their arguments, which is undefined.
-//
-//   5. These macros evaluate their arguments exactly once.
-//
-// Examples:
-//
-//   EXPECT_NE(Foo(), 5);
-//   EXPECT_EQ(a_pointer, NULL);
-//   ASSERT_LT(i, array_size);
-//   ASSERT_GT(records.size(), 0) << "There is no record left.";
 
-#define EXPECT_EQ(val1, val2) \
-  EXPECT_PRED_FORMAT2(::testing::internal::EqHelper::Compare, val1, val2)
-#define EXPECT_NE(val1, val2) \
-  EXPECT_PRED_FORMAT2(::testing::internal::CmpHelperNE, val1, val2)
-#define EXPECT_LE(val1, val2) \
-  EXPECT_PRED_FORMAT2(::testing::internal::CmpHelperLE, val1, val2)
-#define EXPECT_LT(val1, val2) \
-  EXPECT_PRED_FORMAT2(::testing::internal::CmpHelperLT, val1, val2)
-#define EXPECT_GE(val1, val2) \
-  EXPECT_PRED_FORMAT2(::testing::internal::CmpHelperGE, val1, val2)
-#define EXPECT_GT(val1, val2) \
-  EXPECT_PRED_FORMAT2(::testing::internal::CmpHelperGT, val1, val2)
-
-#define GTEST_ASSERT_EQ(val1, val2) \
-  ASSERT_PRED_FORMAT2(::testing::internal::EqHelper::Compare, val1, val2)
-#define GTEST_ASSERT_NE(val1, val2) \
-  ASSERT_PRED_FORMAT2(::testing::internal::CmpHelperNE, val1, val2)
-#define GTEST_ASSERT_LE(val1, val2) \
-  ASSERT_PRED_FORMAT2(::testing::internal::CmpHelperLE, val1, val2)
-#define GTEST_ASSERT_LT(val1, val2) \
-  ASSERT_PRED_FORMAT2(::testing::internal::CmpHelperLT, val1, val2)
-#define GTEST_ASSERT_GE(val1, val2) \
-  ASSERT_PRED_FORMAT2(::testing::internal::CmpHelperGE, val1, val2)
-#define GTEST_ASSERT_GT(val1, val2) \
-  ASSERT_PRED_FORMAT2(::testing::internal::CmpHelperGT, val1, val2)
 
 // Define macro GTEST_DONT_DEFINE_ASSERT_XY to 1 to omit the definition of
 // ASSERT_XY(), which clashes with some users' own code.
 
 #if !(defined(GTEST_DONT_DEFINE_ASSERT_EQ) && GTEST_DONT_DEFINE_ASSERT_EQ)
+#undef ASSERT_EQ
 #define ASSERT_EQ(val1, val2) GTEST_ASSERT_EQ(val1, val2)
 #endif
 
 #if !(defined(GTEST_DONT_DEFINE_ASSERT_NE) && GTEST_DONT_DEFINE_ASSERT_NE)
+#undef ASSERT_NE
 #define ASSERT_NE(val1, val2) GTEST_ASSERT_NE(val1, val2)
 #endif
 
 #if !(defined(GTEST_DONT_DEFINE_ASSERT_LE) && GTEST_DONT_DEFINE_ASSERT_LE)
+#undef ASSERT_LE
 #define ASSERT_LE(val1, val2) GTEST_ASSERT_LE(val1, val2)
 #endif
 
 #if !(defined(GTEST_DONT_DEFINE_ASSERT_LT) && GTEST_DONT_DEFINE_ASSERT_LT)
+#undef ASSERT_LT
 #define ASSERT_LT(val1, val2) GTEST_ASSERT_LT(val1, val2)
 #endif
 
 #if !(defined(GTEST_DONT_DEFINE_ASSERT_GE) && GTEST_DONT_DEFINE_ASSERT_GE)
+#undef ASSERT_GE
 #define ASSERT_GE(val1, val2) GTEST_ASSERT_GE(val1, val2)
 #endif
 
 #if !(defined(GTEST_DONT_DEFINE_ASSERT_GT) && GTEST_DONT_DEFINE_ASSERT_GT)
+#undef ASSERT_GT
 #define ASSERT_GT(val1, val2) GTEST_ASSERT_GT(val1, val2)
 #endif
 
-// C-string Comparisons.  All tests treat NULL and any non-NULL string
-// as different.  Two NULLs are equal.
-//
-//    * {ASSERT|EXPECT}_STREQ(s1, s2):     Tests that s1 == s2
-//    * {ASSERT|EXPECT}_STRNE(s1, s2):     Tests that s1 != s2
-//    * {ASSERT|EXPECT}_STRCASEEQ(s1, s2): Tests that s1 == s2, ignoring case
-//    * {ASSERT|EXPECT}_STRCASENE(s1, s2): Tests that s1 != s2, ignoring case
-//
-// For wide or narrow string objects, you can use the
-// {ASSERT|EXPECT}_??() macros.
-//
-// Don't depend on the order in which the arguments are evaluated,
-// which is undefined.
-//
-// These macros evaluate their arguments exactly once.
 
-#define EXPECT_STREQ(s1, s2) \
-  EXPECT_PRED_FORMAT2(::testing::internal::CmpHelperSTREQ, s1, s2)
-#define EXPECT_STRNE(s1, s2) \
-  EXPECT_PRED_FORMAT2(::testing::internal::CmpHelperSTRNE, s1, s2)
-#define EXPECT_STRCASEEQ(s1, s2) \
-  EXPECT_PRED_FORMAT2(::testing::internal::CmpHelperSTRCASEEQ, s1, s2)
-#define EXPECT_STRCASENE(s1, s2) \
-  EXPECT_PRED_FORMAT2(::testing::internal::CmpHelperSTRCASENE, s1, s2)
 
-#define ASSERT_STREQ(s1, s2) \
-  ASSERT_PRED_FORMAT2(::testing::internal::CmpHelperSTREQ, s1, s2)
-#define ASSERT_STRNE(s1, s2) \
-  ASSERT_PRED_FORMAT2(::testing::internal::CmpHelperSTRNE, s1, s2)
-#define ASSERT_STRCASEEQ(s1, s2) \
-  ASSERT_PRED_FORMAT2(::testing::internal::CmpHelperSTRCASEEQ, s1, s2)
-#define ASSERT_STRCASENE(s1, s2) \
-  ASSERT_PRED_FORMAT2(::testing::internal::CmpHelperSTRCASENE, s1, s2)
 
-// Macros for comparing floating-point numbers.
-//
-//    * {ASSERT|EXPECT}_FLOAT_EQ(val1, val2):
-//         Tests that two float values are almost equal.
-//    * {ASSERT|EXPECT}_DOUBLE_EQ(val1, val2):
-//         Tests that two double values are almost equal.
-//    * {ASSERT|EXPECT}_NEAR(v1, v2, abs_error):
-//         Tests that v1 and v2 are within the given distance to each other.
-//
-// Google Test uses ULP-based comparison to automatically pick a default
-// error bound that is appropriate for the operands.  See the
-// FloatingPoint template class in gtest-internal.h if you are
-// interested in the implementation details.
 
-#define EXPECT_FLOAT_EQ(val1, val2)                                         \
-  EXPECT_PRED_FORMAT2(::testing::internal::CmpHelperFloatingPointEQ<float>, \
-                      val1, val2)
 
-#define EXPECT_DOUBLE_EQ(val1, val2)                                         \
-  EXPECT_PRED_FORMAT2(::testing::internal::CmpHelperFloatingPointEQ<double>, \
-                      val1, val2)
 
-#define ASSERT_FLOAT_EQ(val1, val2)                                         \
-  ASSERT_PRED_FORMAT2(::testing::internal::CmpHelperFloatingPointEQ<float>, \
-                      val1, val2)
 
-#define ASSERT_DOUBLE_EQ(val1, val2)                                         \
-  ASSERT_PRED_FORMAT2(::testing::internal::CmpHelperFloatingPointEQ<double>, \
-                      val1, val2)
-
-#define EXPECT_NEAR(val1, val2, abs_error)                                   \
-  EXPECT_PRED_FORMAT3(::testing::internal::DoubleNearPredFormat, val1, val2, \
-                      abs_error)
-
-#define ASSERT_NEAR(val1, val2, abs_error)                                   \
-  ASSERT_PRED_FORMAT3(::testing::internal::DoubleNearPredFormat, val1, val2, \
-                      abs_error)
 
 // These predicate format functions work on floating-point values, and
 // can be used in {ASSERT|EXPECT}_PRED_FORMAT2*(), e.g.
@@ -2023,9 +1905,9 @@ class [[nodiscard]] TestWithParam : public Test,
 
 // Asserts that val1 is less than, or almost equal to, val2.  Fails
 // otherwise.  In particular, it fails if either val1 or val2 is NaN.
-GTEST_API_ AssertionResult FloatLE(const char* expr1, const char* expr2,
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL GTEST_API_ AssertionResult FloatLE(const char* expr1, const char* expr2,
                                    float val1, float val2);
-GTEST_API_ AssertionResult DoubleLE(const char* expr1, const char* expr2,
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL GTEST_API_ AssertionResult DoubleLE(const char* expr1, const char* expr2,
                                     double val1, double val2);
 
 #ifdef GTEST_OS_WINDOWS
@@ -2053,20 +1935,6 @@ GTEST_API_ AssertionResult DoubleLE(const char* expr1, const char* expr2,
 
 #endif  // GTEST_OS_WINDOWS
 
-// Macros that execute statement and check that it doesn't generate new fatal
-// failures in the current thread.
-//
-//   * {ASSERT|EXPECT}_NO_FATAL_FAILURE(statement);
-//
-// Examples:
-//
-//   EXPECT_NO_FATAL_FAILURE(Process());
-//   ASSERT_NO_FATAL_FAILURE(Process()) << "Process() failed";
-//
-#define ASSERT_NO_FATAL_FAILURE(statement) \
-  GTEST_TEST_NO_FATAL_FAILURE_(statement, GTEST_FATAL_FAILURE_)
-#define EXPECT_NO_FATAL_FAILURE(statement) \
-  GTEST_TEST_NO_FATAL_FAILURE_(statement, GTEST_NONFATAL_FAILURE_)
 
 // Causes a trace (including the given source file path and line number,
 // and the given message) to be included in every test failure message generated
@@ -2078,7 +1946,7 @@ GTEST_API_ AssertionResult DoubleLE(const char* expr1, const char* expr2,
 // Example:
 //   testing::ScopedTrace trace("file.cc", 123, "message");
 //
-class GTEST_API_ [[nodiscard]] ScopedTrace {
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL class GTEST_API_ [[nodiscard]] ScopedTrace {
  public:
   // The c'tor pushes the given source file location and message onto
   // a trace stack maintained by Google Test.
@@ -2112,24 +1980,6 @@ class GTEST_API_ [[nodiscard]] ScopedTrace {
   ScopedTrace& operator=(const ScopedTrace&) = delete;
 };
 
-// Causes a trace (including the source file path, the current line
-// number, and the given message) to be included in every test failure
-// message generated by code in the current scope.  The effect is
-// undone when the control leaves the current scope.
-//
-// The message argument can be anything streamable to std::ostream.
-//
-// In the implementation, we include the current line number as part
-// of the dummy variable name, thus allowing multiple SCOPED_TRACE()s
-// to appear in the same block - as long as they are on different
-// lines.
-//
-// Assuming that each thread maintains its own stack of traces.
-// Therefore, a SCOPED_TRACE() would (correctly) only affect the
-// assertions in its own thread.
-#define SCOPED_TRACE(message)                                               \
-  const ::testing::ScopedTrace GTEST_CONCAT_TOKEN_(gtest_trace_, __LINE__)( \
-      __FILE__, __LINE__, (message))
 
 // Compile-time assertion for type equality.
 // StaticAssertTypeEq<type1, type2>() compiles if and only if type1 and type2
@@ -2161,7 +2011,7 @@ class GTEST_API_ [[nodiscard]] ScopedTrace {
 //   void Test2() { Foo<bool> foo; foo.Bar(); }
 //
 // to cause a compiler error.
-template <typename T1, typename T2>
+GTEST_EXPORT template <typename T1, typename T2>
 constexpr bool StaticAssertTypeEq() noexcept {
   static_assert(std::is_same_v<T1, T2>, "T1 and T2 are not the same type");
   return true;
@@ -2183,67 +2033,29 @@ constexpr bool StaticAssertTypeEq() noexcept {
 //     EXPECT_TRUE(foo.StatusIsOK());
 //   }
 
-// Note that we call GetTestTypeId() instead of GetTypeId<
-// ::testing::Test>() here to get the type ID of testing::Test.  This
-// is to work around a suspected linker bug when using Google Test as
-// a framework on Mac OS X.  The bug causes GetTypeId<
-// ::testing::Test>() to return different values depending on whether
-// the call is from the Google Test framework itself or from user test
-// code.  GetTestTypeId() is guaranteed to always return the same
-// value, as it always calls GetTypeId<>() from the Google Test
-// framework.
-#define GTEST_TEST(test_suite_name, test_name)             \
-  GTEST_TEST_(test_suite_name, test_name, ::testing::Test, \
-              ::testing::internal::GetTestTypeId())
 
 // Define this macro to 1 to omit the definition of TEST(), which
 // is a generic name and clashes with some other libraries.
 #if !(defined(GTEST_DONT_DEFINE_TEST) && GTEST_DONT_DEFINE_TEST)
+#undef TEST
 #define TEST(test_suite_name, test_name) GTEST_TEST(test_suite_name, test_name)
 #endif
 
-// Defines a test that uses a test fixture.
-//
-// The first parameter is the name of the test fixture class, which
-// also doubles as the test suite name.  The second parameter is the
-// name of the test within the test suite.
-//
-// A test fixture class must be declared earlier.  The user should put
-// the test code between braces after using this macro.  Example:
-//
-//   class FooTest : public testing::Test {
-//    protected:
-//     void SetUp() override { b_.AddElement(3); }
-//
-//     Foo a_;
-//     Foo b_;
-//   };
-//
-//   TEST_F(FooTest, InitializesCorrectly) {
-//     EXPECT_TRUE(a_.StatusIsOK());
-//   }
-//
-//   TEST_F(FooTest, ReturnsElementCountCorrectly) {
-//     EXPECT_EQ(a_.size(), 0);
-//     EXPECT_EQ(b_.size(), 1);
-//   }
-#define GTEST_TEST_F(test_fixture, test_name)        \
-  GTEST_TEST_(test_fixture, test_name, test_fixture, \
-              ::testing::internal::GetTypeId<test_fixture>())
 #if !(defined(GTEST_DONT_DEFINE_TEST_F) && GTEST_DONT_DEFINE_TEST_F)
+#undef TEST_F
 #define TEST_F(test_fixture, test_name) GTEST_TEST_F(test_fixture, test_name)
 #endif
 
 // Returns a path to a temporary directory, which should be writable. It is
 // implementation-dependent whether or not the path is terminated by the
 // directory-separator character.
-GTEST_API_ std::string TempDir();
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL GTEST_API_ std::string TempDir();
 
 // Returns a path to a directory that contains ancillary data files that might
 // be used by tests. It is implementation dependent whether or not the path is
 // terminated by the directory-separator character. The directory and the files
 // in it should be considered read-only.
-GTEST_API_ std::string SrcDir();
+GTEST_EXPORT GTEST_EXTERN_CXX_DECL GTEST_API_ std::string SrcDir();
 
 GTEST_DISABLE_MSC_WARNINGS_POP_()  // 4805 4100
 
@@ -2305,7 +2117,7 @@ GTEST_DISABLE_MSC_WARNINGS_POP_()  // 4805 4100
 //   return RUN_ALL_TESTS();
 // }
 //
-template <int&... ExplicitParameterBarrier, typename Factory>
+GTEST_EXPORT template <int&... ExplicitParameterBarrier, typename Factory>
 TestInfo* RegisterTest(const char* test_suite_name, const char* test_name,
                        const char* type_param, const char* value_param,
                        const char* file, int line, Factory factory) {
@@ -2339,9 +2151,9 @@ TestInfo* RegisterTest(const char* test_suite_name, const char* test_name,
 //
 // This function was formerly a macro; thus, it is in the global
 // namespace and has an all-caps name.
-[[nodiscard]] int RUN_ALL_TESTS();
+GTEST_EXPORT [[nodiscard]] int RUN_ALL_TESTS();
 
-inline int RUN_ALL_TESTS() { return ::testing::UnitTest::GetInstance()->Run(); }
+GTEST_EXPORT inline int RUN_ALL_TESTS() { return ::testing::UnitTest::GetInstance()->Run(); }
 
 GTEST_DISABLE_MSC_WARNINGS_POP_()  //  4251
 

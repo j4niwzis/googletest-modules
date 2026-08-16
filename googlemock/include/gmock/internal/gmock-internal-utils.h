@@ -36,25 +36,71 @@
 // IWYU pragma: private, include "gmock/gmock.h"
 // IWYU pragma: friend gmock/.*
 
+#include "gmock/gmock-export.h"
+#ifndef GMOCK_USE_MODULES
+#include "gmock/internal/gmock-internal-utils-macros.h"
+#endif
+// Copyright 2007, Google Inc.
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are
+// met:
+//
+//     * Redistributions of source code must retain the above copyright
+// notice, this list of conditions and the following disclaimer.
+//     * Redistributions in binary form must reproduce the above
+// copyright notice, this list of conditions and the following disclaimer
+// in the documentation and/or other materials provided with the
+// distribution.
+//     * Neither the name of Google Inc. nor the names of its
+// contributors may be used to endorse or promote products derived from
+// this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+// Google Mock - a framework for writing C++ mock classes.
+//
+// This file defines some utilities useful for implementing Google
+// Mock.  They are subject to change without notice, so please DO NOT
+// USE THEM IN USER CODE.
+
+// IWYU pragma: private, include "gmock/gmock.h"
+// IWYU pragma: friend gmock/.*
+
 #ifndef GOOGLEMOCK_INCLUDE_GMOCK_INTERNAL_GMOCK_INTERNAL_UTILS_H_
 #define GOOGLEMOCK_INCLUDE_GMOCK_INTERNAL_GMOCK_INTERNAL_UTILS_H_
 
+#ifndef GMOCK_USE_MODULES
 #include <stdio.h>
+#endif
 
+#ifndef GMOCK_USE_MODULES
 #include <iterator>
 #include <ostream>  // NOLINT
 #include <string>
 #include <type_traits>
 #include <utility>
 #include <vector>
+#endif
 
+#ifndef GMOCK_USE_MODULES
 #include "gmock/internal/gmock-port.h"
 #include "gtest/gtest.h"
+#endif
 
 namespace testing {
 
-template <typename>
-class Matcher;
 
 namespace internal {
 
@@ -64,49 +110,48 @@ GTEST_DISABLE_MSC_WARNINGS_PUSH_(4100 4805)
 
 // Joins a vector of strings as if they are fields of a tuple; returns
 // the joined string.
-GTEST_API_ std::string JoinAsKeyValueTuple(
+GMOCK_EXPORT GMOCK_EXTERN_CXX_DECL GTEST_API_ std::string JoinAsKeyValueTuple(
     const std::vector<const char*>& names, const Strings& values);
 
 // Converts an identifier name to a space-separated list of lower-case
 // words.  Each maximum substring of the form [A-Za-z][a-z]*|\d+ is
 // treated as one word.  For example, both "FooBar123" and
 // "foo_bar_123" are converted to "foo bar 123".
-GTEST_API_ std::string ConvertIdentifierNameToWords(const char* id_name);
+GMOCK_EXPORT GMOCK_EXTERN_CXX_DECL GTEST_API_ std::string ConvertIdentifierNameToWords(const char* id_name);
 
 // GetRawPointer(p) returns the raw pointer underlying p when p is a
 // smart pointer, or returns p itself when p is already a raw pointer.
 // The following default implementation is for the smart pointer case.
-template <typename Pointer>
+GMOCK_EXPORT template <typename Pointer>
 inline const typename Pointer::element_type* GetRawPointer(const Pointer& p) {
   return p.get();
 }
 // This overload version is for std::reference_wrapper, which does not work with
 // the overload above, as it does not have an `element_type`.
-template <typename Element>
+GMOCK_EXPORT template <typename Element>
 inline const Element* GetRawPointer(const std::reference_wrapper<Element>& r) {
   return &r.get();
 }
 
 // This overloaded version is for the raw pointer case.
-template <typename Element>
+GMOCK_EXPORT template <typename Element>
 inline Element* GetRawPointer(Element* p) {
   return p;
 }
 
-// Default definitions for all compilers.
-// NOTE: If you implement support for other compilers, make sure to avoid
-// unexpected overlaps.
-// (e.g., Clang also processes #pragma GCC, and clang-cl also handles _MSC_VER.)
-#define GMOCK_INTERNAL_WARNING_PUSH()
-#define GMOCK_INTERNAL_WARNING_CLANG(Level, Name)
-#define GMOCK_INTERNAL_WARNING_POP()
 
 #if defined(__clang__)
 #undef GMOCK_INTERNAL_WARNING_PUSH
+#undef GMOCK_INTERNAL_WARNING_PUSH
+#undef GMOCK_INTERNAL_WARNING_PUSH
 #define GMOCK_INTERNAL_WARNING_PUSH() _Pragma("clang diagnostic push")
+#undef GMOCK_INTERNAL_WARNING_CLANG
+#undef GMOCK_INTERNAL_WARNING_CLANG
 #undef GMOCK_INTERNAL_WARNING_CLANG
 #define GMOCK_INTERNAL_WARNING_CLANG(Level, Warning) \
   _Pragma(GMOCK_PP_INTERNAL_STRINGIZE(clang diagnostic Level Warning))
+#undef GMOCK_INTERNAL_WARNING_POP
+#undef GMOCK_INTERNAL_WARNING_POP
 #undef GMOCK_INTERNAL_WARNING_POP
 #define GMOCK_INTERNAL_WARNING_POP() _Pragma("clang diagnostic pop")
 #endif
@@ -118,6 +163,7 @@ inline Element* GetRawPointer(Element* p) {
 #if defined(_MSC_VER) && !defined(_NATIVE_WCHAR_T_DEFINED)
 // wchar_t is a typedef.
 #else
+#undef GMOCK_WCHAR_T_IS_NATIVE_
 #define GMOCK_WCHAR_T_IS_NATIVE_ 1
 #endif
 
@@ -126,10 +172,10 @@ inline Element* GetRawPointer(Element* p) {
 // or none of them.  This categorization is useful for determining
 // when a matcher argument type can be safely converted to another
 // type in the implementation of SafeMatcherCast.
-enum TypeKind { kBool, kInteger, kFloatingPoint, kOther };
+GMOCK_EXPORT enum TypeKind { kBool, kInteger, kFloatingPoint, kOther };
 
 // KindOf<T>::value is the kind of type T.
-template <typename T>
+GMOCK_EXPORT template <typename T>
 struct KindOf {
   enum { value = kOther };  // The default kind.
 };
@@ -167,10 +213,6 @@ GMOCK_DECLARE_KIND_(long double, kFloatingPoint);
 
 #undef GMOCK_DECLARE_KIND_
 
-// Evaluates to the kind of 'type'.
-#define GMOCK_KIND_OF_(type)                   \
-  static_cast< ::testing::internal::TypeKind>( \
-      ::testing::internal::KindOf<type>::value)
 
 // LosslessArithmeticConvertibleImpl<kFromKind, From, kToKind, To>::value
 // is true if and only if arithmetic type From can be losslessly converted to
@@ -214,14 +256,14 @@ using LosslessArithmeticConvertibleImpl = std::integral_constant<
 // raw (i.e. has no CV modifier, is not a pointer, and is not a
 // reference) built-in arithmetic types; the value is
 // implementation-defined when the above pre-condition is violated.
-template <typename From, typename To>
+GMOCK_EXPORT template <typename From, typename To>
 using LosslessArithmeticConvertible =
     LosslessArithmeticConvertibleImpl<GMOCK_KIND_OF_(From), From,
                                       GMOCK_KIND_OF_(To), To>;
 
 // This interface knows how to report a Google Mock failure (either
 // non-fatal or fatal).
-class [[nodiscard]] FailureReporterInterface {
+GMOCK_EXPORT class [[nodiscard]] FailureReporterInterface {
  public:
   // The type of a failure (either non-fatal or fatal).
   enum FailureType { kNonfatal, kFatal };
@@ -234,52 +276,52 @@ class [[nodiscard]] FailureReporterInterface {
 };
 
 // Returns the failure reporter used by Google Mock.
-GTEST_API_ FailureReporterInterface* GetFailureReporter();
+GMOCK_EXPORT GMOCK_EXTERN_CXX_DECL GTEST_API_ FailureReporterInterface* GetFailureReporter();
 
 // Asserts that condition is true; aborts the process with the given
 // message if condition is false.  We cannot use LOG(FATAL) or CHECK()
 // as Google Mock might be used to mock the log sink itself.  We
 // inline this function to prevent it from showing up in the stack
 // trace.
-inline void Assert(bool condition, const char* file, int line,
+GMOCK_EXPORT inline void Assert(bool condition, const char* file, int line,
                    const std::string& msg) {
   if (!condition) {
     GetFailureReporter()->ReportFailure(FailureReporterInterface::kFatal, file,
                                         line, msg);
   }
 }
-inline void Assert(bool condition, const char* file, int line) {
+GMOCK_EXPORT inline void Assert(bool condition, const char* file, int line) {
   Assert(condition, file, line, "Assertion failed.");
 }
 
 // Verifies that condition is true; generates a non-fatal failure if
 // condition is false.
-inline void Expect(bool condition, const char* file, int line,
+GMOCK_EXPORT inline void Expect(bool condition, const char* file, int line,
                    const std::string& msg) {
   if (!condition) {
     GetFailureReporter()->ReportFailure(FailureReporterInterface::kNonfatal,
                                         file, line, msg);
   }
 }
-inline void Expect(bool condition, const char* file, int line) {
+GMOCK_EXPORT inline void Expect(bool condition, const char* file, int line) {
   Expect(condition, file, line, "Expectation failed.");
 }
 
 // Severity level of a log.
-enum LogSeverity { kInfo = 0, kWarning = 1 };
+GMOCK_EXPORT enum LogSeverity { kInfo = 0, kWarning = 1 };
 
 // Valid values for the --gmock_verbose flag.
 
 // All logs (informational and warnings) are printed.
-const char kInfoVerbosity[] = "info";
+GMOCK_EXPORT inline const char kInfoVerbosity[] = "info";
 // Only warnings are printed.
-const char kWarningVerbosity[] = "warning";
+GMOCK_EXPORT inline const char kWarningVerbosity[] = "warning";
 // No logs are printed.
-const char kErrorVerbosity[] = "error";
+GMOCK_EXPORT inline const char kErrorVerbosity[] = "error";
 
 // Returns true if and only if a log with the given severity is visible
 // according to the --gmock_verbose flag.
-GTEST_API_ bool LogIsVisible(LogSeverity severity);
+GMOCK_EXPORT GMOCK_EXTERN_CXX_DECL GTEST_API_ bool LogIsVisible(LogSeverity severity);
 
 // Prints the given message to stdout if and only if 'severity' >= the level
 // specified by the --gmock_verbose flag.  If stack_frames_to_skip >=
@@ -288,7 +330,7 @@ GTEST_API_ bool LogIsVisible(LogSeverity severity);
 // stack_frames_to_skip is treated as 0, since we don't know which
 // function calls will be inlined by the compiler and need to be
 // conservative.
-GTEST_API_ void Log(LogSeverity severity, const std::string& message,
+GMOCK_EXPORT GMOCK_EXTERN_CXX_DECL GTEST_API_ void Log(LogSeverity severity, const std::string& message,
                     int stack_frames_to_skip);
 
 // A marker class that is used to resolve parameterless expectations to the
@@ -297,7 +339,7 @@ GTEST_API_ void Log(LogSeverity severity, const std::string& message,
 //
 //    ON_CALL(mock, Method({}, nullptr))...
 //
-class [[nodiscard]] WithoutMatchers {
+GMOCK_EXPORT class [[nodiscard]] WithoutMatchers {
  private:
   WithoutMatchers() = default;
 
@@ -323,14 +365,14 @@ inline T Invalid() {
 #endif
 }
 
-void GetValueType(const void*);
+GMOCK_EXPORT GMOCK_EXTERN_CXX_DECL void GetValueType(const void*);
 
-template <class T>
+GMOCK_EXPORT GMOCK_EXTERN_CXX_DECL template <class T>
 typename std::iterator_traits<
     decltype(std::begin(std::declval<T&>()))>::value_type
 GetValueType(T*);
 
-template <class T, class = void>
+GMOCK_EXPORT template <class T, class = void>
 struct RangeTraits {
   typedef decltype(internal::GetValueType(
       static_cast<std::remove_reference_t<T>*>(nullptr))) value_type;
@@ -357,7 +399,7 @@ struct RangeTraits<T, std::conditional_t<true, void, typename T::value_type>> {
 //
 // This generic version is used when RawContainer itself is already an
 // STL-style container.
-template <class RawContainer>
+GMOCK_EXPORT template <class RawContainer>
 class [[nodiscard]] StlContainerView {
  public:
   typedef RawContainer type;
@@ -423,7 +465,7 @@ class StlContainerView<T&>;
 // A type transform to remove constness from the first part of a pair.
 // Pairs like that are used as the value_type of associative containers,
 // and this transform produces a similar but assignable pair.
-template <typename T>
+GMOCK_EXPORT template <typename T>
 struct RemoveConstFromKey {
   typedef T type;
 };
@@ -436,9 +478,9 @@ struct RemoveConstFromKey<std::pair<const K, V> > {
 
 // Emit an assertion failure due to incorrect DoDefault() usage. Out-of-lined to
 // reduce code size.
-GTEST_API_ void IllegalDoDefault(const char* file, int line);
+GMOCK_EXPORT GMOCK_EXTERN_CXX_DECL GTEST_API_ void IllegalDoDefault(const char* file, int line);
 
-template <typename F, typename Tuple, size_t... Idx>
+GMOCK_EXPORT template <typename F, typename Tuple, size_t... Idx>
 auto ApplyImpl(F&& f, Tuple&& args, std::index_sequence<Idx...>)
     -> decltype(std::forward<F>(f)(
         std::get<Idx>(std::forward<Tuple>(args))...)) {
@@ -446,7 +488,7 @@ auto ApplyImpl(F&& f, Tuple&& args, std::index_sequence<Idx...>)
 }
 
 // Apply the function to a tuple of arguments.
-template <typename F, typename Tuple>
+GMOCK_EXPORT template <typename F, typename Tuple>
 auto Apply(F&& f, Tuple&& args) -> decltype(ApplyImpl(
     std::forward<F>(f), std::forward<Tuple>(args),
     std::make_index_sequence<
@@ -469,10 +511,10 @@ auto Apply(F&& f, Tuple&& args) -> decltype(ApplyImpl(
 //   MakeResultIgnoredValue:
 //                         the function type obtained by substituting Something
 //                         for the return type of F.
-template <typename T>
+GMOCK_EXPORT GMOCK_EXTERN_CXX_DECL template <typename T>
 struct Function;
 
-template <typename R, typename... Args>
+GMOCK_EXTERN_CXX_DECL template <typename R, typename... Args>
 struct Function<R(Args...)> {
   using Result = R;
   static constexpr size_t ArgumentCount = sizeof...(Args);
@@ -488,10 +530,10 @@ struct Function<R(Args...)> {
 // when std::tuple_element is used.
 // See: https://github.com/google/googletest/issues/3931
 // Can be replaced with std::tuple_element_t in C++14.
-template <size_t I, typename T>
+GMOCK_EXPORT template <size_t I, typename T>
 using TupleElement = std::tuple_element_t<I, T>;
 
-bool Base64Unescape(const std::string& encoded, std::string* decoded);
+GMOCK_EXPORT GMOCK_EXTERN_CXX_DECL bool Base64Unescape(const std::string& encoded, std::string* decoded);
 
 GTEST_DISABLE_MSC_WARNINGS_POP_()  // 4100 4805
 

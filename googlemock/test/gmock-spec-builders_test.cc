@@ -31,19 +31,42 @@
 //
 // This file tests the spec builder syntax.
 
-#include "gmock/gmock-spec-builders.h"
+#include <stdio.h>
+#include <string.h>
+import gtest.gtest_spi;
+import gtest;
+import gtest.internal.gtest_port;
+import gtest.gtest_assertion_result;
+import gtest.gtest_internal_inl;
+import gtest.gtest_matchers;
+import gtest.gtest_message;
+import gtest.gtest_printers;
+import gtest.gtest_test_part;
+import gtest.internal.gtest_death_test_internal;
+import gtest.internal.gtest_filepath;
+import gtest.internal.gtest_internal;
+import gtest.internal.gtest_param_util;
+import gtest.internal.gtest_string;
+import gtest.internal.gtest_type_util;
+#include "gtest/gtest-spi-macros.h"
+#include "gtest/gtest-macros.h"
+#include "gtest/internal/gtest-port-macros.h"
+import std.compat;
+import gmock.gmock_spec_builders;
+import gmock;
+import gmock.internal.gmock_port;
+import gmock.gmock_actions;
+import gmock.gmock_function_mocker;
+import gmock.gmock_matchers;
+import gmock.gmock_more_actions;
+import gmock.gmock_more_matchers;
+import gmock.gmock_nice_strict;
+import gmock.internal.gmock_internal_utils;
+#include "gmock/gmock-spec-builders-macros.h"
+#include "gmock/gmock-macros.h"
+#include "gmock/internal/gmock-port-macros.h"
 
-#include <memory>
-#include <ostream>  // NOLINT
-#include <sstream>
-#include <string>
-#include <type_traits>
 
-#include "gmock/gmock.h"
-#include "gmock/internal/gmock-port.h"
-#include "gtest/gtest-spi.h"
-#include "gtest/gtest.h"
-#include "gtest/internal/gtest-port.h"
 
 namespace testing {
 namespace {

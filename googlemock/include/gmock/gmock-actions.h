@@ -127,13 +127,149 @@
 // IWYU pragma: private, include "gmock/gmock.h"
 // IWYU pragma: friend gmock/.*
 
+#include "gmock/gmock-export.h"
+#ifndef GMOCK_USE_MODULES
+#include "gmock/gmock-actions-macros.h"
+#endif
+// Copyright 2007, Google Inc.
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are
+// met:
+//
+//     * Redistributions of source code must retain the above copyright
+// notice, this list of conditions and the following disclaimer.
+//     * Redistributions in binary form must reproduce the above
+// copyright notice, this list of conditions and the following disclaimer
+// in the documentation and/or other materials provided with the
+// distribution.
+//     * Neither the name of Google Inc. nor the names of its
+// contributors may be used to endorse or promote products derived from
+// this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+// Google Mock - a framework for writing C++ mock classes.
+//
+// The ACTION* family of macros can be used in a namespace scope to
+// define custom actions easily.  The syntax:
+//
+//   ACTION(name) { statements; }
+//
+// will define an action with the given name that executes the
+// statements.  The value returned by the statements will be used as
+// the return value of the action.  Inside the statements, you can
+// refer to the K-th (0-based) argument of the mock function by
+// 'argK', and refer to its type by 'argK_type'.  For example:
+//
+//   ACTION(IncrementArg1) {
+//     arg1_type temp = arg1;
+//     return ++(*temp);
+//   }
+//
+// allows you to write
+//
+//   ...WillOnce(IncrementArg1());
+//
+// You can also refer to the entire argument tuple and its type by
+// 'args' and 'args_type', and refer to the mock function type and its
+// return type by 'function_type' and 'return_type'.
+//
+// Note that you don't need to specify the types of the mock function
+// arguments.  However rest assured that your code is still type-safe:
+// you'll get a compiler error if *arg1 doesn't support the ++
+// operator, or if the type of ++(*arg1) isn't compatible with the
+// mock function's return type, for example.
+//
+// Sometimes you'll want to parameterize the action.   For that you can use
+// another macro:
+//
+//   ACTION_P(name, param_name) { statements; }
+//
+// For example:
+//
+//   ACTION_P(Add, n) { return arg0 + n; }
+//
+// will allow you to write:
+//
+//   ...WillOnce(Add(5));
+//
+// Note that you don't need to provide the type of the parameter
+// either.  If you need to reference the type of a parameter named
+// 'foo', you can write 'foo_type'.  For example, in the body of
+// ACTION_P(Add, n) above, you can write 'n_type' to refer to the type
+// of 'n'.
+//
+// We also provide ACTION_P2, ACTION_P3, ..., up to ACTION_P10 to support
+// multi-parameter actions.
+//
+// For the purpose of typing, you can view
+//
+//   ACTION_Pk(Foo, p1, ..., pk) { ... }
+//
+// as shorthand for
+//
+//   template <typename p1_type, ..., typename pk_type>
+//   FooActionPk<p1_type, ..., pk_type> Foo(p1_type p1, ..., pk_type pk) { ... }
+//
+// In particular, you can provide the template type arguments
+// explicitly when invoking Foo(), as in Foo<long, bool>(5, false);
+// although usually you can rely on the compiler to infer the types
+// for you automatically.  You can assign the result of expression
+// Foo(p1, ..., pk) to a variable of type FooActionPk<p1_type, ...,
+// pk_type>.  This can be useful when composing actions.
+//
+// You can also overload actions with different numbers of parameters:
+//
+//   ACTION_P(Plus, a) { ... }
+//   ACTION_P2(Plus, a, b) { ... }
+//
+// While it's tempting to always use the ACTION* macros when defining
+// a new action, you should also consider implementing ActionInterface
+// or using MakePolymorphicAction() instead, especially if you need to
+// use the action a lot.  While these approaches require more work,
+// they give you more control on the types of the mock function
+// arguments and the action parameters, which in general leads to
+// better compiler error messages that pay off in the long run.  They
+// also allow overloading actions based on parameter types (as opposed
+// to just based on the number of parameters).
+//
+// CAVEAT:
+//
+// ACTION*() can only be used in a namespace scope as templates cannot be
+// declared inside of a local class.
+// Users can, however, define any local functors (e.g. a lambda) that
+// can be used as actions.
+//
+// MORE INFORMATION:
+//
+// To learn more about using these macros, please search for 'ACTION' on
+// https://github.com/google/googletest/blob/main/docs/gmock_cook_book.md
+
+// IWYU pragma: private, include "gmock/gmock.h"
+// IWYU pragma: friend gmock/.*
+
 #ifndef GOOGLEMOCK_INCLUDE_GMOCK_GMOCK_ACTIONS_H_
 #define GOOGLEMOCK_INCLUDE_GMOCK_GMOCK_ACTIONS_H_
 
 #ifndef _WIN32_WCE
+#ifndef GMOCK_USE_MODULES
 #include <errno.h>
 #endif
+#endif
 
+#ifndef GMOCK_USE_MODULES
 #include <algorithm>
 #include <exception>
 #include <functional>
@@ -142,10 +278,13 @@
 #include <tuple>
 #include <type_traits>
 #include <utility>
+#endif
 
+#ifndef GMOCK_USE_MODULES
 #include "gmock/internal/gmock-internal-utils.h"
 #include "gmock/internal/gmock-port.h"
 #include "gmock/internal/gmock-pp.h"
+#endif
 
 GTEST_DISABLE_MSC_WARNINGS_PUSH_(4100)
 
@@ -167,7 +306,7 @@ namespace internal {
 // false>::Get() crashes with an error.
 //
 // This primary template is used when kDefaultConstructible is true.
-template <typename T, bool kDefaultConstructible>
+GMOCK_EXPORT template <typename T, bool kDefaultConstructible>
 struct BuiltInDefaultValueGetter {
   static T Get() { return T(); }
 };
@@ -195,7 +334,7 @@ struct BuiltInDefaultValueGetter<T, false> {
 // default-constructed T value if T is default constructible.  For any
 // other type T, the built-in default T value is undefined, and the
 // function will abort the process.
-template <typename T>
+GMOCK_EXPORT template <typename T>
 class [[nodiscard]] BuiltInDefaultValue {
  public:
   // This function returns true if and only if type T has a built-in default
@@ -269,13 +408,13 @@ GMOCK_DEFINE_DEFAULT_ACTION_FOR_RETURN_TYPE_(double, 0);
 // Partial implementations of metaprogramming types from the standard library
 // not available in C++11.
 
-template <typename P>
+GMOCK_EXPORT template <typename P>
 struct negation
     // NOLINTNEXTLINE
     : std::integral_constant<bool, bool(!P::value)> {};
 
 // Base case: with zero predicates the answer is always true.
-template <typename...>
+GMOCK_EXPORT template <typename...>
 struct conjunction : std::true_type {};
 
 // With a single predicate, the answer is that predicate.
@@ -288,7 +427,7 @@ template <typename P1, typename... Ps>
 struct conjunction<P1, Ps...>
     : std::conditional<bool(P1::value), conjunction<Ps...>, P1>::type {};
 
-template <typename...>
+GMOCK_EXPORT template <typename...>
 struct disjunction : std::false_type {};
 
 template <typename P1>
@@ -355,7 +494,7 @@ struct is_implicitly_convertible {
 template <typename F, typename... Args>
 using call_result_t = decltype(std::declval<F>()(std::declval<Args>()...));
 
-template <typename Void, typename R, typename F, typename... Args>
+GMOCK_EXPORT template <typename Void, typename R, typename F, typename... Args>
 struct is_callable_r_impl : std::false_type {};
 
 // Specialize the struct for those template arguments where call_result_t is
@@ -370,11 +509,11 @@ struct is_callable_r_impl<void_t<call_result_t<F, Args...>>, R, F, Args...>
 
 // Like std::is_invocable_r from C++17, but works only for objects with call
 // operators. See the note on call_result_t.
-template <typename R, typename F, typename... Args>
+GMOCK_EXPORT template <typename R, typename F, typename... Args>
 using is_callable_r = is_callable_r_impl<void, R, F, Args...>;
 
 // Like std::as_const from C++17.
-template <typename T>
+GMOCK_EXPORT template <typename T>
 typename std::add_const<T>::type& as_const(T& t) {
   return t;
 }
@@ -382,7 +521,7 @@ typename std::add_const<T>::type& as_const(T& t) {
 }  // namespace internal
 
 // Specialized for function types below.
-template <typename F>
+GMOCK_EXPORT GMOCK_EXTERN_CXX_DECL template <typename F>
 class [[nodiscard]] OnceAction;
 
 // An action that can only be used once.
@@ -420,7 +559,7 @@ class [[nodiscard]] OnceAction;
 //
 // A less-contrived example would be an action that returns an arbitrary type,
 // whose &&-qualified call operator is capable of dealing with move-only types.
-template <typename Result, typename... Args>
+GMOCK_EXTERN_CXX_DECL template <typename Result, typename... Args>
 class [[nodiscard]] OnceAction<Result(Args...)> final {
  private:
   // True iff we can use the given callable type (or lvalue reference) directly
@@ -572,7 +711,7 @@ class [[nodiscard]] OnceAction<Result(Args...)> final {
 //
 //   // Sets the default value for type T to be foo.
 //   DefaultValue<T>::Set(foo);
-template <typename T>
+GMOCK_EXPORT template <typename T>
 class [[nodiscard]] DefaultValue {
  public:
   // Sets the default value for type T; requires T to be
@@ -699,7 +838,7 @@ template <typename T>
 T* DefaultValue<T&>::address_ = nullptr;
 
 // Implement this interface to define an action for function type F.
-template <typename F>
+GMOCK_EXPORT template <typename F>
 class [[nodiscard]] ActionInterface {
  public:
   typedef typename internal::Function<F>::Result Result;
@@ -719,7 +858,7 @@ class [[nodiscard]] ActionInterface {
   ActionInterface& operator=(const ActionInterface&) = delete;
 };
 
-template <typename F>
+GMOCK_EXPORT GMOCK_EXTERN_CXX_DECL template <typename F>
 class [[nodiscard]] Action;
 
 // An Action<R(Args...)> is a copyable and IMMUTABLE (except by assignment)
@@ -728,7 +867,7 @@ class [[nodiscard]] Action;
 // std::shared_ptr to const ActionInterface<T>. Don't inherit from Action! You
 // can view an object implementing ActionInterface<F> as a concrete action
 // (including its current state), and an Action<F> object as a handle to it.
-template <typename R, typename... Args>
+GMOCK_EXTERN_CXX_DECL template <typename R, typename... Args>
 class [[nodiscard]] Action<R(Args...)> {
  private:
   using F = R(Args...);
@@ -867,7 +1006,7 @@ class [[nodiscard]] Action<R(Args...)> {
 // MakePolymorphicAction(object) where object has type FooAction.  See
 // the definition of Return(void) and SetArgumentPointee<N>(value) for
 // complete examples.
-template <typename Impl>
+GMOCK_EXPORT template <typename Impl>
 class [[nodiscard]] PolymorphicAction {
  public:
   explicit PolymorphicAction(const Impl& impl) : impl_(impl) {}
@@ -899,7 +1038,7 @@ class [[nodiscard]] PolymorphicAction {
 
 // Creates an Action from its implementation and returns it.  The
 // created Action object owns the implementation.
-template <typename F>
+GMOCK_EXPORT template <typename F>
 Action<F> MakeAction(ActionInterface<F>* impl) {
   return Action<F>(impl);
 }
@@ -911,7 +1050,7 @@ Action<F> MakeAction(ActionInterface<F>* impl) {
 //   MakePolymorphicAction(foo);
 // vs
 //   PolymorphicAction<TypeOfFoo>(foo);
-template <typename Impl>
+GMOCK_EXPORT template <typename Impl>
 inline PolymorphicAction<Impl> MakePolymorphicAction(const Impl& impl) {
   return PolymorphicAction<Impl>(impl);
 }
@@ -920,14 +1059,14 @@ namespace internal {
 
 // Helper struct to specialize ReturnAction to execute a move instead of a copy
 // on return. Useful for move-only types, but could be used on any type.
-template <typename T>
+GMOCK_EXPORT template <typename T>
 struct ByMoveWrapper {
   explicit ByMoveWrapper(T value) : payload(std::move(value)) {}
   T payload;
 };
 
 // The general implementation of Return(R). Specializations follow below.
-template <typename R>
+GMOCK_EXPORT template <typename R>
 class [[nodiscard]] ReturnAction final {
  public:
   explicit ReturnAction(R value) : value_(std::move(value)) {}
@@ -1119,7 +1258,7 @@ class [[nodiscard]] ReturnAction<ByMoveWrapper<T>> final {
 };
 
 // Implements the ReturnNull() action.
-class [[nodiscard]] ReturnNullAction {
+GMOCK_EXPORT class [[nodiscard]] ReturnNullAction {
  public:
   // Allows ReturnNull() to be used in any pointer-returning function. In C++11
   // this is enforced by returning nullptr, and in non-C++11 by asserting a
@@ -1131,7 +1270,7 @@ class [[nodiscard]] ReturnNullAction {
 };
 
 // Implements the Return() action.
-class [[nodiscard]] ReturnVoidAction {
+GMOCK_EXPORT class [[nodiscard]] ReturnVoidAction {
  public:
   // Allows Return() to be used in any void-returning function.
   template <typename Result, typename ArgumentTuple>
@@ -1143,7 +1282,7 @@ class [[nodiscard]] ReturnVoidAction {
 // Implements the polymorphic ReturnRef(x) action, which can be used
 // in any function that returns a reference to the type of x,
 // regardless of the argument types.
-template <typename T>
+GMOCK_EXPORT template <typename T>
 class [[nodiscard]] ReturnRefAction {
  public:
   // Constructs a ReturnRefAction object from the reference to be returned.
@@ -1184,7 +1323,7 @@ class [[nodiscard]] ReturnRefAction {
 // Implements the polymorphic ReturnRefOfCopy(x) action, which can be
 // used in any function that returns a reference to the type of x,
 // regardless of the argument types.
-template <typename T>
+GMOCK_EXPORT template <typename T>
 class [[nodiscard]] ReturnRefOfCopyAction {
  public:
   // Constructs a ReturnRefOfCopyAction object from the reference to
@@ -1225,7 +1364,7 @@ class [[nodiscard]] ReturnRefOfCopyAction {
 
 // Implements the polymorphic ReturnRoundRobin(v) action, which can be
 // used in any function that returns the element_type of v.
-template <typename T>
+GMOCK_EXPORT template <typename T>
 class [[nodiscard]] ReturnRoundRobinAction {
  public:
   explicit ReturnRoundRobinAction(std::vector<T> values) {
@@ -1254,7 +1393,7 @@ class [[nodiscard]] ReturnRoundRobinAction {
 };
 
 // Implements the polymorphic DoDefault() action.
-class [[nodiscard]] DoDefaultAction {
+GMOCK_EXPORT class [[nodiscard]] DoDefaultAction {
  public:
   // This template type conversion operator allows DoDefault() to be
   // used in any function.
@@ -1266,7 +1405,7 @@ class [[nodiscard]] DoDefaultAction {
 
 // Implements the Assign action to set a given pointer referent to a
 // particular value.
-template <typename T1, typename T2>
+GMOCK_EXPORT template <typename T1, typename T2>
 class [[nodiscard]] AssignAction {
  public:
   AssignAction(T1* ptr, T2 value) : ptr_(ptr), value_(value) {}
@@ -1285,7 +1424,7 @@ class [[nodiscard]] AssignAction {
 
 // Implements the SetErrnoAndReturn action to simulate return from
 // various system calls and libc functions.
-template <typename T>
+GMOCK_EXPORT template <typename T>
 class [[nodiscard]] SetErrnoAndReturnAction {
  public:
   SetErrnoAndReturnAction(int errno_value, T result)
@@ -1305,7 +1444,7 @@ class [[nodiscard]] SetErrnoAndReturnAction {
 
 // Implements the SetArgumentPointee<N>(x) action for any function
 // whose N-th argument (0-based) is a pointer to x's type.
-template <size_t N, typename A, typename = void>
+GMOCK_EXPORT template <size_t N, typename A, typename = void>
 struct SetArgumentPointeeAction {
   A value;
 
@@ -1316,7 +1455,7 @@ struct SetArgumentPointeeAction {
 };
 
 // Implements the Invoke(object_ptr, &Class::Method) action.
-template <class Class, typename MethodPtr>
+GMOCK_EXPORT template <class Class, typename MethodPtr>
 struct InvokeMethodAction {
   Class* const obj_ptr;
   const MethodPtr method_ptr;
@@ -1329,7 +1468,7 @@ struct InvokeMethodAction {
 };
 
 // Implements the InvokeWithoutArgs(object_ptr, &Class::Method) action.
-template <class Class, typename MethodPtr>
+GMOCK_EXPORT template <class Class, typename MethodPtr>
 struct InvokeMethodWithoutArgsAction {
   Class* const obj_ptr;
   const MethodPtr method_ptr;
@@ -1344,7 +1483,7 @@ struct InvokeMethodWithoutArgsAction {
 };
 
 // Implements the IgnoreResult(action) action.
-template <typename A>
+GMOCK_EXPORT template <typename A>
 class IgnoreResultAction {
  public:
   explicit IgnoreResultAction(const A& action) : action_(action) {}
@@ -1393,7 +1532,7 @@ class IgnoreResultAction {
   const A action_;
 };
 
-template <typename InnerAction, size_t... I>
+GMOCK_EXPORT template <typename InnerAction, size_t... I>
 struct WithArgsAction {
   InnerAction inner_action;
 
@@ -1483,11 +1622,11 @@ struct WithArgsAction {
   }
 };
 
-template <typename... Actions>
+GMOCK_EXPORT GMOCK_EXTERN_CXX_DECL template <typename... Actions>
 class [[nodiscard]] DoAllAction;
 
 // Base case: only a single action.
-template <typename FinalAction>
+GMOCK_EXTERN_CXX_DECL template <typename FinalAction>
 class [[nodiscard]] DoAllAction<FinalAction> {
  public:
   struct UserConstructorTag {};
@@ -1541,7 +1680,7 @@ class [[nodiscard]] DoAllAction<FinalAction> {
 
 // Recursive case: support N actions by calling the initial action and then
 // calling through to the base class containing N-1 actions.
-template <typename InitialAction, typename... OtherActions>
+GMOCK_EXTERN_CXX_DECL template <typename InitialAction, typename... OtherActions>
 class [[nodiscard]] DoAllAction<InitialAction, OtherActions...>
     : private DoAllAction<OtherActions...> {
  private:
@@ -1696,7 +1835,7 @@ class [[nodiscard]] DoAllAction<InitialAction, OtherActions...>
   InitialAction initial_action_;
 };
 
-template <typename T, typename... Params>
+GMOCK_EXPORT template <typename T, typename... Params>
 struct ReturnNewAction {
   T* operator()() const {
     return internal::Apply(
@@ -1708,7 +1847,7 @@ struct ReturnNewAction {
   std::tuple<Params...> params;
 };
 
-template <size_t k>
+GMOCK_EXPORT template <size_t k>
 struct ReturnArgAction {
   template <typename... Args,
             typename = typename std::enable_if<(k < sizeof...(Args))>::type>
@@ -1718,7 +1857,7 @@ struct ReturnArgAction {
   }
 };
 
-template <size_t k, typename Ptr>
+GMOCK_EXPORT template <size_t k, typename Ptr>
 struct SaveArgAction {
   Ptr pointer;
 
@@ -1728,7 +1867,7 @@ struct SaveArgAction {
   }
 };
 
-template <size_t k, typename Ptr>
+GMOCK_EXPORT template <size_t k, typename Ptr>
 struct SaveArgByMoveAction {
   Ptr pointer;
 
@@ -1738,7 +1877,7 @@ struct SaveArgByMoveAction {
   }
 };
 
-template <size_t k, typename Ptr>
+GMOCK_EXPORT template <size_t k, typename Ptr>
 struct SaveArgPointeeAction {
   Ptr pointer;
 
@@ -1748,7 +1887,7 @@ struct SaveArgPointeeAction {
   }
 };
 
-template <size_t k, typename T>
+GMOCK_EXPORT template <size_t k, typename T>
 struct SetArgRefereeAction {
   T value;
 
@@ -1762,7 +1901,7 @@ struct SetArgRefereeAction {
   }
 };
 
-template <size_t k, typename I1, typename I2>
+GMOCK_EXPORT template <size_t k, typename I1, typename I2>
 struct SetArrayArgumentAction {
   I1 first;
   I2 last;
@@ -1776,7 +1915,7 @@ struct SetArrayArgumentAction {
   }
 };
 
-template <size_t k>
+GMOCK_EXPORT template <size_t k>
 class [[nodiscard]] DeleteArgAction {
  public:
   template <typename... Args>
@@ -1797,7 +1936,7 @@ class [[nodiscard]] DeleteArgAction {
   static void DoDelete(T&) {}
 };
 
-template <typename Ptr>
+GMOCK_EXPORT template <typename Ptr>
 struct ReturnPointeeAction {
   Ptr pointer;
   template <typename... Args>
@@ -1807,7 +1946,7 @@ struct ReturnPointeeAction {
 };
 
 #if GTEST_HAS_EXCEPTIONS
-template <typename T>
+GMOCK_EXPORT template <typename T>
 struct ThrowAction {
   T exception;
   // We use a conversion operator to adapt to any return type.
@@ -1817,7 +1956,7 @@ struct ThrowAction {
     return [copy](Args...) -> R { throw copy; };
   }
 };
-struct RethrowAction {
+GMOCK_EXPORT struct RethrowAction {
   std::exception_ptr exception;
   template <typename R, typename... Args>
   operator Action<R(Args...)>() const {  // NOLINT
@@ -1858,10 +1997,10 @@ struct RethrowAction {
 //   ...
 //   EXPECT_CALL(mock, Foo("abc", _, _)).WillOnce(Invoke(DistanceToOrigin));
 //   EXPECT_CALL(mock, Bar(5, _, _)).WillOnce(Invoke(DistanceToOrigin));
-typedef internal::IgnoredValue Unused;
+GMOCK_EXPORT typedef internal::IgnoredValue Unused;
 
 // Deprecated single-argument DoAll.
-template <typename Action>
+GMOCK_EXPORT template <typename Action>
 GTEST_INTERNAL_DEPRECATE_AND_INLINE("Avoid using DoAll() for single actions")
 typename std::decay<Action>::type DoAll(Action&& action) {
   return std::forward<Action>(action);
@@ -1870,7 +2009,7 @@ typename std::decay<Action>::type DoAll(Action&& action) {
 // Creates an action that does actions a1, a2, ..., sequentially in
 // each invocation. All but the last action will have a readonly view of the
 // arguments.
-template <typename... Action>
+GMOCK_EXPORT template <typename... Action>
 internal::DoAllAction<typename std::decay<Action>::type...> DoAll(
     Action&&... action) {
   return internal::DoAllAction<typename std::decay<Action>::type...>(
@@ -1882,7 +2021,7 @@ internal::DoAllAction<typename std::decay<Action>::type...> DoAll(
 // it.  It adapts an action accepting one argument to one that accepts
 // multiple arguments.  For convenience, we also provide
 // WithArgs<k>(an_action) (defined below) as a synonym.
-template <size_t k, typename InnerAction>
+GMOCK_EXPORT template <size_t k, typename InnerAction>
 internal::WithArgsAction<typename std::decay<InnerAction>::type, k> WithArg(
     InnerAction&& action) {
   return {std::forward<InnerAction>(action)};
@@ -1892,7 +2031,7 @@ internal::WithArgsAction<typename std::decay<InnerAction>::type, k> WithArg(
 // the selected arguments of the mock function to an_action and
 // performs it.  It serves as an adaptor between actions with
 // different argument lists.
-template <size_t k, size_t... ks, typename InnerAction>
+GMOCK_EXPORT template <size_t k, size_t... ks, typename InnerAction>
 internal::WithArgsAction<typename std::decay<InnerAction>::type, k, ks...>
 WithArgs(InnerAction&& action) {
   return {std::forward<InnerAction>(action)};
@@ -1902,7 +2041,7 @@ WithArgs(InnerAction&& action) {
 // non-empty argument list to perform inner_action, which takes no
 // argument.  In other words, it adapts an action accepting no
 // argument to one that accepts (and ignores) arguments.
-template <typename InnerAction>
+GMOCK_EXPORT template <typename InnerAction>
 internal::WithArgsAction<typename std::decay<InnerAction>::type> WithoutArgs(
     InnerAction&& action) {
   return {std::forward<InnerAction>(action)};
@@ -1932,35 +2071,35 @@ internal::WithArgsAction<typename std::decay<InnerAction>::type> WithoutArgs(
 //     const std::string_view result = mock.AsStdFunction()();
 //     EXPECT_EQ("taco", result);
 //
-template <typename R>
+GMOCK_EXPORT template <typename R>
 internal::ReturnAction<R> Return(R value) {
   return internal::ReturnAction<R>(std::move(value));
 }
 
 // Creates an action that returns NULL.
-inline PolymorphicAction<internal::ReturnNullAction> ReturnNull() {
+GMOCK_EXPORT inline PolymorphicAction<internal::ReturnNullAction> ReturnNull() {
   return MakePolymorphicAction(internal::ReturnNullAction());
 }
 
 // Creates an action that returns from a void function.
-inline PolymorphicAction<internal::ReturnVoidAction> Return() {
+GMOCK_EXPORT inline PolymorphicAction<internal::ReturnVoidAction> Return() {
   return MakePolymorphicAction(internal::ReturnVoidAction());
 }
 
 // Creates an action that returns the reference to a variable.
-template <typename R>
+GMOCK_EXPORT template <typename R>
 inline internal::ReturnRefAction<R> ReturnRef(R& x) {  // NOLINT
   return internal::ReturnRefAction<R>(x);
 }
 
 // Prevent using ReturnRef on reference to temporary.
-template <typename R, R* = nullptr>
+GMOCK_EXPORT template <typename R, R* = nullptr>
 internal::ReturnRefAction<R> ReturnRef(R&&) = delete;
 
 // Creates an action that returns the reference to a copy of the
 // argument.  The copy is created when the action is constructed and
 // lives as long as the action.
-template <typename R>
+GMOCK_EXPORT template <typename R>
 inline internal::ReturnRefOfCopyAction<R> ReturnRefOfCopy(const R& x) {
   return internal::ReturnRefOfCopyAction<R>(x);
 }
@@ -1971,7 +2110,7 @@ inline internal::ReturnRefOfCopyAction<R> ReturnRefOfCopy(const R& x) {
 // argument instead of a copy.
 // Return(ByMove()) actions can only be executed once and will assert this
 // invariant.
-template <typename R>
+GMOCK_EXPORT template <typename R>
 internal::ByMoveWrapper<R> ByMove(R x) {
   return internal::ByMoveWrapper<R>(std::move(x));
 }
@@ -1979,7 +2118,7 @@ internal::ByMoveWrapper<R> ByMove(R x) {
 // Creates an action that returns an element of `vals`. Calling this action will
 // repeatedly return the next value from `vals` until it reaches the end and
 // will restart from the beginning.
-template <typename T>
+GMOCK_EXPORT template <typename T>
 internal::ReturnRoundRobinAction<T> ReturnRoundRobin(std::vector<T> vals) {
   return internal::ReturnRoundRobinAction<T>(std::move(vals));
 }
@@ -1987,32 +2126,32 @@ internal::ReturnRoundRobinAction<T> ReturnRoundRobin(std::vector<T> vals) {
 // Creates an action that returns an element of `vals`. Calling this action will
 // repeatedly return the next value from `vals` until it reaches the end and
 // will restart from the beginning.
-template <typename T>
+GMOCK_EXPORT template <typename T>
 internal::ReturnRoundRobinAction<T> ReturnRoundRobin(
     std::initializer_list<T> vals) {
   return internal::ReturnRoundRobinAction<T>(std::vector<T>(vals));
 }
 
 // Creates an action that does the default action for the give mock function.
-inline internal::DoDefaultAction DoDefault() {
+GMOCK_EXPORT inline internal::DoDefaultAction DoDefault() {
   return internal::DoDefaultAction();
 }
 
 // Creates an action that sets the variable pointed by the N-th
 // (0-based) function argument to 'value'.
-template <size_t N, typename T>
+GMOCK_EXPORT template <size_t N, typename T>
 internal::SetArgumentPointeeAction<N, T> SetArgPointee(T value) {
   return {std::move(value)};
 }
 
 // The following version is DEPRECATED.
-template <size_t N, typename T>
+GMOCK_EXPORT template <size_t N, typename T>
 internal::SetArgumentPointeeAction<N, T> SetArgumentPointee(T value) {
   return {std::move(value)};
 }
 
 // Creates an action that sets a pointer referent to a given value.
-template <typename T1, typename T2>
+GMOCK_EXPORT template <typename T1, typename T2>
 PolymorphicAction<internal::AssignAction<T1, T2>> Assign(T1* ptr, T2 val) {
   return MakePolymorphicAction(internal::AssignAction<T1, T2>(ptr, val));
 }
@@ -2020,7 +2159,7 @@ PolymorphicAction<internal::AssignAction<T1, T2>> Assign(T1* ptr, T2 val) {
 #ifndef GTEST_OS_WINDOWS_MOBILE
 
 // Creates an action that sets errno and returns the appropriate error.
-template <typename T>
+GMOCK_EXPORT template <typename T>
 PolymorphicAction<internal::SetErrnoAndReturnAction<T>> SetErrnoAndReturn(
     int errval, T result) {
   return MakePolymorphicAction(
@@ -2033,7 +2172,7 @@ PolymorphicAction<internal::SetErrnoAndReturnAction<T>> SetErrnoAndReturn(
 
 // Legacy function.
 // This function exists for backwards compatibility.
-template <typename FunctionImpl>
+GMOCK_EXPORT template <typename FunctionImpl>
 GTEST_INTERNAL_DEPRECATE_AND_INLINE(
     "Actions can now be implicitly constructed from callables. No need to "
     "create wrapper objects using Invoke().")
@@ -2043,14 +2182,14 @@ typename std::decay<FunctionImpl>::type Invoke(FunctionImpl&& function_impl) {
 
 // Creates an action that invokes the given method on the given object
 // with the mock function's arguments.
-template <class Class, typename MethodPtr>
+GMOCK_EXPORT template <class Class, typename MethodPtr>
 internal::InvokeMethodAction<Class, MethodPtr> Invoke(Class* obj_ptr,
                                                       MethodPtr method_ptr) {
   return {obj_ptr, method_ptr};
 }
 
 // Creates an action that invokes 'function_impl' with no argument.
-template <typename FunctionImpl>
+GMOCK_EXPORT template <typename FunctionImpl>
 GTEST_INTERNAL_DEPRECATE_AND_INLINE(
     "Actions can now be implicitly constructed from zero-argument callables. "
     "No need to create wrapper objects using InvokeWithoutArgs().")
@@ -2060,7 +2199,7 @@ std::decay_t<FunctionImpl> InvokeWithoutArgs(FunctionImpl&& function_impl) {
 
 // Creates an action that invokes the given method on the given object
 // with no argument.
-template <class Class, typename MethodPtr>
+GMOCK_EXPORT template <class Class, typename MethodPtr>
 internal::InvokeMethodWithoutArgsAction<Class, MethodPtr> InvokeWithoutArgs(
     Class* obj_ptr, MethodPtr method_ptr) {
   return {obj_ptr, method_ptr};
@@ -2069,7 +2208,7 @@ internal::InvokeMethodWithoutArgsAction<Class, MethodPtr> InvokeWithoutArgs(
 // Creates an action that performs an_action and throws away its
 // result.  In other words, it changes the return type of an_action to
 // void.  an_action MUST NOT return void, or the code won't compile.
-template <typename A>
+GMOCK_EXPORT template <typename A>
 inline internal::IgnoreResultAction<A> IgnoreResult(const A& an_action) {
   return internal::IgnoreResultAction<A>(an_action);
 }
@@ -2084,7 +2223,7 @@ inline internal::IgnoreResultAction<A> IgnoreResult(const A& an_action) {
 //
 // N.B. ByRef is redundant with std::ref, std::cref and std::reference_wrapper.
 // However, it may still be used for consistency with ByMove().
-template <typename T>
+GMOCK_EXPORT template <typename T>
 inline ::std::reference_wrapper<T> ByRef(T& l_value) {  // NOLINT
   return ::std::reference_wrapper<T>(l_value);
 }
@@ -2092,42 +2231,42 @@ inline ::std::reference_wrapper<T> ByRef(T& l_value) {  // NOLINT
 // The ReturnNew<T>(a1, a2, ..., a_k) action returns a pointer to a new
 // instance of type T, constructed on the heap with constructor arguments
 // a1, a2, ..., and a_k. The caller assumes ownership of the returned value.
-template <typename T, typename... Params>
+GMOCK_EXPORT template <typename T, typename... Params>
 internal::ReturnNewAction<T, typename std::decay<Params>::type...> ReturnNew(
     Params&&... params) {
   return {std::forward_as_tuple(std::forward<Params>(params)...)};
 }
 
 // Action ReturnArg<k>() returns the k-th argument of the mock function.
-template <size_t k>
+GMOCK_EXPORT template <size_t k>
 internal::ReturnArgAction<k> ReturnArg() {
   return {};
 }
 
 // Action SaveArg<k>(pointer) saves the k-th (0-based) argument of the
 // mock function to *pointer.
-template <size_t k, typename Ptr>
+GMOCK_EXPORT template <size_t k, typename Ptr>
 internal::SaveArgAction<k, Ptr> SaveArg(Ptr pointer) {
   return {pointer};
 }
 
 // Action SaveArgByMove<k>(pointer) moves the k-th (0-based) argument of the
 // mock function into *pointer.
-template <size_t k, typename Ptr>
+GMOCK_EXPORT template <size_t k, typename Ptr>
 internal::SaveArgByMoveAction<k, Ptr> SaveArgByMove(Ptr pointer) {
   return {pointer};
 }
 
 // Action SaveArgPointee<k>(pointer) saves the value pointed to
 // by the k-th (0-based) argument of the mock function to *pointer.
-template <size_t k, typename Ptr>
+GMOCK_EXPORT template <size_t k, typename Ptr>
 internal::SaveArgPointeeAction<k, Ptr> SaveArgPointee(Ptr pointer) {
   return {pointer};
 }
 
 // Action SetArgReferee<k>(value) assigns 'value' to the variable
 // referenced by the k-th (0-based) argument of the mock function.
-template <size_t k, typename T>
+GMOCK_EXPORT template <size_t k, typename T>
 internal::SetArgRefereeAction<k, typename std::decay<T>::type> SetArgReferee(
     T&& value) {
   return {std::forward<T>(value)};
@@ -2138,7 +2277,7 @@ internal::SetArgRefereeAction<k, typename std::decay<T>::type> SetArgReferee(
 // (0-based) argument, which can be either a pointer or an
 // iterator. The action does not take ownership of the elements in the
 // source range.
-template <size_t k, typename I1, typename I2>
+GMOCK_EXPORT template <size_t k, typename I1, typename I2>
 internal::SetArrayArgumentAction<k, I1, I2> SetArrayArgument(I1 first,
                                                              I2 last) {
   return {first, last};
@@ -2146,13 +2285,13 @@ internal::SetArrayArgumentAction<k, I1, I2> SetArrayArgument(I1 first,
 
 // Action DeleteArg<k>() deletes the k-th (0-based) argument of the mock
 // function.
-template <size_t k>
+GMOCK_EXPORT template <size_t k>
 internal::DeleteArgAction<k> DeleteArg() {
   return {};
 }
 
 // This action returns the value pointed to by 'pointer'.
-template <typename Ptr>
+GMOCK_EXPORT template <typename Ptr>
 internal::ReturnPointeeAction<Ptr> ReturnPointee(Ptr pointer) {
   return {pointer};
 }
@@ -2162,7 +2301,7 @@ internal::ReturnPointeeAction<Ptr> ReturnPointee(Ptr pointer) {
 // to throw the given exception.  Any copyable value can be thrown,
 // except for std::exception_ptr, which is likely a mistake if
 // thrown directly.
-template <typename T>
+GMOCK_EXPORT template <typename T>
 typename std::enable_if<
     !std::is_base_of<std::exception_ptr, typename std::decay<T>::type>::value,
     internal::ThrowAction<typename std::decay<T>::type>>::type
@@ -2171,7 +2310,7 @@ Throw(T&& exception) {
 }
 // Action Rethrow(exception_ptr) can be used in a mock function of any type
 // to rethrow any exception_ptr. Note that the same object is thrown each time.
-inline internal::RethrowAction Rethrow(std::exception_ptr exception) {
+GMOCK_EXPORT inline internal::RethrowAction Rethrow(std::exception_ptr exception) {
   return {std::move(exception)};
 }
 #endif  // GTEST_HAS_EXCEPTIONS
@@ -2192,11 +2331,11 @@ namespace internal {
 // instead of testing::internal.  However, this is an INTERNAL TYPE
 // and subject to change without notice, so a user MUST NOT USE THIS
 // TYPE DIRECTLY.
-struct ExcessiveArg {};
+GMOCK_EXPORT struct ExcessiveArg {};
 
 // Builds an implementation of an Action<> for some particular signature, using
 // a class defined by an ACTION* macro.
-template <typename F, typename Impl>
+GMOCK_EXPORT GMOCK_EXTERN_CXX_DECL template <typename F, typename Impl>
 struct ActionImpl;
 
 template <typename Impl>
@@ -2210,7 +2349,7 @@ struct ImplBase {
                                          Impl, Holder>::type;
 };
 
-template <typename R, typename... Args, typename Impl>
+GMOCK_EXTERN_CXX_DECL template <typename R, typename... Args, typename Impl>
 struct ActionImpl<R(Args...), Impl> : ImplBase<Impl>::type {
   using Base = typename ImplBase<Impl>::type;
   using function_type = R(Args...);
@@ -2249,157 +2388,39 @@ struct ActionImpl<R(Args...), Impl> : ImplBase<Impl>::type {
 
 // Stores a default-constructed Impl as part of the Action<>'s
 // std::function<>. The Impl should be trivial to copy.
-template <typename F, typename Impl>
+GMOCK_EXPORT template <typename F, typename Impl>
 ::testing::Action<F> MakeAction() {
   return ::testing::Action<F>(ActionImpl<F, Impl>());
 }
 
 // Stores just the one given instance of Impl.
-template <typename F, typename Impl>
+GMOCK_EXPORT template <typename F, typename Impl>
 ::testing::Action<F> MakeAction(std::shared_ptr<Impl> impl) {
   return ::testing::Action<F>(ActionImpl<F, Impl>(std::move(impl)));
 }
 
-#define GMOCK_INTERNAL_ARG_UNUSED(i, data, el) \
-  , [[maybe_unused]] const arg##i##_type& arg##i
-#define GMOCK_ACTION_ARG_TYPES_AND_NAMES_UNUSED_          \
-  [[maybe_unused]] const args_type& args GMOCK_PP_REPEAT( \
-      GMOCK_INTERNAL_ARG_UNUSED, , 10)
 
-#define GMOCK_INTERNAL_ARG(i, data, el) , const arg##i##_type& arg##i
-#define GMOCK_ACTION_ARG_TYPES_AND_NAMES_ \
-  const args_type& args GMOCK_PP_REPEAT(GMOCK_INTERNAL_ARG, , 10)
 
-#define GMOCK_INTERNAL_TEMPLATE_ARG(i, data, el) , typename arg##i##_type
-#define GMOCK_ACTION_TEMPLATE_ARGS_NAMES_ \
-  GMOCK_PP_TAIL(GMOCK_PP_REPEAT(GMOCK_INTERNAL_TEMPLATE_ARG, , 10))
 
-#define GMOCK_INTERNAL_TYPENAME_PARAM(i, data, param) , typename param##_type
-#define GMOCK_ACTION_TYPENAME_PARAMS_(params) \
-  GMOCK_PP_TAIL(GMOCK_PP_FOR_EACH(GMOCK_INTERNAL_TYPENAME_PARAM, , params))
 
-#define GMOCK_INTERNAL_TYPE_PARAM(i, data, param) , param##_type
-#define GMOCK_ACTION_TYPE_PARAMS_(params) \
-  GMOCK_PP_TAIL(GMOCK_PP_FOR_EACH(GMOCK_INTERNAL_TYPE_PARAM, , params))
 
-#define GMOCK_INTERNAL_TYPE_GVALUE_PARAM(i, data, param) \
-  , param##_type gmock_p##i
-#define GMOCK_ACTION_TYPE_GVALUE_PARAMS_(params) \
-  GMOCK_PP_TAIL(GMOCK_PP_FOR_EACH(GMOCK_INTERNAL_TYPE_GVALUE_PARAM, , params))
 
-#define GMOCK_INTERNAL_GVALUE_PARAM(i, data, param) \
-  , std::forward<param##_type>(gmock_p##i)
-#define GMOCK_ACTION_GVALUE_PARAMS_(params) \
-  GMOCK_PP_TAIL(GMOCK_PP_FOR_EACH(GMOCK_INTERNAL_GVALUE_PARAM, , params))
 
-#define GMOCK_INTERNAL_INIT_PARAM(i, data, param) \
-  , param(::std::forward<param##_type>(gmock_p##i))
-#define GMOCK_ACTION_INIT_PARAMS_(params) \
-  GMOCK_PP_TAIL(GMOCK_PP_FOR_EACH(GMOCK_INTERNAL_INIT_PARAM, , params))
 
-#define GMOCK_INTERNAL_FIELD_PARAM(i, data, param) param##_type param;
-#define GMOCK_ACTION_FIELD_PARAMS_(params) \
-  GMOCK_PP_FOR_EACH(GMOCK_INTERNAL_FIELD_PARAM, , params)
 
-#define GMOCK_INTERNAL_ACTION(name, full_name, params)                         \
-  template <GMOCK_ACTION_TYPENAME_PARAMS_(params)>                             \
-  class full_name {                                                            \
-   public:                                                                     \
-    explicit full_name(GMOCK_ACTION_TYPE_GVALUE_PARAMS_(params))               \
-        : impl_(std::make_shared<gmock_Impl>(                                  \
-              GMOCK_ACTION_GVALUE_PARAMS_(params))) {}                         \
-    full_name(const full_name&) = default;                                     \
-    full_name(full_name&&) noexcept = default;                                 \
-    template <typename F>                                                      \
-    operator ::testing::Action<F>() const {                                    \
-      return ::testing::internal::MakeAction<F>(impl_);                        \
-    }                                                                          \
-                                                                               \
-   private:                                                                    \
-    class gmock_Impl {                                                         \
-     public:                                                                   \
-      explicit gmock_Impl(GMOCK_ACTION_TYPE_GVALUE_PARAMS_(params))            \
-          : GMOCK_ACTION_INIT_PARAMS_(params) {}                               \
-      template <typename function_type, typename return_type,                  \
-                typename args_type, GMOCK_ACTION_TEMPLATE_ARGS_NAMES_>         \
-      return_type gmock_PerformImpl(GMOCK_ACTION_ARG_TYPES_AND_NAMES_) const;  \
-      GMOCK_ACTION_FIELD_PARAMS_(params)                                       \
-    };                                                                         \
-    std::shared_ptr<const gmock_Impl> impl_;                                   \
-  };                                                                           \
-  template <GMOCK_ACTION_TYPENAME_PARAMS_(params)>                             \
-  [[nodiscard]] inline full_name<GMOCK_ACTION_TYPE_PARAMS_(params)> name(      \
-      GMOCK_ACTION_TYPE_GVALUE_PARAMS_(params));                               \
-  template <GMOCK_ACTION_TYPENAME_PARAMS_(params)>                             \
-  inline full_name<GMOCK_ACTION_TYPE_PARAMS_(params)> name(                    \
-      GMOCK_ACTION_TYPE_GVALUE_PARAMS_(params)) {                              \
-    return full_name<GMOCK_ACTION_TYPE_PARAMS_(params)>(                       \
-        GMOCK_ACTION_GVALUE_PARAMS_(params));                                  \
-  }                                                                            \
-  template <GMOCK_ACTION_TYPENAME_PARAMS_(params)>                             \
-  template <typename function_type, typename return_type, typename args_type,  \
-            GMOCK_ACTION_TEMPLATE_ARGS_NAMES_>                                 \
-  return_type                                                                  \
-  full_name<GMOCK_ACTION_TYPE_PARAMS_(params)>::gmock_Impl::gmock_PerformImpl( \
-      GMOCK_ACTION_ARG_TYPES_AND_NAMES_UNUSED_) const
 
 }  // namespace internal
 
-// Similar to GMOCK_INTERNAL_ACTION, but no bound parameters are stored.
-#define ACTION(name)                                                          \
-  class name##Action {                                                        \
-   public:                                                                    \
-    explicit name##Action() noexcept {}                                       \
-    name##Action(const name##Action&) noexcept {}                             \
-    template <typename F>                                                     \
-    operator ::testing::Action<F>() const {                                   \
-      return ::testing::internal::MakeAction<F, gmock_Impl>();                \
-    }                                                                         \
-                                                                              \
-   private:                                                                   \
-    class gmock_Impl {                                                        \
-     public:                                                                  \
-      template <typename function_type, typename return_type,                 \
-                typename args_type, GMOCK_ACTION_TEMPLATE_ARGS_NAMES_>        \
-      return_type gmock_PerformImpl(GMOCK_ACTION_ARG_TYPES_AND_NAMES_) const; \
-    };                                                                        \
-  };                                                                          \
-  [[nodiscard]] inline name##Action name();                                   \
-  inline name##Action name() { return name##Action(); }                       \
-  template <typename function_type, typename return_type, typename args_type, \
-            GMOCK_ACTION_TEMPLATE_ARGS_NAMES_>                                \
-  return_type name##Action::gmock_Impl::gmock_PerformImpl(                    \
-      GMOCK_ACTION_ARG_TYPES_AND_NAMES_UNUSED_) const
 
-#define ACTION_P(name, ...) \
-  GMOCK_INTERNAL_ACTION(name, name##ActionP, (__VA_ARGS__))
 
-#define ACTION_P2(name, ...) \
-  GMOCK_INTERNAL_ACTION(name, name##ActionP2, (__VA_ARGS__))
 
-#define ACTION_P3(name, ...) \
-  GMOCK_INTERNAL_ACTION(name, name##ActionP3, (__VA_ARGS__))
 
-#define ACTION_P4(name, ...) \
-  GMOCK_INTERNAL_ACTION(name, name##ActionP4, (__VA_ARGS__))
 
-#define ACTION_P5(name, ...) \
-  GMOCK_INTERNAL_ACTION(name, name##ActionP5, (__VA_ARGS__))
 
-#define ACTION_P6(name, ...) \
-  GMOCK_INTERNAL_ACTION(name, name##ActionP6, (__VA_ARGS__))
 
-#define ACTION_P7(name, ...) \
-  GMOCK_INTERNAL_ACTION(name, name##ActionP7, (__VA_ARGS__))
 
-#define ACTION_P8(name, ...) \
-  GMOCK_INTERNAL_ACTION(name, name##ActionP8, (__VA_ARGS__))
 
-#define ACTION_P9(name, ...) \
-  GMOCK_INTERNAL_ACTION(name, name##ActionP9, (__VA_ARGS__))
 
-#define ACTION_P10(name, ...) \
-  GMOCK_INTERNAL_ACTION(name, name##ActionP10, (__VA_ARGS__))
 
 }  // namespace testing
 

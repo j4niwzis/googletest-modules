@@ -30,23 +30,37 @@
 // This file tests the internal cross-platform support utilities.
 #include <stdio.h>
 
-#include "gtest/internal/gtest-port.h"
+#include <pthread.h>
+#include <stddef.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include <string.h>
+import std.compat;
+import gtest.internal.gtest_port;
+import gtest.gtest_spi;
+import gtest;
+import gtest.gtest_internal_inl;
+import gtest.gtest_assertion_result;
+import gtest.gtest_matchers;
+import gtest.gtest_message;
+import gtest.gtest_printers;
+import gtest.gtest_test_part;
+import gtest.internal.gtest_death_test_internal;
+import gtest.internal.gtest_filepath;
+import gtest.internal.gtest_internal;
+import gtest.internal.gtest_param_util;
+import gtest.internal.gtest_string;
+import gtest.internal.gtest_type_util;
+#include "gtest/internal/gtest-port-macros.h"
+#include "gtest/gtest-spi-macros.h"
+#include "gtest/gtest-macros.h"
+#include "gtest-internal-inl-macros.h"
 
 #ifdef GTEST_OS_MAC
 #include <time.h>
 #endif  // GTEST_OS_MAC
 
-#include <chrono>  // NOLINT
-#include <list>
-#include <memory>
-#include <string>
-#include <thread>   // NOLINT
-#include <utility>  // For std::pair and std::make_pair.
-#include <vector>
 
-#include "gtest/gtest-spi.h"
-#include "gtest/gtest.h"
-#include "src/gtest-internal-inl.h"
 
 using std::make_pair;
 using std::pair;
